@@ -6,8 +6,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import utility.APIUtils;
 
+/**
+ * This class handles the login functionality for the dashboard API.
+ * It provides methods to authenticate and retrieve seller information.
+ */
 public class APIDashboardLogin {
 
+    /**
+     * Represents the credentials used for logging into the dashboard.
+     */
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
@@ -16,6 +23,9 @@ public class APIDashboardLogin {
         private String password;
     }
 
+    /**
+     * Represents information about a seller retrieved after authentication.
+     */
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class SellerInformation {
@@ -32,7 +42,9 @@ public class APIDashboardLogin {
         private String refreshToken;
         private String accessToken;
 
-
+        /**
+         * Represents information about the store associated with the seller.
+         */
         @Data
         @JsonIgnoreProperties(ignoreUnknown = true)
         public static class Store {
@@ -42,6 +54,12 @@ public class APIDashboardLogin {
         }
     }
 
+    /**
+     * Retrieves seller information based on the provided credentials.
+     *
+     * @param credentials The {@link Credentials} used to authenticate the seller.
+     * @return A {@link SellerInformation} object containing details about the authenticated seller.
+     */
     public SellerInformation getSellerInformation(Credentials credentials) {
         return new APIUtils().login("/api/authenticate/store/email/gosell", credentials)
                 .then()
