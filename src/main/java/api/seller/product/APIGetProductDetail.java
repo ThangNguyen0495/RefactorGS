@@ -6,7 +6,6 @@ import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import utility.APIUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +48,8 @@ public class APIGetProductDetail {
         private int discount;
         private long newPrice;
         private ShippingInfo shippingInfo;
-        private boolean deleted = true;
-        private List<Model> models = new ArrayList<>();
+        private boolean deleted;
+        private List<Model> models;
         private boolean hasModel;
         private boolean showOutOfStock;
         private String seoTitle;
@@ -135,6 +134,7 @@ public class APIGetProductDetail {
             private String seoTitle;
             private String seoDescription;
             private String seoKeywords;
+            private String seoUrl;
         }
 
         @Data
