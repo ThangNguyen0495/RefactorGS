@@ -113,30 +113,77 @@ public class WebUtils {
     }
 
     /**
-     * Clicks on a WebElement located by the specified locator and index.
+     * Clicks on the web element located by the specified locator.
+     * The default behavior is to click the first element found.
+     * <p>
+     * This method highlights the element briefly by adding a red border around it,
+     * ensuring that it is visible and clickable before performing the click action.
+     * It handles stale element exceptions by retrying the element fetching process.
      *
-     * @param locator The By locator.
-     * @param index   The index of the element in the list.
+     * @param locator The By locator used to find the web element on the page.
      */
-    public void click(By locator, int index) {
-        WebElement element = retryOnStaleElement(() -> getElement(locator, index));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", element);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", element);
-        elementToBeClickable(locator, index).click();
+    public void click(By locator) {
+        click(locator, 0);
     }
 
     /**
-     * Clicks on a WebElement using JavaScript.
+     * Clicks on the web element located by the specified locator and index.
+     * This method is useful when there are multiple matching elements and
+     * a specific one needs to be clicked.
+     * <p>
+     * The method highlights the element by briefly adding a red border around it
+     * and ensures the element is clickable before clicking. It also retries fetching
+     * the element in case of stale element exceptions.
      *
-     * @param locator The By locator.
-     * @param index   The index of the element in the list.
+     * @param locator The By locator used to find the web element on the page.
+     * @param index   The index of the element if multiple elements match the locator.
+     *                Use 0 to click the first element.
+     */
+    public void click(By locator, int index) {
+        WebElement element = retryOnStaleElement(() -> getElement(locator, index));
+        // Highlight the element
+        ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", element);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", element);
+        // Ensure the element is clickable and click it
+        elementToBeClickable(locator, index).click();
+    }
+
+
+    /**
+     * Clicks on the web element located by the specified locator using JavaScript execution.
+     * The default behavior is to click the first element found.
+     * <p>
+     * This method highlights the element by briefly adding a red border around it,
+     * then performs the click action via JavaScript.
+     *
+     * @param locator The By locator used to find the web element on the page.
+     */
+    public void clickJS(By locator) {
+        clickJS(locator, 0);
+    }
+
+    /**
+     * Clicks on the web element located by the specified locator and index using JavaScript execution.
+     * This method is useful when there are multiple matching elements and a specific one needs to be clicked.
+     * <p>
+     * The method highlights the element by briefly adding a red border around it
+     * and then performs the click action using JavaScript. This can be useful in scenarios
+     * where traditional Selenium click actions may not work due to element overlays or other issues.
+     * It handles stale element exceptions by retrying the element fetching process.
+     *
+     * @param locator The By locator used to find the web element on the page.
+     * @param index   The index of the element if multiple elements match the locator.
+     *                Use 0 to click the first element.
      */
     public void clickJS(By locator, int index) {
         WebElement element = retryOnStaleElement(() -> getElement(locator, index));
+        // Highlight the element
         ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", element);
         ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", element);
+        // Perform click using JavaScript
         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
     }
+
 
     /**
      * Clicks outside of a text box to remove focus.
@@ -268,7 +315,7 @@ public class WebUtils {
      * @return The attribute value.
      */
     public String getAttribute(By locator, String attribute) {
-        return retryOnStaleElement(() -> getElement(locator).getAttribute(attribute));
+        return getAttribute(locator, 0, attribute);
     }
 
     /**

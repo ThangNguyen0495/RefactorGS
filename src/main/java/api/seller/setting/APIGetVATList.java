@@ -53,12 +53,37 @@ public class APIGetVATList {
     }
 
     /**
-     * Extracts VAT IDs from a list of VATInformation objects.
+     * Retrieves a list of VAT IDs from the provided list of VATInformation objects
+     * where the tax type is "SELL".
+     * <p>
+     * This method filters the VATInformation list, selecting only those entries
+     * with a tax type of "SELL", and then maps the filtered results to their respective IDs.
      *
-     * @param vatInfoList The list of VATInformation objects.
-     * @return A list of VAT IDs extracted from the VATInformation objects.
+     * @param vatInfoList The list of VATInformation objects to filter and map.
+     * @return A list of VAT IDs for VAT entries with a "SELL" tax type.
      */
     public static List<Integer> getVATIds(List<VATInformation> vatInfoList) {
-        return vatInfoList.stream().map(VATInformation::getId).toList();
+        return vatInfoList.stream()
+                .filter(vatInformation -> vatInformation.getTaxType().equals("SELL"))
+                .map(VATInformation::getId)
+                .toList();
     }
+
+    /**
+     * Retrieves a list of VAT names from the provided list of VATInformation objects
+     * where the tax type is "SELL".
+     * <p>
+     * This method filters the VATInformation list, selecting only those entries
+     * with a tax type of "SELL", and then maps the filtered results to their respective names.
+     *
+     * @param vatInfoList The list of VATInformation objects to filter and map.
+     * @return A list of VAT names for VAT entries with a "SELL" tax type.
+     */
+    public static List<String> getVATNames(List<VATInformation> vatInfoList) {
+        return vatInfoList.stream()
+                .filter(vatInformation -> vatInformation.getTaxType().equals("SELL"))
+                .map(VATInformation::getName)
+                .toList();
+    }
+
 }

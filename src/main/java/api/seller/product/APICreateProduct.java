@@ -2,7 +2,6 @@ package api.seller.product;
 
 import api.seller.login.APIDashboardLogin;
 import api.seller.setting.APIGetBranchList;
-import api.seller.setting.APIGetStoreLanguage;
 import api.seller.setting.APIGetVATList;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -16,7 +15,6 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
@@ -24,7 +22,6 @@ import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 
 public class APICreateProduct {
-
     // API endpoint for creating a product
     private static final String CREATE_PRODUCT_PATH = "/itemservice/api/items?fromSource=DASHBOARD";
     private static final long MAX_PRICE = 99999999999L;
@@ -53,9 +50,8 @@ public class APICreateProduct {
         loginInfo = new APIDashboardLogin().getSellerInformation(credentials);
         var vatInfoList = new APIGetVATList(credentials).getVATInformation();
         var branchInfoList = new APIGetBranchList(credentials).getBranchInformation();
-        var languageInfoList = new APIGetStoreLanguage(credentials).getStoreLanguageInformation();
 
-        defaultLanguage = APIGetStoreLanguage.getDefaultLanguageCode(languageInfoList);
+        defaultLanguage = loginInfo.getLangKey();
         vatIds = APIGetVATList.getVATIds(vatInfoList);
         branchIds = APIGetBranchList.getBranchIds(branchInfoList);
         branchNames = APIGetBranchList.getBranchNames(branchInfoList);
@@ -228,14 +224,14 @@ public class APICreateProduct {
                 .mapToObj(branchIndex -> new Inventory(branchIds.get(branchIndex),
                         branchTypes.get(branchIndex),
                         (!payload.isLotAvailable() && (branchStock.length > branchIndex)) ? branchStock[branchIndex] : 0))
-                .collect(Collectors.toList());
+                .toList();
         payload.setLstInventory(inventoryList);
 
         // Create item model codes based on inventory
         List<ItemModelCodeDTO> itemModelCodeDTOS = inventoryList.stream()
                 .flatMap(inventory -> IntStream.range(0, inventory.getInventoryStock())
                         .mapToObj(index -> new ItemModelCodeDTO(inventory.getBranchId(), branchNames.get(branchIds.indexOf(inventory.getBranchId())), "", index)))
-                .collect(Collectors.toList());
+                .toList();
         payload.setItemModelCodeDTOS(itemModelCodeDTOS);
 
         return payload;
@@ -259,14 +255,13 @@ public class APICreateProduct {
         payload.setName(productName);
 
         // Generate variation data
-        VariationUtils variationUtils = new VariationUtils();
-        Map<String, List<String>> variationMap = variationUtils.randomVariationMap(defaultLanguage);
+        Map<String, List<String>> variationMap = VariationUtils.randomVariationMap(defaultLanguage);
         String variationName = variationMap.keySet().toString().replaceAll("[\\[\\]\\s]", "").replaceAll(",", "|");
-        List<String> variationList = variationUtils.getVariationList(variationMap);
+        List<String> variationList = VariationUtils.getVariationList(variationMap);
 
         // Create models with variations
         List<Model> models = variationList.stream().map(variation -> createModel(variation, variationName, branchStock))
-                .collect(Collectors.toList());
+                .toList();
 
         payload.setModels(models);
 
@@ -291,13 +286,13 @@ public class APICreateProduct {
                 .mapToObj(branchIndex -> new Inventory(branchIds.get(branchIndex),
                         branchTypes.get(branchIndex),
                         (!payload.isLotAvailable() && (branchStock.length > branchIndex)) ? (branchStock[branchIndex]) : 0))
-                .collect(Collectors.toList());
+                .toList();
 
         // Create item model codes based on inventory
         List<ItemModelCodeDTO> itemModelCodeDTOS = inventoryList.stream()
                 .flatMap(inventory -> IntStream.range(0, inventory.getInventoryStock())
                         .mapToObj(index -> new ItemModelCodeDTO(inventory.getBranchId(), branchNames.get(branchIds.indexOf(inventory.getBranchId())), variation, index)))
-                .collect(Collectors.toList());
+                .toList();
 
         return new Model(variation, listingPrice, sellingPrice, variationName, inventoryList, itemModelCodeDTOS);
     }

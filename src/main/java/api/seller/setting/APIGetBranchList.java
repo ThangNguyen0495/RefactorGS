@@ -89,10 +89,38 @@ public class APIGetBranchList {
     /**
      * Extracts branch types from a list of BranchInformation objects.
      *
-     * @param branchInfoList The list of BranchInformation objects.
+     * @param branchInfoList The list of BranchInformation objects from which to extract branch types.
      * @return A list of branch types.
      */
     public static List<String> getBranchTypes(List<BranchInformation> branchInfoList) {
         return branchInfoList.stream().map(BranchInformation::getBranchType).toList();
+    }
+
+    /**
+     * Retrieves the names of branches that have a status of "ACTIVE"
+     * from a list of BranchInformation objects.
+     *
+     * @param branchInfoList The list of BranchInformation objects to filter active branches from.
+     * @return A list of names of branches that have a status of "ACTIVE".
+     */
+    public static List<String> getActiveBranchNames(List<BranchInformation> branchInfoList) {
+        return branchInfoList.stream()
+                .filter(branchInformation -> branchInformation.getBranchStatus().equals("ACTIVE"))
+                .map(BranchInformation::getName)
+                .toList();
+    }
+
+    /**
+     * Retrieves the IDs of branches that have a status of "ACTIVE"
+     * from a list of BranchInformation objects.
+     *
+     * @param branchInfoList The list of BranchInformation objects to filter active branches from.
+     * @return A list of IDs of branches that have a status of "ACTIVE".
+     */
+    public static List<Integer> getActiveBranchIds(List<BranchInformation> branchInfoList) {
+        return branchInfoList.stream()
+                .filter(branchInformation -> branchInformation.getBranchStatus().equals("ACTIVE"))
+                .map(BranchInformation::getId)
+                .toList();
     }
 }

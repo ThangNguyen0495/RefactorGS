@@ -6,6 +6,7 @@ import lombok.Data;
 import utility.APIUtils;
 
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * This class provides methods to retrieve and process store language information from the API.
@@ -52,16 +53,35 @@ public class APIGetStoreLanguage {
     }
 
     /**
-     * Retrieves the default language code from a list of LanguageInformation objects.
+     * Retrieves a list of specific language information (codes or names) from a list of {@link LanguageInformation}.
      *
-     * @param languageInfoList The list of LanguageInformation objects.
-     * @return The language code of the default language, or null if no default language is found.
+     * @param languageInfoList The list of language information from which to extract data.
+     * @param extractor        A function that extracts the required field from {@link LanguageInformation}.
+     * @return A list of extracted language information (e.g., codes or names).
      */
-    public static String getDefaultLanguageCode(List<LanguageInformation> languageInfoList) {
-        return languageInfoList.parallelStream()
-                .filter(LanguageInformation::getIsDefault)
-                .findAny()
-                .map(LanguageInformation::getLangCode)
-                .orElse(null);
+    public static List<String> getLanguageInfo(List<LanguageInformation> languageInfoList, Function<LanguageInformation, String> extractor) {
+        return languageInfoList.stream()
+                .map(extractor)
+                .toList();
+    }
+
+    /**
+     * Retrieves a list of all store language codes from a list of {@link LanguageInformation}.
+     *
+     * @param languageInfoList The list of language information.
+     * @return A list of language codes.
+     */
+    public static List<String> getAllStoreLanguageCodes(List<LanguageInformation> languageInfoList) {
+        return getLanguageInfo(languageInfoList, LanguageInformation::getLangCode);
+    }
+
+    /**
+     * Retrieves a list of all store language names from a list of {@link LanguageInformation}.
+     *
+     * @param languageInfoList The list of language information.
+     * @return A list of language names.
+     */
+    public static List<String> getAllStoreLanguageNames(List<LanguageInformation> languageInfoList) {
+        return getLanguageInfo(languageInfoList, LanguageInformation::getLangName);
     }
 }
