@@ -11,7 +11,7 @@ import static io.restassured.RestAssured.given;
 public class APIUtils {
 
     public APIUtils() {
-        RestAssured.proxy("localhost", 8888);
+//        RestAssured.proxy("localhost", 8888);
         RestAssured.baseURI = PropertiesUtils.getAPIHost();
     }
 

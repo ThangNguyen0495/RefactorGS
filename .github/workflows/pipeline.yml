@@ -43,7 +43,9 @@ jobs:
       - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
         with:
           test_name: "Dashboard-CreateProduct"
-          test_config: "test_config/web/dashboard/product/create_product.xml"
+          scripts: |
+            ./scripts/generate-config.sh
+            mvn test "-DsuiteFile=test_configs/web/create_product.xml"
 
 #  Dashboard-UpdateProduct:
 #    needs: Get-SourceCode
