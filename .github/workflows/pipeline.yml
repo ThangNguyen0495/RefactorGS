@@ -3,7 +3,7 @@ name: Pipeline
 on:
   push:
     branches:
-      - main
+      - Thang-Test
   schedule:
     - cron: '0 17 * * *'
   workflow_dispatch:
