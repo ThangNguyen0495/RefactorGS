@@ -17,8 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo "${env.API_HOST}"
-          echo" ${STAG.API_HOST}"
+            echo "${env.API_HOST}"
+            echo "${STAG.API_HOST}"
+
 #      - name: Checkout repository code
 #        uses: actions/checkout@v2
 #
