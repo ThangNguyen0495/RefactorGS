@@ -32,12 +32,12 @@ jobs:
           test_name: "Dashboard-CreateProduct"
           test_config: "test_config/web/dashboard/product/create_product.xml"
 
-    Dashboard-UpdateProduct:
-      needs: Get-SourceCode
-      runs-on: ubuntu-latest
-      steps:
-        - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
-          with:
-            artifact: "ClonedRepo"
-            test_name: "Dashboard-UpdateProduct"
-            test_config: "test_config/web/dashboard/product/update_product.xml"
+  Dashboard-UpdateProduct:
+    needs: Get-SourceCode
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+        with:
+          artifact: "ClonedRepo"
+          test_name: "Dashboard-UpdateProduct"
+          test_config: "test_config/web/dashboard/product/update_product.xml"
