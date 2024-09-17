@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="ProductUpdateSuite" parallel="tests" thread-count="4">
-
+<suite name="ProductUpdateSuite">
     <test name="Product Update Tests">
         <classes>
             <class name="UpdateProductTest">
-                <!-- G1: Normal product without variation -->
                 <methods>
                     <include name="UP_PRODUCT_G1_01_UpdateProductWithoutDimension"/>
                     <include name="UP_PRODUCT_G1_02_UpdateProductWitDimension"/>
@@ -28,9 +26,7 @@
                     <include name="UP_PRODUCT_G1_19_AddWholesaleProduct"/>
                     <include name="UP_PRODUCT_G1_20_AddConversionUnit"/>
                     <include name="UP_PRODUCT_G1_21_DeleteProduct"/>
-                </methods>
-                <!-- G2: IMEI product without variation -->
-                <methods>
+
                     <include name="UP_PRODUCT_G2_01_UpdateProductWithoutDimension"/>
                     <include name="UP_PRODUCT_G2_02_UpdateProductWitDimension"/>
                     <include name="UP_PRODUCT_G2_03_UpdateProductWithInStock"/>
@@ -49,9 +45,7 @@
                     <include name="UP_PRODUCT_G2_16_ChangeProductStatus"/>
                     <include name="UP_PRODUCT_G2_17_AddWholesaleProduct"/>
                     <include name="UP_PRODUCT_G2_18_DeleteProduct"/>
-                </methods>
-                <!-- G3: Normal product with variation -->
-                <methods>
+
                     <include name="UP_PRODUCT_G3_01_UpdateProductWithoutDimension"/>
                     <include name="UP_PRODUCT_G3_02_UpdateProductWitDimension"/>
                     <include name="UP_PRODUCT_G3_03_UpdateProductWithInStock"/>
@@ -75,9 +69,7 @@
                     <include name="UP_PRODUCT_G3_21_AddWholesaleProduct"/>
                     <include name="UP_PRODUCT_G3_22_AddConversionUnit"/>
                     <include name="UP_PRODUCT_G3_23_DeleteProduct"/>
-                </methods>
-                <!-- G4: IMEI product with variation -->
-                <methods>
+
                     <include name="UP_PRODUCT_G4_01_UpdateProductWithoutDimension"/>
                     <include name="UP_PRODUCT_G4_02_UpdateProductWitDimension"/>
                     <include name="UP_PRODUCT_G4_03_UpdateProductWithInStock"/>
@@ -102,5 +94,4 @@
             </class>
         </classes>
     </test>
-
 </suite>

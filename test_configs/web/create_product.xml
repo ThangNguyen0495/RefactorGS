@@ -4,7 +4,6 @@
     <test name="Product Creation Tests">
         <classes>
             <class name="CreateProductTest">
-                <!-- G1: Normal product without variation -->
                 <methods>
                     <include name="CR_PRODUCT_G1_01_CreateProductWithoutDimension"/>
                     <include name="CR_PRODUCT_G1_02_CreateProductWitDimension"/>
@@ -22,10 +21,7 @@
                     <include name="CR_PRODUCT_G1_14_CreateProductWithoutSEO"/>
                     <include name="CR_PRODUCT_G1_15_CreateProductWithManageByLotDate"/>
                     <include name="CR_PRODUCT_G1_16_CreateProductWithoutManageByLotDate"/>
-                </methods>
 
-                <!-- G2: IMEI product without variation -->
-                <methods>
                     <include name="CR_PRODUCT_G2_01_CreateProductWithoutDimension"/>
                     <include name="CR_PRODUCT_G2_02_CreateProductWitDimension"/>
                     <include name="CR_PRODUCT_G2_03_CreateProductWithInStock"/>
@@ -40,10 +36,7 @@
                     <include name="CR_PRODUCT_G2_12_CreateProductWithoutAttribution"/>
                     <include name="CR_PRODUCT_G2_13_CreateProductWithSEO"/>
                     <include name="CR_PRODUCT_G2_14_CreateProductWithoutSEO"/>
-                </methods>
 
-                <!-- G3: Normal product with variation -->
-                <methods>
                     <include name="CR_PRODUCT_G3_01_CreateProductWithoutDimension"/>
                     <include name="CR_PRODUCT_G3_02_CreateProductWitDimension"/>
                     <include name="CR_PRODUCT_G3_03_CreateProductWithInStock"/>
@@ -60,10 +53,7 @@
                     <include name="CR_PRODUCT_G3_14_CreateProductWithoutSEO"/>
                     <include name="CR_PRODUCT_G3_15_CreateProductWithManageByLotDate"/>
                     <include name="CR_PRODUCT_G3_16_CreateProductWithoutManageByLotDate"/>
-                </methods>
 
-                <!-- G4: IMEI product with variation -->
-                <methods>
                     <include name="CR_PRODUCT_G4_01_CreateProductWithoutDimension"/>
                     <include name="CR_PRODUCT_G4_02_CreateProductWitDimension"/>
                     <include name="CR_PRODUCT_G4_03_CreateProductWithInStock"/>
