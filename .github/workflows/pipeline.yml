@@ -33,7 +33,6 @@ jobs:
             mvn test "-DsuiteFile=test_configs/web/create_product.xml"
 
   Dashboard-UpdateProduct:
-    needs: Get-SourceCode
     runs-on: ubuntu-latest
     steps:
       - uses: ThangNguyen0495/Customs@fix1
