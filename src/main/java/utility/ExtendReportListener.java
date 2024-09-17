@@ -3,7 +3,6 @@ package utility;
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
-import lombok.SneakyThrows;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -15,9 +14,12 @@ public class ExtendReportListener implements ITestListener, ISuiteListener, IInv
     private ExtentReports extent;
     private ExtentTest test;
 
-    @SneakyThrows
     public WebDriver getDriver(ITestResult iTestResult) {
-        return (WebDriver) iTestResult.getTestClass().getRealClass().getField("driver").get(iTestResult.getInstance());
+        try {
+            return (WebDriver) iTestResult.getTestClass().getRealClass().getField("driver").get(iTestResult.getInstance());
+        } catch (IllegalAccessException | NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // Initialize ExtentReports before the suite starts
@@ -110,6 +112,7 @@ public class ExtendReportListener implements ITestListener, ISuiteListener, IInv
             String base64Image = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BASE64);
             test.addScreenCaptureFromBase64String(base64Image, "Failed Test Screenshot");
         }
+
     }
 
     @Override

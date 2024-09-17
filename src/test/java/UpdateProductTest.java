@@ -1,10 +1,7 @@
 import api.seller.login.APIDashboardLogin;
 import api.seller.product.APICreateProduct;
 import org.openqa.selenium.WebDriver;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeGroups;
-import org.testng.annotations.Listeners;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import pages.web.seller.login.LoginPage;
 import pages.web.seller.product.all_products.BaseProductPage;
 import utility.PropertiesUtils;
@@ -17,7 +14,7 @@ public class UpdateProductTest {
     APIDashboardLogin.Credentials credentials;
     BaseProductPage productPage;
     int productId;
-    WebDriver driver;
+    public WebDriver driver;
     APICreateProduct apiCreateProduct;
 
     @BeforeClass
@@ -37,6 +34,13 @@ public class UpdateProductTest {
 
         // init API
         apiCreateProduct = new api.seller.product.APICreateProduct(credentials);
+    }
+
+    @AfterClass
+    void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
     @BeforeGroups(groups = "[WEB][UPDATE] Normal product - Without variation")

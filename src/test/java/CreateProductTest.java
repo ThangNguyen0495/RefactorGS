@@ -1,5 +1,6 @@
 import api.seller.login.APIDashboardLogin;
 import org.openqa.selenium.WebDriver;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
@@ -12,7 +13,7 @@ import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 
 @Listeners(utility.ExtendReportListener.class)
 public class CreateProductTest {
-    WebDriver driver;
+    public WebDriver driver;
     APIDashboardLogin.Credentials credentials;
     BaseProductPage productPage;
 
@@ -29,6 +30,13 @@ public class CreateProductTest {
 
         // login to dashboard with login information
         new LoginPage(driver).loginDashboardByJs(credentials);
+    }
+
+    @AfterClass
+    void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
     //G1: Normal product without variation

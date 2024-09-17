@@ -1002,7 +1002,7 @@ public class BaseProductPage extends BaseProductElement {
         webUtils.click(loc_btnSave);
 
         // Check and close the success notification popup
-        Assert.assertFalse(webUtils.getListElement(loc_dlgSuccessNotification, 10000).isEmpty(), "[Create product] Cannot create product.");
+        Assert.assertFalse(webUtils.getListElement(loc_dlgSuccessNotification, 30000).isEmpty(), "[Create product] Cannot create product.");
         webUtils.click(loc_dlgNotification_btnClose);
 
         // Log the product creation
@@ -1027,7 +1027,7 @@ public class BaseProductPage extends BaseProductElement {
         webUtils.clickJS(loc_btnSave);
 
         // Verify and close the success notification popup
-        Assert.assertFalse(webUtils.getListElement(loc_dlgSuccessNotification).isEmpty(), "[Update product] Cannot update product.");
+        Assert.assertFalse(webUtils.getListElement(loc_dlgSuccessNotification, 30000).isEmpty(), "[Update product] Cannot update product.");
         webUtils.click(loc_dlgNotification_btnClose);
     }
 

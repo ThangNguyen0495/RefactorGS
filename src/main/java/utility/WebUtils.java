@@ -6,8 +6,10 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.StringUtils.trim;
 import static org.openqa.selenium.support.ui.ExpectedConditions.*;
@@ -149,16 +151,20 @@ public class WebUtils {
      *                Use 0 to click the first element.
      */
     public void click(By locator, int index) {
-        // Highlight the element by adding a red border
-        highlightElement(locator, index);
+        retryOnStaleElement( () -> {
+            // Highlight the element by adding a red border
+            highlightElement(locator, index);
 
-        // Ensure the element is clickable and perform the click
-        try {
-            elementToBeClickable(locator, index).click();
-        } catch (ElementClickInterceptedException e) {
-            // Handle cases where the element is intercepted by another element
-            clickJS(locator, index);
-        }
+            // Ensure the element is clickable and perform the click
+            try {
+                elementToBeClickable(locator, index).click();
+            } catch (ElementClickInterceptedException e) {
+                // Handle cases where the element is intercepted by another element
+                clickJS(locator, index);
+            }
+            return null;
+        });
+
     }
 
     /**
@@ -330,29 +336,35 @@ public class WebUtils {
     }
 
     /**
-     * Clears the text from an input field until it is empty.
+     * Clears the text from a web element specified by the given locator and index.
+     * This method sends a sequence of DELETE and BACK_SPACE keys to ensure the field is cleared.
+     * It retries up to a maximum number of attempts if the element is stale or not interactable.
      *
-     * @param locator The locator of the input field.
-     * @param index   The index of the element if there are multiple matching elements.
+     * @param locator the {@link By} locator used to find the web element
+     * @param index the index of the element to interact with, if multiple elements are matched
      */
     public void clear(By locator, int index) {
-        // Attempt to clear the field with a maximum of maxRetries attempts
-        for (int retriesIndex = 0; retriesIndex < 5; retriesIndex++) {
-            String currentText = getElement(locator, index).getText();
-            String currentValue = getValue(locator, index);
+        // Generate an array of CharSequence consisting of DELETE and BACK_SPACE keys repeated 100 times
+        CharSequence[] clearChars = IntStream.range(0, 100)
+                .mapToObj(_ -> List.of(Keys.DELETE, Keys.BACK_SPACE))
+                .flatMap(Collection::stream).toArray(CharSequence[]::new);
 
-            // If both currentText and currentValue are empty, break the loop
-            if (currentText.isEmpty() && (currentValue == null || currentValue.isEmpty())) {
+        // Retry up to 5 times to clear the field
+        for (int retriesIndex = 0; retriesIndex < 5; retriesIndex++) {
+            // Exit if the field is already empty
+            if (getElement(locator, index).getText().isEmpty() &&
+                (getValue(locator, index) == null || getValue(locator, index).isEmpty())) {
                 break;
             }
 
-            // Clear the text field by selecting all and deleting
+            // Attempt to clear the text field by sending keystrokes
             retryOnStaleElement(() -> {
-                getElement(locator, index).sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.BACK_SPACE);
+                getElement(locator, index).sendKeys(clearChars);
                 return null;
             });
         }
     }
+
 
 
     /**
