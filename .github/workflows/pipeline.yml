@@ -32,8 +32,10 @@ jobs:
             echo "SELLER_ACCOUNT=${{ secrets.SELLER_ACCOUNT }}" >> $GITHUB_ENV
             echo "SELLER_PASSWORD=${{ secrets.SELLER_PASSWORD }}" >> $GITHUB_ENV
             echo "HEADLESS=${{ secrets.HEADLESS }}" >> $GITHUB_ENV
-            chmod +x ./scripts/generate-config.sh
             ./scripts/generate-config.sh
+            cd ./src/main/resources
+            ls -al 
+          
             mvn test "-DsuiteFile=test_configs/web/create_product.xml"
 
 #  Dashboard-UpdateProduct:
