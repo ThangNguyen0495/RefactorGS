@@ -3,6 +3,7 @@ import api.seller.product.APICreateProduct;
 import org.openqa.selenium.WebDriver;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import pages.web.seller.login.LoginPage;
 import pages.web.seller.product.all_products.BaseProductPage;
@@ -11,6 +12,7 @@ import utility.WebDriverManager;
 
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 
+@Listeners(utility.ExtendReportListener.class)
 public class UpdateProductTest {
     APIDashboardLogin.Credentials credentials;
     BaseProductPage productPage;
