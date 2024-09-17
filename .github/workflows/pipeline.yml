@@ -18,20 +18,20 @@ jobs:
     steps:
       - name: Checkout repository code
         uses: actions/checkout@v2
-            
+
       - uses: ThangNguyen0495/Customs@fix1
         with:
           test_name: "Dashboard-CreateProduct"
           scripts: |
-            echo "API_HOST=${{ secrets.API_HOST }}" >> $GITHUB_ENV
-            echo "BROWSER=${{ secrets.BROWSER }}" >> $GITHUB_ENV
-            echo "DOMAIN=${{ secrets.DOMAIN }}" >> $GITHUB_ENV
-            echo "SF_ENDPOINT=${{ secrets.SF_ENDPOINT }}" >> $GITHUB_ENV
+            echo "API_HOST=$API_HOST" >> $GITHUB_ENV
+            echo "BROWSER=$BROWSER" >> $GITHUB_ENV
+            echo "DOMAIN=$DOMAIN" >> $GITHUB_ENV
+            echo "SF_ENDPOINT=$SF_ENDPOINT" >> $GITHUB_ENV
             echo "BUYER_ACCOUNT=${{ secrets.BUYER_ACCOUNT }}" >> $GITHUB_ENV
             echo "BUYER_PASSWORD=${{ secrets.BUYER_PASSWORD }}" >> $GITHUB_ENV
             echo "SELLER_ACCOUNT=${{ secrets.SELLER_ACCOUNT }}" >> $GITHUB_ENV
             echo "SELLER_PASSWORD=${{ secrets.SELLER_PASSWORD }}" >> $GITHUB_ENV
-            echo "HEADLESS=${{ secrets.HEADLESS }}" >> $GITHUB_ENV
+            echo "HEADLESS=$HEADLESS" >> $GITHUB_ENV
             chmod +x ./scripts/generate-config.sh
             ./scripts/generate-config.sh
             mvn test "-DsuiteFile=test_configs/web/create_product.xml"
