@@ -22,7 +22,7 @@ import java.net.URISyntaxException;
  * for browser and mobile testing.
  */
 public class WebDriverManager {
-    private final String url = "http://127.0.0.1:4723/wd/hub";
+    private final String url = "http://127.0.0.1:%s/wd/hub".formatted(System.getProperty("appiumPort"));
 
     /**
      * Initializes and returns an AndroidDriver instance.
