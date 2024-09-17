@@ -16,6 +16,9 @@ jobs:
   Dashboard-CreateProduct:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v2
+
       - name: Set up environment variables
         run: |
           echo "API_HOST=${{ secrets.API_HOST }}" >> $GITHUB_ENV
