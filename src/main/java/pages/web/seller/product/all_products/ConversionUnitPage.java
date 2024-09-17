@@ -1,4 +1,4 @@
-package pages.web.seller.product.all_products.crud.conversion_unit;
+package pages.web.seller.product.all_products;
 
 import api.seller.login.APIDashboardLogin;
 import api.seller.product.APICreateConversionUnit;
@@ -23,7 +23,7 @@ public class ConversionUnitPage {
     private static final long MAX_PRICE = 99999999999L;
     private final WebUtils webUtils;
     private final APIDashboardLogin.Credentials credentials;
-    private final Logger logger = LogManager.getLogger(ConversionUnitPage.class);
+    private final Logger logger = LogManager.getLogger();
     private final APIGetProductDetail.ProductInformation productInfo;
     List<String> variationList;
     private final List<APIGetConversionUnitList.UnitInformation> unitInfoList;

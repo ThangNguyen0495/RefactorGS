@@ -120,20 +120,6 @@
                     </suiteXmlFiles>
                     <systemPropertyVariables>
                         <!--suppress UnresolvedMavenProperty -->
-                        <env>${env}</env>
-                        <!--suppress UnresolvedMavenProperty -->
-                        <browserName>${browserName}</browserName>
-                        <!--suppress UnresolvedMavenProperty -->
-                        <headless>${headlessMode}</headless>
-                        <!--suppress UnresolvedMavenProperty -->
-                        <adminUser>${adminUser}</adminUser>
-                        <!--suppress UnresolvedMavenProperty -->
-                        <adminPass>${adminPass}</adminPass>
-                        <!--suppress UnresolvedMavenProperty -->
-                        <buyerUser>${buyerUser}</buyerUser>
-                        <!--suppress UnresolvedMavenProperty -->
-                        <buyerPass>${buyerPass}</buyerPass>
-                        <!--suppress UnresolvedMavenProperty -->
                         <udidAndroid>${udidAndroid}</udidAndroid>
                         <!--suppress UnresolvedMavenProperty -->
                         <appiumPort>${appiumPort}</appiumPort>

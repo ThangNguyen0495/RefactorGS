@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="ProductUpdateSuite" parallel="tests" thread-count="4">
+
+    <test name="Product Update Tests">
+        <classes>
+            <class name="UpdateProductTest">
+                <!-- G1: Normal product without variation -->
+                <methods>
+                    <include name="UP_PRODUCT_G1_01_UpdateProductWithoutDimension"/>
+                    <include name="UP_PRODUCT_G1_02_UpdateProductWitDimension"/>
+                    <include name="UP_PRODUCT_G1_03_UpdateProductWithInStock"/>
+                    <include name="UP_PRODUCT_G1_04_UpdateProductWithOutOfStock"/>
+                    <include name="UP_PRODUCT_G1_05_UpdateProductWithDiscountPrice"/>
+                    <include name="UP_PRODUCT_G1_06_UpdateProductWithoutDiscountPrice"/>
+                    <include name="UP_PRODUCT_G1_07_UpdateProductWithoutCostPrice"/>
+                    <include name="UP_PRODUCT_G1_08_UpdateProductWithCostPrice"/>
+                    <include name="UP_PRODUCT_G1_09_UpdateProductWithNonePlatform"/>
+                    <include name="UP_PRODUCT_G1_10_UpdateProductWithAnyPlatform"/>
+                    <include name="UP_PRODUCT_G1_11_UpdateProductWithAttribution"/>
+                    <include name="UP_PRODUCT_G1_12_UpdateProductWithoutAttribution"/>
+                    <include name="UP_PRODUCT_G1_13_UpdateProductWithSEO"/>
+                    <include name="UP_PRODUCT_G1_14_UpdateProductWithoutSEO"/>
+                    <include name="UP_PRODUCT_G1_15_UpdateProductWithoutManageByLotDate"/>
+                    <include name="UP_PRODUCT_G1_16_UpdateProductWithManageByLotDate"/>
+                    <include name="UP_PRODUCT_G1_17_EditTranslation"/>
+                    <include name="UP_PRODUCT_G1_18_ChangeProductStatus"/>
+                    <include name="UP_PRODUCT_G1_19_AddWholesaleProduct"/>
+                    <include name="UP_PRODUCT_G1_20_AddConversionUnit"/>
+                    <include name="UP_PRODUCT_G1_21_DeleteProduct"/>
+                </methods>
+                <!-- G2: IMEI product without variation -->
+                <methods>
+                    <include name="UP_PRODUCT_G2_01_UpdateProductWithoutDimension"/>
+                    <include name="UP_PRODUCT_G2_02_UpdateProductWitDimension"/>
+                    <include name="UP_PRODUCT_G2_03_UpdateProductWithInStock"/>
+                    <include name="UP_PRODUCT_G2_04_UpdateProductWithOutOfStock"/>
+                    <include name="UP_PRODUCT_G2_05_UpdateProductWithDiscountPrice"/>
+                    <include name="UP_PRODUCT_G2_06_UpdateProductWithoutDiscountPrice"/>
+                    <include name="UP_PRODUCT_G2_07_UpdateProductWithoutCostPrice"/>
+                    <include name="UP_PRODUCT_G2_08_UpdateProductWithCostPrice"/>
+                    <include name="UP_PRODUCT_G2_09_UpdateProductWithNonePlatform"/>
+                    <include name="UP_PRODUCT_G2_10_UpdateProductWithAnyPlatform"/>
+                    <include name="UP_PRODUCT_G2_11_UpdateProductWithAttribution"/>
+                    <include name="UP_PRODUCT_G2_12_UpdateProductWithoutAttribution"/>
+                    <include name="UP_PRODUCT_G2_13_UpdateProductWithSEO"/>
+                    <include name="UP_PRODUCT_G2_14_UpdateProductWithoutSEO"/>
+                    <include name="UP_PRODUCT_G2_15_EditTranslation"/>
+                    <include name="UP_PRODUCT_G2_16_ChangeProductStatus"/>
+                    <include name="UP_PRODUCT_G2_17_AddWholesaleProduct"/>
+                    <include name="UP_PRODUCT_G2_18_DeleteProduct"/>
+                </methods>
+                <!-- G3: Normal product with variation -->
+                <methods>
+                    <include name="UP_PRODUCT_G3_01_UpdateProductWithoutDimension"/>
+                    <include name="UP_PRODUCT_G3_02_UpdateProductWitDimension"/>
+                    <include name="UP_PRODUCT_G3_03_UpdateProductWithInStock"/>
+                    <include name="UP_PRODUCT_G3_04_UpdateProductWithOutOfStock"/>
+                    <include name="UP_PRODUCT_G3_05_UpdateProductWithDiscountPrice"/>
+                    <include name="UP_PRODUCT_G3_06_UpdateProductWithoutDiscountPrice"/>
+                    <include name="UP_PRODUCT_G3_07_UpdateProductWithoutCostPrice"/>
+                    <include name="UP_PRODUCT_G3_08_UpdateProductWithCostPrice"/>
+                    <include name="UP_PRODUCT_G3_09_UpdateProductWithNonePlatform"/>
+                    <include name="UP_PRODUCT_G3_10_UpdateProductWithAnyPlatform"/>
+                    <include name="UP_PRODUCT_G3_11_UpdateProductWithAttribution"/>
+                    <include name="UP_PRODUCT_G3_12_UpdateProductWithoutAttribution"/>
+                    <include name="UP_PRODUCT_G3_13_UpdateProductWithSEO"/>
+                    <include name="UP_PRODUCT_G3_14_UpdateProductWithoutSEO"/>
+                    <include name="UP_PRODUCT_G3_15_UpdateProductWithoutManageByLotDate"/>
+                    <include name="UP_PRODUCT_G3_16_UpdateProductWithManageByLotDate"/>
+                    <include name="UP_PRODUCT_G3_17_EditTranslationForMainProduct"/>
+                    <include name="UP_PRODUCT_G3_18_EditTranslationForEachVariation"/>
+                    <include name="UP_PRODUCT_G3_19_ChangeProductStatus"/>
+                    <include name="UP_PRODUCT_G3_20_ChangeVariationStatus"/>
+                    <include name="UP_PRODUCT_G3_21_AddWholesaleProduct"/>
+                    <include name="UP_PRODUCT_G3_22_AddConversionUnit"/>
+                    <include name="UP_PRODUCT_G3_23_DeleteProduct"/>
+                </methods>
+                <!-- G4: IMEI product with variation -->
+                <methods>
+                    <include name="UP_PRODUCT_G4_01_UpdateProductWithoutDimension"/>
+                    <include name="UP_PRODUCT_G4_02_UpdateProductWitDimension"/>
+                    <include name="UP_PRODUCT_G4_03_UpdateProductWithInStock"/>
+                    <include name="UP_PRODUCT_G4_04_UpdateProductWithOutOfStock"/>
+                    <include name="UP_PRODUCT_G4_05_UpdateProductWithDiscountPrice"/>
+                    <include name="UP_PRODUCT_G4_06_UpdateProductWithoutDiscountPrice"/>
+                    <include name="UP_PRODUCT_G4_07_UpdateProductWithoutCostPrice"/>
+                    <include name="UP_PRODUCT_G4_08_UpdateProductWithCostPrice"/>
+                    <include name="UP_PRODUCT_G4_09_UpdateProductWithNonePlatform"/>
+                    <include name="UP_PRODUCT_G4_10_UpdateProductWithAnyPlatform"/>
+                    <include name="UP_PRODUCT_G4_11_UpdateProductWithAttribution"/>
+                    <include name="UP_PRODUCT_G4_12_UpdateProductWithoutAttribution"/>
+                    <include name="UP_PRODUCT_G4_13_UpdateProductWithSEO"/>
+                    <include name="UP_PRODUCT_G4_14_UpdateProductWithoutSEO"/>
+                    <include name="UP_PRODUCT_G4_15_EditTranslationForMainProduct"/>
+                    <include name="UP_PRODUCT_G4_16_EditTranslationForEachVariation"/>
+                    <include name="UP_PRODUCT_G4_17_ChangeProductStatus"/>
+                    <include name="UP_PRODUCT_G4_18_ChangeVariationStatus"/>
+                    <include name="UP_PRODUCT_G4_19_AddWholesaleProduct"/>
+                    <include name="UP_PRODUCT_G4_20_DeleteProduct"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+
+</suite>

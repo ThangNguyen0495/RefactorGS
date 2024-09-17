@@ -1,13 +1,15 @@
-package pages.web.seller.product.all_products.crud.variation_detail;
+package pages.web.seller.product.all_products;
 
 import api.seller.login.APIDashboardLogin;
 import api.seller.product.APIGetProductDetail;
+import api.seller.setting.APIGetStoreDefaultLanguage;
 import api.seller.setting.APIGetStoreLanguage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
+import utility.PropertiesUtils;
 import utility.WebUtils;
 
 import java.time.Instant;
@@ -77,7 +79,7 @@ public class VariationDetailPage {
         this.varIndex = varIndex;
         this.productInfo = productInfo;
         this.webUtils = new WebUtils(driver);
-        this.defaultLanguage = new APIDashboardLogin().getSellerInformation(credentials).getLangKey();
+        this.defaultLanguage = new APIGetStoreDefaultLanguage(credentials).getDefaultLanguage();
         this.languageInfoList = new APIGetStoreLanguage(credentials).getStoreLanguageInformation();
         this.variation = APIGetProductDetail.getVariationValue(productInfo, defaultLanguage, varIndex);
     }
@@ -110,7 +112,7 @@ public class VariationDetailPage {
      * Navigates to the Variation Detail page for the current product variation.
      */
     private void navigateToVariationDetailPage() {
-        String url = "%s/product/%s/variation-detail/%s/edit".formatted(System.getProperty("domain"), productInfo.getId(), APIGetProductDetail.getVariationModelId(productInfo, varIndex));
+        String url = "%s/product/%s/variation-detail/%s/edit".formatted(PropertiesUtils.getDomain(), productInfo.getId(), APIGetProductDetail.getVariationModelId(productInfo, varIndex));
         driver.get(url);
     }
 

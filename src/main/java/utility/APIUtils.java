@@ -12,7 +12,7 @@ public class APIUtils {
 
     public APIUtils() {
         RestAssured.proxy("localhost", 8888);
-        RestAssured.baseURI = "https://api.beecow.info";
+        RestAssured.baseURI = PropertiesUtils.getAPIHost();
     }
 
     /**

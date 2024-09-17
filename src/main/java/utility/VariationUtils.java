@@ -9,8 +9,8 @@ import static org.apache.commons.lang.math.RandomUtils.nextInt;
 public class VariationUtils {
 
     private static final int MAX_VARIATION_QUANTITY = 2;
-    private static final int MAX_VARIATION_QUANTITY_FOR_EACH_VARIATION = 20;
-    private static final int MAX_VARIATION_QUANTITY_FOR_ALL_VARIATIONS = 50;
+    private static final int MAX_VARIATION_QUANTITY_FOR_EACH_VARIATION = 5;
+    private static final int MAX_VARIATION_QUANTITY_FOR_ALL_VARIATIONS = 10;
 
     /**
      * Generates a list of variation values based on the default language, index, and size.
@@ -69,41 +69,60 @@ public class VariationUtils {
     }
 
     /**
-     * Creates a variation name string from the keys of the variation map with a specified language prefix.
+     * Retrieves a variation group name string from the keys of the variation map.
+     * Assumes the map has at least one and at most two keys.
+     *
+     * @param variationMap A map where the keys represent variation names.
+     * @return A string combining the variation names, separated by a pipe if there are two.
      */
-    public static String getVariationName(Map<String, List<String>> variationMap, String language) {
+    public static String getVariationName(Map<String, List<String>> variationMap) {
         List<String> varNames = new ArrayList<>(variationMap.keySet());
-        return varNames.stream()
-                .collect(Collectors.joining("|", String.format("%s_%s", language, varNames.getFirst()), ""));
+        return String.join("|", varNames);
     }
 
     /**
-     * Generates a combined variation list with values prefixed by the specified language.
-     */
-    public static List<String> getVariationList(Map<String, List<String>> variationMap, String language) {
-        List<List<String>> varValues = new ArrayList<>(variationMap.values());
-        List<String> variationList = varValues.getFirst().stream()
-                .map(value -> String.format("%s_%s", language, value))
-                .toList();
-
-        for (int i = 1; i < varValues.size(); i++) {
-            variationList = mixVariationValue(variationList, varValues.get(i));
-        }
-
-        return variationList;
-    }
-
-    /**
-     * Generates a combined variation list without a language prefix.
+     * Retrieves a list of variation values from the values of the variation map.
+     * If the map has multiple value lists, combines them; otherwise, returns the single list.
+     *
+     * @param variationMap A map where the values are lists of variation values.
+     * @return A list of combined variation values if multiple lists are present, otherwise the single list.
      */
     public static List<String> getVariationList(Map<String, List<String>> variationMap) {
         List<List<String>> varValues = new ArrayList<>(variationMap.values());
-        List<String> variationList = new ArrayList<>(varValues.getFirst());
+        return (varValues.size() > 1) ? mixVariationValue(varValues.getFirst(), varValues.getLast()) : varValues.getFirst();
+    }
 
-        for (int i = 1; i < varValues.size(); i++) {
-            variationList = mixVariationValue(variationList, varValues.get(i));
+
+    /**
+     * Generates a map of variation groups and their corresponding values.
+     * If there is only one group, it directly maps the group to its list of values.
+     * Otherwise, it splits both the group and values by '|' and constructs a map
+     * where each group name is associated with its respective values.
+     *
+     * @param group  A string representing variation groups, separated by '|'.
+     * @param values A list of values corresponding to the groups, where each value
+     *               contains '|' to represent individual group values.
+     * @return A map where the keys are group names and the values are lists of corresponding values.
+     */
+    public static Map<String, List<String>> getVariationMap(String group, List<String> values) {
+        String[] groupArray = group.split("\\|");
+        int numberOfGroups = groupArray.length;
+
+        // If there is only one group, return a simple map
+        if (numberOfGroups == 1) {
+            return Map.of(group, values);
         }
 
-        return variationList;
+        // For multiple groups, split values and map to respective group names
+        return IntStream.range(0, numberOfGroups)
+                .boxed()
+                .collect(Collectors.toMap(
+                        groupIndex -> groupArray[groupIndex],
+                        groupIndex -> values.stream()
+                                .map(value -> value.split("\\|")[groupIndex])
+                                .distinct()
+                                .toList(),
+                        (_, b) -> b, TreeMap::new
+                ));
     }
 }

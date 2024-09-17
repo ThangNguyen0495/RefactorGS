@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Product Creation Test Suite">
+    <test name="Product Creation Tests">
+        <classes>
+            <class name="CreateProductTest">
+                <!-- G1: Normal product without variation -->
+<!--                <methods>-->
+<!--                    <include name="CR_PRODUCT_G1_01_CreateProductWithoutDimension"/>-->
+<!--                    <include name="CR_PRODUCT_G1_02_CreateProductWitDimension"/>-->
+<!--                    <include name="CR_PRODUCT_G1_03_CreateProductWithInStock"/>-->
+<!--                    <include name="CR_PRODUCT_G1_04_CreateProductWithOutOfStock"/>-->
+<!--                    <include name="CR_PRODUCT_G1_05_CreateProductWithDiscountPrice"/>-->
+<!--                    <include name="CR_PRODUCT_G1_06_CreateProductWithoutDiscountPrice"/>-->
+<!--                    <include name="CR_PRODUCT_G1_07_CreateProductWithoutCostPrice"/>-->
+<!--                    <include name="CR_PRODUCT_G1_08_CreateProductWithCostPrice"/>-->
+<!--                    <include name="CR_PRODUCT_G1_09_CreateProductWithNonePlatform"/>-->
+<!--                    <include name="CR_PRODUCT_G1_10_CreateProductWithAnyPlatform"/>-->
+<!--                    <include name="CR_PRODUCT_G1_11_CreateProductWithAttribution"/>-->
+<!--                    <include name="CR_PRODUCT_G1_12_CreateProductWithoutAttribution"/>-->
+<!--                    <include name="CR_PRODUCT_G1_13_CreateProductWithSEO"/>-->
+<!--                    <include name="CR_PRODUCT_G1_14_CreateProductWithoutSEO"/>-->
+<!--                    <include name="CR_PRODUCT_G1_15_CreateProductWithManageByLotDate"/>-->
+<!--                    <include name="CR_PRODUCT_G1_16_CreateProductWithoutManageByLotDate"/>-->
+<!--                </methods>-->
+
+                <!-- G2: IMEI product without variation -->
+<!--                <methods>-->
+<!--                    <include name="CR_PRODUCT_G2_01_CreateProductWithoutDimension"/>-->
+<!--                    <include name="CR_PRODUCT_G2_02_CreateProductWitDimension"/>-->
+<!--                    <include name="CR_PRODUCT_G2_03_CreateProductWithInStock"/>-->
+<!--                    <include name="CR_PRODUCT_G2_04_CreateProductWithOutOfStock"/>-->
+<!--                    <include name="CR_PRODUCT_G2_05_CreateProductWithDiscountPrice"/>-->
+<!--                    <include name="CR_PRODUCT_G2_06_CreateProductWithoutDiscountPrice"/>-->
+<!--                    <include name="CR_PRODUCT_G2_07_CreateProductWithoutCostPrice"/>-->
+<!--                    <include name="CR_PRODUCT_G2_08_CreateProductWithCostPrice"/>-->
+<!--                    <include name="CR_PRODUCT_G2_09_CreateProductWithNonePlatform"/>-->
+<!--                    <include name="CR_PRODUCT_G2_10_CreateProductWithAnyPlatform"/>-->
+<!--                    <include name="CR_PRODUCT_G2_11_CreateProductWithAttribution"/>-->
+<!--                    <include name="CR_PRODUCT_G2_12_CreateProductWithoutAttribution"/>-->
+<!--                    <include name="CR_PRODUCT_G2_13_CreateProductWithSEO"/>-->
+<!--                    <include name="CR_PRODUCT_G2_14_CreateProductWithoutSEO"/>-->
+<!--                </methods>-->
+
+                <!-- G3: Normal product with variation -->
+                <methods>
+                    <include name="CR_PRODUCT_G3_01_CreateProductWithoutDimension"/>
+                    <include name="CR_PRODUCT_G3_02_CreateProductWitDimension"/>
+                    <include name="CR_PRODUCT_G3_03_CreateProductWithInStock"/>
+                    <include name="CR_PRODUCT_G3_04_CreateProductWithOutOfStock"/>
+                    <include name="CR_PRODUCT_G3_05_CreateProductWithDiscountPrice"/>
+                    <include name="CR_PRODUCT_G3_06_CreateProductWithoutDiscountPrice"/>
+                    <include name="CR_PRODUCT_G3_07_CreateProductWithoutCostPrice"/>
+                    <include name="CR_PRODUCT_G3_08_CreateProductWithCostPrice"/>
+                    <include name="CR_PRODUCT_G3_09_CreateProductWithNonePlatform"/>
+                    <include name="CR_PRODUCT_G3_10_CreateProductWithAnyPlatform"/>
+                    <include name="CR_PRODUCT_G3_11_CreateProductWithAttribution"/>
+                    <include name="CR_PRODUCT_G3_12_CreateProductWithoutAttribution"/>
+                    <include name="CR_PRODUCT_G3_13_CreateProductWithSEO"/>
+                    <include name="CR_PRODUCT_G3_14_CreateProductWithoutSEO"/>
+                    <include name="CR_PRODUCT_G3_15_CreateProductWithManageByLotDate"/>
+                    <include name="CR_PRODUCT_G3_16_CreateProductWithoutManageByLotDate"/>
+                </methods>
+
+                <!-- G4: IMEI product with variation -->
+<!--                <methods>-->
+<!--                    <include name="CR_PRODUCT_G4_01_CreateProductWithoutDimension"/>-->
+<!--                    <include name="CR_PRODUCT_G4_02_CreateProductWitDimension"/>-->
+<!--                    <include name="CR_PRODUCT_G4_03_CreateProductWithInStock"/>-->
+<!--                    <include name="CR_PRODUCT_G4_04_CreateProductWithOutOfStock"/>-->
+<!--                    <include name="CR_PRODUCT_G4_05_CreateProductWithDiscountPrice"/>-->
+<!--                    <include name="CR_PRODUCT_G4_06_CreateProductWithoutDiscountPrice"/>-->
+<!--                    <include name="CR_PRODUCT_G4_07_CreateProductWithoutCostPrice"/>-->
+<!--                    <include name="CR_PRODUCT_G4_08_CreateProductWithCostPrice"/>-->
+<!--                    <include name="CR_PRODUCT_G4_09_CreateProductWithNonePlatform"/>-->
+<!--                    <include name="CR_PRODUCT_G4_10_CreateProductWithAnyPlatform"/>-->
+<!--                    <include name="CR_PRODUCT_G4_11_CreateProductWithAttribution"/>-->
+<!--                    <include name="CR_PRODUCT_G4_12_CreateProductWithoutAttribution"/>-->
+<!--                    <include name="CR_PRODUCT_G4_13_CreateProductWithSEO"/>-->
+<!--                    <include name="CR_PRODUCT_G4_14_CreateProductWithoutSEO"/>-->
+<!--                </methods>-->
+            </class>
+        </classes>
+    </test>
+</suite>

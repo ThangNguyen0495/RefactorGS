@@ -1,7 +1,8 @@
-package pages.web.seller.product.all_products.crud.wholesale_price;
+package pages.web.seller.product.all_products;
 
 import api.seller.login.APIDashboardLogin;
 import api.seller.product.APIGetProductDetail;
+import api.seller.setting.APIGetStoreDefaultLanguage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -23,7 +24,6 @@ import static org.apache.commons.lang.math.RandomUtils.nextInt;
  */
 public class WholesaleProductPage {
 
-    private final WebDriver driver;
     private final WebUtils webUtils;
     private final Logger logger = LogManager.getLogger(WholesaleProductPage.class);
 
@@ -42,10 +42,9 @@ public class WholesaleProductPage {
      * @param productInfo The product information associated with the wholesale pricing.
      */
     public WholesaleProductPage(WebDriver driver, APIDashboardLogin.Credentials credentials, APIGetProductDetail.ProductInformation productInfo) {
-        this.driver = driver;
         this.webUtils = new WebUtils(driver);
 
-        String defaultLanguage = new APIDashboardLogin().getSellerInformation(credentials).getLangKey();
+        String defaultLanguage = new APIGetStoreDefaultLanguage(credentials).getDefaultLanguage();
 
         this.variationList = APIGetProductDetail.getVariationValues(productInfo, defaultLanguage);
         this.variationModelList = APIGetProductDetail.getVariationModelList(productInfo);

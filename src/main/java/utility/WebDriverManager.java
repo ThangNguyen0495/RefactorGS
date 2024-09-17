@@ -115,11 +115,11 @@ public class WebDriverManager {
      * @param headlessMode Optional parameter to specify if the browser should run in headless mode.
      * @return An instance of WebDriver for the specified browser.
      */
-    public WebDriver getWebDriver(String browser, boolean... headlessMode) {
+    public WebDriver getWebDriver() {
         WebDriver driver;
-        boolean headless = System.getProperty("os.name").equals("Linux") || (headlessMode.length == 0) || headlessMode[0];
+        boolean headless = System.getProperty("os.name").equals("Linux") || PropertiesUtils.getHeadless();
 
-        switch (browser.toLowerCase()) {
+        switch (PropertiesUtils.getBrowser()) {
             case "firefox" -> {
                 io.github.bonigarcia.wdm.WebDriverManager.firefoxdriver().setup();
                 FirefoxOptions firefoxOptions = new FirefoxOptions();

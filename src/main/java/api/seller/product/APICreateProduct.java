@@ -2,6 +2,7 @@ package api.seller.product;
 
 import api.seller.login.APIDashboardLogin;
 import api.seller.setting.APIGetBranchList;
+import api.seller.setting.APIGetStoreDefaultLanguage;
 import api.seller.setting.APIGetVATList;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -51,7 +52,7 @@ public class APICreateProduct {
         var vatInfoList = new APIGetVATList(credentials).getVATInformation();
         var branchInfoList = new APIGetBranchList(credentials).getBranchInformation();
 
-        defaultLanguage = loginInfo.getLangKey();
+        defaultLanguage = new APIGetStoreDefaultLanguage(credentials).getDefaultLanguage();
         vatIds = APIGetVATList.getVATIds(vatInfoList);
         branchIds = APIGetBranchList.getBranchIds(branchInfoList);
         branchNames = APIGetBranchList.getBranchNames(branchInfoList);

@@ -64,15 +64,36 @@ public class WebUtils {
     }
 
     /**
+     * Highlights the specified web element by adding a red border around it.
+     *
+     * @param locator The By locator to find the web element to be highlighted.
+     * @param index   The index of the element if multiple elements match the locator.
+     */
+    private void highlightElement(By locator, int index) {
+        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+
+        // Highlight the element with a red border
+        jsExecutor.executeScript("arguments[0].style.border = '2px solid red'", getElement(locator, index));
+
+        // Remove the border after a short delay for visual confirmation
+        new WebDriverWait(driver, Duration.ofSeconds(1))
+                .until(_ -> {
+                    jsExecutor.executeScript("arguments[0].style.border = ''", getElement(locator, index));
+                    return true;
+                });
+    }
+
+    /**
      * Retrieves a list of web elements identified by the locator.
      * It waits for the elements to be present before retrieving them.
      *
      * @param locator The locator to find the elements.
      * @return A list of web elements.
      */
-    public List<WebElement> getListElement(By locator) {
+    public List<WebElement> getListElement(By locator, int... milliseconds) {
+        int waitTime = (milliseconds.length != 0) ? milliseconds[0] : 3000;
         try {
-            getWait(3000).until(ExpectedConditions.presenceOfElementLocated(locator));
+            getWait(waitTime).until(ExpectedConditions.presenceOfElementLocated(locator));
         } catch (TimeoutException ignore) {
         }
         return driver.findElements(locator).isEmpty()
@@ -88,17 +109,6 @@ public class WebUtils {
      */
     public WebElement getElement(By locator) {
         return retryOnStaleElement(() -> wait.until(presenceOfElementLocated(locator)));
-    }
-
-    /**
-     * Gets a WebElement located by the first locator and nested by the second locator.
-     *
-     * @param locator1 The By locator for the parent element.
-     * @param locator2 The By locator for the nested element.
-     * @return The WebElement.
-     */
-    public WebElement getElement(By locator1, By locator2) {
-        return retryOnStaleElement(() -> wait.until(presenceOfNestedElementLocatedBy(getElement(locator1), locator2)));
     }
 
     /**
@@ -127,27 +137,29 @@ public class WebUtils {
     }
 
     /**
-     * Clicks on the web element located by the specified locator and index.
-     * This method is useful when there are multiple matching elements and
-     * a specific one needs to be clicked.
+     * Clicks on a web element located by the specified locator and index.
      * <p>
-     * The method highlights the element by briefly adding a red border around it
-     * and ensures the element is clickable before clicking. It also retries fetching
-     * the element in case of stale element exceptions.
+     * This method is designed to handle cases where multiple elements match the locator by specifying an index.
+     * It briefly highlights the element by adding a red border to make it visible, ensures the element is clickable,
+     * and retries fetching the element if a stale element exception occurs.
+     * </p>
      *
      * @param locator The By locator used to find the web element on the page.
-     * @param index   The index of the element if multiple elements match the locator.
+     * @param index   The index of the element to be clicked if multiple elements match the locator.
      *                Use 0 to click the first element.
      */
     public void click(By locator, int index) {
-        WebElement element = retryOnStaleElement(() -> getElement(locator, index));
-        // Highlight the element
-        ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", element);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", element);
-        // Ensure the element is clickable and click it
-        elementToBeClickable(locator, index).click();
-    }
+        // Highlight the element by adding a red border
+        highlightElement(locator, index);
 
+        // Ensure the element is clickable and perform the click
+        try {
+            elementToBeClickable(locator, index).click();
+        } catch (ElementClickInterceptedException e) {
+            // Handle cases where the element is intercepted by another element
+            clickJS(locator, index);
+        }
+    }
 
     /**
      * Clicks on the web element located by the specified locator using JavaScript execution.
@@ -176,17 +188,16 @@ public class WebUtils {
      *                Use 0 to click the first element.
      */
     public void clickJS(By locator, int index) {
-        WebElement element = retryOnStaleElement(() -> getElement(locator, index));
         // Highlight the element
-        ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", element);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", element);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator, index));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", getElement(locator, index));
         // Perform click using JavaScript
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator, index));
     }
 
 
     /**
-     * Clicks outside of a text box to remove focus.
+     * Clicks outside a text box to remove focus.
      *
      * @param locator The By locator.
      * @param index   The index of the element in the list.
@@ -216,14 +227,14 @@ public class WebUtils {
      * @param content The content to be sent.
      */
     public void sendKeys(By locator, int index, CharSequence content) {
-        waitVisibilityOfElementLocated(locator, index);
-        clear(locator, index);
-        click(locator, index);
         retryOnStaleElement(() -> {
+            waitVisibilityOfElementLocated(locator, index);
+            clear(locator, index);
+            click(locator, index);
             getElement(locator, index).sendKeys(content);
+            clickOutOfTextBox(locator, index);
             return null;
         });
-        clickOutOfTextBox(locator, index);
     }
 
     /**
@@ -281,7 +292,7 @@ public class WebUtils {
      * @return The value of the WebElement.
      */
     public String getValue(By locator) {
-        return retryOnStaleElement(() -> getAttribute(locator, "value"));
+        return getValue(locator, 0);
     }
 
     /**
@@ -319,30 +330,30 @@ public class WebUtils {
     }
 
     /**
-     * Clears the text of a WebElement located by the specified locator.
-     *
-     * @param locator The By locator.
-     */
-    public void clear(By locator) {
-        clear(locator, 0);
-    }
-
-    /**
      * Clears the text from an input field until it is empty.
      *
      * @param locator The locator of the input field.
      * @param index   The index of the element if there are multiple matching elements.
      */
     public void clear(By locator, int index) {
-        WebElement element = getElement(locator, index);
-        String currentText = element.getText();
+        // Attempt to clear the field with a maximum of maxRetries attempts
+        for (int retriesIndex = 0; retriesIndex < 5; retriesIndex++) {
+            String currentText = getElement(locator, index).getText();
+            String currentValue = getValue(locator, index);
 
-        // Clear text until the field is empty or value is cleared
-        while (!currentText.isEmpty() || (getValue(locator, index) != null && !getValue(locator, index).isEmpty())) {
-            element.sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.BACK_SPACE);
-            currentText = element.getText();
+            // If both currentText and currentValue are empty, break the loop
+            if (currentText.isEmpty() && (currentValue == null || currentValue.isEmpty())) {
+                break;
+            }
+
+            // Clear the text field by selecting all and deleting
+            retryOnStaleElement(() -> {
+                getElement(locator, index).sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.BACK_SPACE);
+                return null;
+            });
         }
     }
+
 
     /**
      * Checks if the checkbox or radio button identified by the locator is selected using JavaScript.
@@ -402,9 +413,8 @@ public class WebUtils {
      * @param attribute The name of the attribute to remove.
      */
     public void removeAttribute(By locator, int index, String attribute) {
-        WebElement element = getElement(locator, index);
-        if (element != null) {
-            ((JavascriptExecutor) driver).executeScript("arguments[0].removeAttribute(arguments[1])", element, attribute);
+        if (getElement(locator, index) != null) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].removeAttribute(arguments[1])", getElement(locator, index), attribute);
         }
     }
 
@@ -414,10 +424,9 @@ public class WebUtils {
      * @param locator The locator of the element.
      */
     public void removeElement(By locator) {
-        WebElement element = getElement(locator);
-        if (element != null) {
+        if (getElement(locator) != null) {
             retryOnStaleElement(() -> {
-                ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", element);
+                ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", getElement(locator));
                 return null;
             });
         }
@@ -482,16 +491,6 @@ public class WebUtils {
             wait.until(invisibilityOfElementLocated(locator));
             return null;
         });
-    }
-
-    /**
-     * Waits for the element identified by the locator to be clickable.
-     *
-     * @param locator The locator of the element.
-     * @return The clickable WebElement.
-     */
-    public WebElement elementToBeClickable(By locator) {
-        return retryOnStaleElement(() -> wait.until(ExpectedConditions.elementToBeClickable(locator)));
     }
 
     /**

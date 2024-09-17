@@ -1,8 +1,9 @@
-import api.seller.product.APICreateProduct;
 import api.seller.product.APIGetProductDetail;
+import api.seller.setting.APIGetStoreDefaultLanguage;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.testng.annotations.Test;
+import utility.ProductUtils;
+import utility.PropertiesUtils;
 
 import static api.seller.login.APIDashboardLogin.Credentials;
 
@@ -15,12 +16,8 @@ public class CheckTest {
 //        System.out.println(new ObjectMapper().writeValueAsString(languageInformation));
 //        System.out.println(APIGetStoreLanguage.getDefaultLanguageCode(languageInformation));
 
-     var info = ProductInformationGenerator.generateProductInformation(credentials,"vi", true, false,false, false, false, false, false, false, false, false, false, false, false,false, 1, 2, 3);
-        System.out.println(APIGetProductDetail.getVariationValues(info, "vi"));
-        System.out.println(APIGetProductDetail.getProductStockQuantityMap(info));
-        System.out.println(APIGetProductDetail.getVariationListingPrice(info));
-        System.out.println(new ObjectMapper().writeValueAsString(info));
+//        var productInfo = ProductUtils.generateProductInformation(credentials, "vi", true, true, true, true, true, true, true, true, true, true, true, true, true, true, 1, 1, 1,2);
+//        System.out.println(new APIGetStoreDefaultLanguage(credentials).getDefaultLanguage());
+        System.out.println(PropertiesUtils.getDomain());
     }
-
-
 }
