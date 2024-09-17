@@ -17,8 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          
-          echo "$API_HOST"
+          echo "${{ secrets.API_HOST }}"
+          echo "${{ vars.API_HOST }}"
+          echo "${{ API_HOST }}"
 
 #      - name: Checkout repository code
 #        uses: actions/checkout@v2
