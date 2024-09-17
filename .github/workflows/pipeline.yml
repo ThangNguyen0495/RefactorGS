@@ -13,31 +13,39 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  Get-SourceCode:
-    uses: SMTG-04/Reusable/.github/workflows/cloneGitConfigs.yml@main
-    with:
-      artifact: "ClonedRepo"
-      local_repo: "ThangNguyen0495/RefactorGS"
-    secrets:
-      PAT: ${{ secrets.GITHUB_TOKEN }}
-
-
   Dashboard-CreateProduct:
-    needs: Get-SourceCode
     runs-on: ubuntu-latest
     steps:
       - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
         with:
-          artifact: "ClonedRepo"
           test_name: "Dashboard-CreateProduct"
-          test_config: "test_config/web/dashboard/product/create_product.xml"
-
+          scripts: |
+            echo "buyerAccount=${{ secrets.BUYER_ACCOUNT }}" > src/main/resources/config.properties
+            echo "buyerPassword=${{ secrets.BUYER_PASSWORD }}" >> src/main/resources/config.properties
+            echo "sellerAccount=${{ secrets.SELLER_ACCOUNT }}" >> src/main/resources/config.properties
+            echo "sellerPassword=${{ secrets.SELLER_PASSWORD }}" >> src/main/resources/config.properties
+            echo "apiHost=${{ secrets.API_HOST }}" >> src/main/resources/config.properties
+            echo "browser=${{ secrets.BROWSER }}" >> src/main/resources/config.properties
+            echo "domain=${{ secrets.DOMAIN }}" >> src/main/resources/config.properties
+            echo "sfEndpoint=${{ secrets.SF_ENDPOINT }}" >> src/main/resources/config.properties
+            echo "headless=${{ secrets.HEADLESS }}" >> src/main/resources/config.properties
+            chmod 600 src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/web/create_product.xml"
   Dashboard-UpdateProduct:
-    needs: Get-SourceCode
     runs-on: ubuntu-latest
     steps:
       - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
         with:
-          artifact: "ClonedRepo"
           test_name: "Dashboard-UpdateProduct"
-          test_config: "test_config/web/dashboard/product/update_product.xml"
+          scripts: |
+            echo "buyerAccount=${{ secrets.BUYER_ACCOUNT }}" > src/main/resources/config.properties
+            echo "buyerPassword=${{ secrets.BUYER_PASSWORD }}" >> src/main/resources/config.properties
+            echo "sellerAccount=${{ secrets.SELLER_ACCOUNT }}" >> src/main/resources/config.properties
+            echo "sellerPassword=${{ secrets.SELLER_PASSWORD }}" >> src/main/resources/config.properties
+            echo "apiHost=${{ secrets.API_HOST }}" >> src/main/resources/config.properties
+            echo "browser=${{ secrets.BROWSER }}" >> src/main/resources/config.properties
+            echo "domain=${{ secrets.DOMAIN }}" >> src/main/resources/config.properties
+            echo "sfEndpoint=${{ secrets.SF_ENDPOINT }}" >> src/main/resources/config.properties
+            echo "headless=${{ secrets.HEADLESS }}" >> src/main/resources/config.properties
+            chmod 600 src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/web/update_product.xml"
