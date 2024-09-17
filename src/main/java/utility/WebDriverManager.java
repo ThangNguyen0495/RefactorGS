@@ -4,7 +4,6 @@ import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
 import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.ios.options.XCUITestOptions;
-import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -111,8 +110,6 @@ public class WebDriverManager {
     /**
      * Initializes and returns a WebDriver instance for the specified browser.
      *
-     * @param browser      The browser type (firefox, edge, safari, or chrome).
-     * @param headlessMode Optional parameter to specify if the browser should run in headless mode.
      * @return An instance of WebDriver for the specified browser.
      */
     public WebDriver getWebDriver() {
