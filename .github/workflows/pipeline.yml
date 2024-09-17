@@ -18,7 +18,7 @@ jobs:
     steps:
       - run: |
           
-          echo "API host : $API_HOST"
+          echo "API host : ${{vars.API_HOST}}"
 
 #      - name: Checkout repository code
 #        uses: actions/checkout@v2
