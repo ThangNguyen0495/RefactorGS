@@ -16,18 +16,15 @@ jobs:
   Dashboard-CreateProduct:
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo "${env.API_HOST}"
-          echo" ${STAG.API_HOST}"
-#      - name: Checkout repository code
-#        uses: actions/checkout@v2
-#
-#      - uses: ThangNguyen0495/Customs@fix1
-#        with:
-#          test_name: "Dashboard-CreateProduct"
-#          scripts: |
-#            echo "${env.API_HOST}"
-#            echo" ${STAG.API_HOST}"
+      - name: Checkout repository code
+        uses: actions/checkout@v2
+
+      - uses: ThangNguyen0495/Customs@fix1
+        with:
+          test_name: "Dashboard-CreateProduct"
+          scripts: |
+            echo "${env.API_HOST}"
+            echo" ${STAG.API_HOST}"
 #            echo "API_HOST=$API_HOST" >> $GITHUB_ENV
 #            echo "BROWSER=$BROWSER" >> $GITHUB_ENV
 #            echo "DOMAIN=$DOMAIN" >> $GITHUB_ENV
