@@ -1,0 +1,43 @@
+name: Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 17 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  Get-SourceCode:
+    uses: SMTG-04/Reusable/.github/workflows/cloneGitConfigs.yml@main
+    with:
+      artifact: "ClonedRepo"
+      local_repo: "ThangNguyen0495/RefactorGS"
+    secrets:
+      PAT: ${{ secrets.GITHUB_TOKEN }}
+
+
+  Dashboard-CreateProduct:
+    needs: Get-SourceCode
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+        with:
+          artifact: "ClonedRepo"
+          test_name: "Dashboard-CreateProduct"
+          test_config: "test_config/web/dashboard/product/create_product.xml"
+
+    Dashboard-UpdateProduct:
+      needs: Get-SourceCode
+      runs-on: ubuntu-latest
+      steps:
+        - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+          with:
+            artifact: "ClonedRepo"
+            test_name: "Dashboard-UpdateProduct"
+            test_config: "test_config/web/dashboard/product/update_product.xml"
