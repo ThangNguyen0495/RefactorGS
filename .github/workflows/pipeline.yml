@@ -16,7 +16,7 @@ jobs:
   Dashboard-CreateProduct:
     runs-on: ubuntu-latest
     steps:
-      - uses: ThangNguyen0495/Customs@fix1
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
         with:
           test_name: "Dashboard-CreateProduct"
           scripts: |
@@ -31,11 +31,10 @@ jobs:
             echo "headless=${{ secrets.HEADLESS }}" >> src/main/resources/config.properties
             chmod 600 src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/web/create_product.xml"
-
   Dashboard-UpdateProduct:
     runs-on: ubuntu-latest
     steps:
-      - uses: ThangNguyen0495/Customs@fix1
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
         with:
           test_name: "Dashboard-UpdateProduct"
           scripts: |
