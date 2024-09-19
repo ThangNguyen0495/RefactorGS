@@ -2,6 +2,7 @@ package utility;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.Status;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,16 +27,21 @@ public class ExtendReportListener implements ITestListener, ISuiteListener, IInv
     private static final Logger logger = LogManager.getLogger();
 
     /**
-     * Retrieves the WebDriver instance for the current test method from the test class.
+     * Retrieves the WebDriver instance used in the current test method.
+     * <p>
+     * This method uses reflection to access the "driver" field from the test class.
+     * If the WebDriver instance cannot be retrieved due to access restrictions or the absence of the field,
+     * the method returns {@code null}.
      *
-     * @param iTestResult The {@code ITestResult} object containing information about the executed test.
-     * @return The WebDriver instance used in the test.
+     * @param iTestResult The {@code ITestResult} object containing information about the executed test method.
+     * @return The {@code WebDriver} instance used in the test, or {@code null} if the driver cannot be accessed.
      */
+
     public WebDriver getDriver(ITestResult iTestResult) {
         try {
             return (WebDriver) iTestResult.getTestClass().getRealClass().getField("driver").get(iTestResult.getInstance());
         } catch (IllegalAccessException | NoSuchFieldException e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 
@@ -165,7 +171,7 @@ public class ExtendReportListener implements ITestListener, ISuiteListener, IInv
      */
     @Override
     public void onTestFailure(ITestResult result) {
-        test.fail("Test Failed: " + result.getThrowable());
+        test.log(Status.FAIL, result.getThrowable());
 
         // Capture screenshot on test failure
         if (getDriver(result) != null) {

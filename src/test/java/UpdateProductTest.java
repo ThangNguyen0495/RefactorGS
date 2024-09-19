@@ -164,15 +164,15 @@ public class UpdateProductTest {
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
-    void UP_PRODUCT_G1_15_UpdateProductWithManageByLotDate() {
-        productPage.setManageByLotDate(true)
+    void UP_PRODUCT_G1_15_UpdateProductWithoutManageByLotDate() {
+        productPage.setManageByLotDate(false)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
-    void UP_PRODUCT_G1_16_UpdateProductWithoutManageByLotDate() {
-        productPage.setManageByLotDate(false)
+    void UP_PRODUCT_G1_16_UpdateProductWithManageByLotDate() {
+        productPage.setManageByLotDate(true)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
     }
@@ -431,15 +431,15 @@ public class UpdateProductTest {
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
-    void UP_PRODUCT_G3_15_UpdateProductWithManageByLotDate() throws InterruptedException {
-        productPage.setManageByLotDate(true)
+    void UP_PRODUCT_G3_15_UpdateProductWithoutManageByLotDate() throws InterruptedException {
+        productPage.setManageByLotDate(false)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
-    void UP_PRODUCT_G3_16_UpdateProductWithoutManageByLotDate() throws InterruptedException {
-        productPage.setManageByLotDate(false)
+    void UP_PRODUCT_G3_16_UpdateProductWithManageByLotDate() throws InterruptedException {
+        productPage.setManageByLotDate(true)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
     }

@@ -114,7 +114,7 @@ public class BaseProductPage extends BaseProductElement {
                 isManagedByIMEI,
                 hasSEO,
                 hasDimension,
-                manageByLotDate,
+                manageByLotDate || ((apiProductInfo != null) && apiProductInfo.isLotAvailable()),
                 hasAttribution,
                 showOnWeb,
                 showOnApp,
@@ -554,9 +554,10 @@ public class BaseProductPage extends BaseProductElement {
      * <p>
      * This method opens the IMEI management popup, selects all branches, removes any existing IMEI numbers,
      * and then inputs new IMEI numbers based on the provided variation value and branch stock.
+     * If the product does not have variations, the {@code variationValue} should be {@code null}.
      * </p>
      *
-     * @param variationValue The variation value to prefix IMEI numbers, or an empty string if no variation.
+     * @param variationValue The variation value to prefix IMEI numbers, or {@code null} if the product has no variation.
      * @param branchStock    The list of stock quantities for each branch.
      */
     private void addIMEIForEachBranch(String variationValue, List<Integer> branchStock) {
@@ -582,12 +583,12 @@ public class BaseProductPage extends BaseProductElement {
         for (int brIndex = 0; brIndex < activeBranchNames.size(); brIndex++) {
             String branchName = activeBranchNames.get(brIndex);
             int branchStockIndex = activeBranchNames.indexOf(branchName);
-            for (int i = 0; i < branchStock.get(branchStockIndex); i++) {
+            for (int imeiIndex = 0; imeiIndex < branchStock.get(branchStockIndex); imeiIndex++) {
                 String imei = "%s%s_IMEI_%s_%s\n".formatted(
                         variationValue != null ? "%s_".formatted(variationValue) : "",
                         branchName,
                         Instant.now().toEpochMilli(),
-                        i
+                        imeiIndex
                 );
                 webUtils.sendKeys(loc_dlgAddIMEI_txtAddIMEI, brIndex, imei);
                 logger.info("Input IMEI: {}", imei.replace("\n", ""));
@@ -611,21 +612,27 @@ public class BaseProductPage extends BaseProductElement {
      * </p>
      */
     public void inputWithoutVariationStock() {
-        if (utilsProductInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
-            // Open the Add IMEI popup if managing by IMEI
-            webUtils.click(loc_txtWithoutVariationBranchStock);
-            logger.info("[Create] Open Add IMEI popup without variation product.");
+        if (!utilsProductInfo.isLotAvailable()) {
+            if (utilsProductInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
+                // Open the Add IMEI popup if managing by IMEI
+                webUtils.click(loc_txtWithoutVariationBranchStock);
+                logger.info("[Create] Open Add IMEI popup without variation product.");
 
-            // Add IMEI numbers for each branch
-            addIMEIForEachBranch("", APIGetProductDetail.getBranchStocks(utilsProductInfo, null));
-            logger.info("[Create] Complete add stock for IMEI product.");
+                // Add IMEI numbers for each branch
+                addIMEIForEachBranch(null, APIGetProductDetail.getBranchStocks(utilsProductInfo, null));
+                logger.info("[Create] Complete add stock for IMEI product.");
+            } else {
+                // Update stock for normal product
+                IntStream.range(0, activeBranchNames.size()).forEach(brIndex -> {
+                    webUtils.sendKeys(loc_txtWithoutVariationBranchStock, brIndex, String.valueOf(APIGetProductDetail.getBranchStocks(utilsProductInfo, null).get(brIndex)));
+                    logger.info("[{}] Input stock: {}", activeBranchNames.get(brIndex), APIGetProductDetail.getBranchStocks(utilsProductInfo, null).get(brIndex));
+                });
+                logger.info("[Create] Complete update stock for Normal product.");
+            }
         } else {
-            // Update stock for normal product
-            IntStream.range(0, activeBranchNames.size()).forEach(brIndex -> {
-                webUtils.sendKeys(loc_txtWithoutVariationBranchStock, brIndex, String.valueOf(APIGetProductDetail.getBranchStocks(utilsProductInfo, null).get(brIndex)));
-                logger.info("[{}] Input stock: {}", activeBranchNames.get(brIndex), APIGetProductDetail.getBranchStocks(utilsProductInfo, null).get(brIndex));
-            });
-            logger.info("[Create] Complete update stock for Normal product.");
+            logger.info("[AddWithoutVariationStock] Product is managed by lot-date.");
+            logger.info("[AddWithoutVariationStock] Stock updates are not allowed on the product detail page.");
+            logger.info("[AddWithoutVariationStock] Please update stock on the Lot detail page.");
         }
     }
 
@@ -686,22 +693,28 @@ public class BaseProductPage extends BaseProductElement {
      * </p>
      */
     public void updateWithoutVariationStock() {
-        if (utilsProductInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
-            // Open the Add IMEI popup if managing by IMEI
-            webUtils.click(loc_txtWithoutVariationBranchStock);
-            logger.info("[Update] Open Add IMEI popup without variation product.");
+        if (!utilsProductInfo.isLotAvailable()) {
+            if (utilsProductInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
+                // Open the Add IMEI popup if managing by IMEI
+                webUtils.click(loc_txtWithoutVariationBranchStock);
+                logger.info("[Update] Open Add IMEI popup without variation product.");
 
-            // Add IMEI numbers for each branch
-            addIMEIForEachBranch("", APIGetProductDetail.getBranchStocks(utilsProductInfo, null));
-            logger.info("[Update] Complete add stock for IMEI product.");
+                // Add IMEI numbers for each branch
+                addIMEIForEachBranch(null, APIGetProductDetail.getBranchStocks(utilsProductInfo, null));
+                logger.info("[Update] Complete add stock for IMEI product.");
+            } else {
+                // Open the Update stock popup for normal product
+                webUtils.click(loc_txtWithoutVariationBranchStock);
+                logger.info("Open Update stock popup.");
+
+                // Add stock for each branch
+                addNormalStockForEachBranch(APIGetProductDetail.getBranchStocks(utilsProductInfo, null), 0);
+                logger.info("[Update] Complete update stock for Normal product.");
+            }
         } else {
-            // Open the Update stock popup for normal product
-            webUtils.click(loc_txtWithoutVariationBranchStock);
-            logger.info("Open Update stock popup.");
-
-            // Add stock for each branch
-            addNormalStockForEachBranch(APIGetProductDetail.getBranchStocks(utilsProductInfo, null), 0);
-            logger.info("[Update] Complete update stock for Normal product.");
+            logger.info("[UpdateWithoutVariationStock] Product is managed by lot-date.");
+            logger.info("[UpdateWithoutVariationStock] Stock updates are not allowed on the product detail page.");
+            logger.info("[UpdateWithoutVariationStock] Please update stock on the Lot detail page.");
         }
     }
 
@@ -712,22 +725,31 @@ public class BaseProductPage extends BaseProductElement {
      * @throws InterruptedException if the thread is interrupted during sleep
      */
     public void addVariations() throws InterruptedException {
-        // Generate and log variation map
-        var variationMap = VariationUtils.getVariationMap(APIGetProductDetail.getVariationGroupName(utilsProductInfo, defaultLanguage), APIGetProductDetail.getVariationValues(utilsProductInfo, defaultLanguage));
-        logger.info("Variation map: {}", variationMap);
+        if (!utilsProductInfo.isLotAvailable()) {
+            // Generate variation names and values
+            var variationGroupName = APIGetProductDetail.getVariationGroupName(utilsProductInfo, defaultLanguage);
+            var variationValues = APIGetProductDetail.getVariationValues(utilsProductInfo, defaultLanguage);
 
-        // Get and log variation list from variation map
-        logger.info("Variation list: {}", APIGetProductDetail.getVariationValues(utilsProductInfo, defaultLanguage));
+            // Generate and log variation map
+            var variationMap = VariationUtils.getVariationMap(variationGroupName, variationValues);
+            logger.info("Variation map: {}", variationMap);
 
-        // Delete old variations
-        deleteOldVariations();
+            // Log variation list
+            logger.info("Variation list: {}", variationValues);
 
-        // Add new variations
-        addNewVariationGroups(variationMap);
+            // Delete old variations
+            deleteOldVariations();
 
-        // Click on variations label to save
-        webUtils.click(loc_lblVariations);
+            // Add new variations
+            addNewVariationGroups(variationMap);
+
+            // Click on variations label to save
+            webUtils.click(loc_lblVariations);
+        } else {
+            logger.info("Product managed stock by lot-date, not allowed to update variations.");
+        }
     }
+
 
     /**
      * Deletes all existing variations by clicking on the delete icons in reverse order.
@@ -844,22 +866,28 @@ public class BaseProductPage extends BaseProductElement {
      * </p>
      */
     void inputVariationStock() {
-        // Input stock quantity for each variation
-        IntStream.range(0, APIGetProductDetail.getVariationValues(utilsProductInfo, defaultLanguage).size())
-                .forEach(varIndex -> {
-                    webUtils.clickJS(loc_tblVariation_txtStock, varIndex);
-                    if (utilsProductInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
-                        addIMEIForEachBranch(
-                                APIGetProductDetail.getVariationValues(utilsProductInfo, defaultLanguage).get(varIndex),
-                                APIGetProductDetail.getBranchStocks(utilsProductInfo, APIGetProductDetail.getVariationModelId(utilsProductInfo, varIndex))
-                        );
-                    } else {
-                        addNormalStockForEachBranch(
-                                APIGetProductDetail.getBranchStocks(utilsProductInfo, APIGetProductDetail.getVariationModelId(utilsProductInfo, varIndex)),
-                                varIndex
-                        );
-                    }
-                });
+        if (!utilsProductInfo.isLotAvailable()) {
+            // Input stock quantity for each variation
+            IntStream.range(0, APIGetProductDetail.getVariationValues(utilsProductInfo, defaultLanguage).size())
+                    .forEach(varIndex -> {
+                        webUtils.clickJS(loc_tblVariation_txtStock, varIndex);
+                        if (utilsProductInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
+                            addIMEIForEachBranch(
+                                    APIGetProductDetail.getVariationValues(utilsProductInfo, defaultLanguage).get(varIndex),
+                                    APIGetProductDetail.getBranchStocks(utilsProductInfo, APIGetProductDetail.getVariationModelId(utilsProductInfo, varIndex))
+                            );
+                        } else {
+                            addNormalStockForEachBranch(
+                                    APIGetProductDetail.getBranchStocks(utilsProductInfo, APIGetProductDetail.getVariationModelId(utilsProductInfo, varIndex)),
+                                    varIndex
+                            );
+                        }
+                    });
+        } else {
+            logger.info("[Add/UpdateVariationStock] Product is managed by lot-date.");
+            logger.info("[Add/UpdateVariationStock] Stock updates are not allowed on the product detail page.");
+            logger.info("[Add/UpdateVariationStock] Please update stock on the Lot detail page.");
+        }
     }
 
     /**
@@ -1148,9 +1176,7 @@ public class BaseProductPage extends BaseProductElement {
         // Initialize product details
         initBasicProductInformation();
         inputWithoutVariationPrice();
-        if (!utilsProductInfo.isLotAvailable()) {
-            inputWithoutVariationStock();
-        }
+        inputWithoutVariationStock();
         inputWithoutVariationProductSKU();
         completeCreateProduct();
 
@@ -1186,9 +1212,7 @@ public class BaseProductPage extends BaseProductElement {
         addVariations();
         uploadVariationImage("images.jpg");
         inputVariationPrice();
-        if (!utilsProductInfo.isLotAvailable()) {
-            inputVariationStock();
-        }
+        inputVariationStock();
         inputVariationSKU();
         completeCreateProduct();
 
@@ -1219,9 +1243,7 @@ public class BaseProductPage extends BaseProductElement {
         // Initialize product details
         initBasicProductInformation();
         inputWithoutVariationPrice();
-        if (!utilsProductInfo.isLotAvailable()) {
-            updateWithoutVariationStock();
-        }
+        updateWithoutVariationStock();
         updateWithoutVariationProductSKU();
         completeUpdateProduct();
 
@@ -1253,13 +1275,12 @@ public class BaseProductPage extends BaseProductElement {
 
         // Initialize product details
         initBasicProductInformation();
-        if (!utilsProductInfo.isLotAvailable()) {
-            addVariations();
-            uploadVariationImage("images.jpg");
-            inputVariationPrice();
-            inputVariationStock();
-            inputVariationSKU();
-        }
+
+        addVariations();
+        uploadVariationImage("images.jpg");
+        inputVariationPrice();
+        inputVariationStock();
+        inputVariationSKU();
         completeUpdateProduct();
 
         // Reset local variables for next test

@@ -19,8 +19,8 @@
                     <include name="UP_PRODUCT_G1_12_UpdateProductWithoutAttribution"/>
                     <include name="UP_PRODUCT_G1_13_UpdateProductWithSEO"/>
                     <include name="UP_PRODUCT_G1_14_UpdateProductWithoutSEO"/>
-                    <include name="UP_PRODUCT_G1_15_UpdateProductWithManageByLotDate"/>
-                    <include name="UP_PRODUCT_G1_16_UpdateProductWithoutManageByLotDate"/>
+                    <include name="UP_PRODUCT_G1_15_UpdateProductWithoutManageByLotDate"/>
+                    <include name="UP_PRODUCT_G1_16_UpdateProductWithManageByLotDate"/>
                     <include name="UP_PRODUCT_G1_17_EditTranslation"/>
                     <include name="UP_PRODUCT_G1_18_ChangeProductStatus"/>
                     <include name="UP_PRODUCT_G1_19_AddWholesaleProduct"/>
@@ -60,8 +60,8 @@
                     <include name="UP_PRODUCT_G3_12_UpdateProductWithoutAttribution"/>
                     <include name="UP_PRODUCT_G3_13_UpdateProductWithSEO"/>
                     <include name="UP_PRODUCT_G3_14_UpdateProductWithoutSEO"/>
-                    <include name="UP_PRODUCT_G3_15_UpdateProductWithManageByLotDate"/>
-                    <include name="UP_PRODUCT_G3_16_UpdateProductWithoutManageByLotDate"/>
+                    <include name="UP_PRODUCT_G3_15_UpdateProductWithoutManageByLotDate"/>
+                    <include name="UP_PRODUCT_G3_16_UpdateProductWithManageByLotDate"/>
                     <include name="UP_PRODUCT_G3_17_EditTranslationForMainProduct"/>
                     <include name="UP_PRODUCT_G3_18_EditTranslationForEachVariation"/>
                     <include name="UP_PRODUCT_G3_19_ChangeProductStatus"/>

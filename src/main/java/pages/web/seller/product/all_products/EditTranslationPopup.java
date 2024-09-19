@@ -61,7 +61,7 @@ public class EditTranslationPopup {
         );
 
         // Handle special case for language name conversion
-        if (translationLangCode.equals("en") && "vi".equals(webUtils.getLocalStorageValue("langKey"))) {
+        if (translationLangCode.equals("en") && webUtils.getLocalStorageValue("langKey").equals("vi")) {
             translationLangName = "Tiếng Anh";
         }
 
