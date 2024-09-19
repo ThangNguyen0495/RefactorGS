@@ -3,7 +3,7 @@ name: Pipeline
 on:
   push:
     branches:
-      - Thang-Test
+      - main
   schedule:
     - cron: '0 17 * * *'
   workflow_dispatch:
@@ -29,6 +29,7 @@ jobs:
             echo "domain=${{ secrets.DOMAIN }}" >> src/main/resources/config.properties
             echo "sfEndpoint=${{ secrets.SF_ENDPOINT }}" >> src/main/resources/config.properties
             echo "headless=${{ secrets.HEADLESS }}" >> src/main/resources/config.properties
+            echo "enableProxy=false" >> src/main/resources/config.properties
             chmod 600 src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/web/create_product.xml"
   Dashboard-UpdateProduct:
@@ -47,5 +48,6 @@ jobs:
             echo "domain=${{ secrets.DOMAIN }}" >> src/main/resources/config.properties
             echo "sfEndpoint=${{ secrets.SF_ENDPOINT }}" >> src/main/resources/config.properties
             echo "headless=${{ secrets.HEADLESS }}" >> src/main/resources/config.properties
+            echo "enableProxy=false" >> src/main/resources/config.properties
             chmod 600 src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/web/update_product.xml"

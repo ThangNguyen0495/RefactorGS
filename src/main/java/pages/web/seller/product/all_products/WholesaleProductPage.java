@@ -1,8 +1,6 @@
 package pages.web.seller.product.all_products;
 
-import api.seller.login.APIDashboardLogin;
 import api.seller.product.APIGetProductDetail;
-import api.seller.setting.APIGetStoreDefaultLanguage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -10,199 +8,176 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import utility.WebUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 
-/**
- * Page Object Model class for managing wholesale pricing on the product page.
- */
 public class WholesaleProductPage {
 
     private final WebUtils webUtils;
     private final Logger logger = LogManager.getLogger(WholesaleProductPage.class);
+    private final APIGetProductDetail.ProductInformation productInfo;
+    private final String defaultLanguage;
 
-    private List<Long> wholesaleProductPrice;
-    private List<Integer> wholesaleProductStock;
-    private final List<String> variationList;
-    private final List<Integer> variationModelList;
-    private final Map<Integer, List<Integer>> productStockQuantity;
-    private final List<Long> productSellingPrice;
-
-    /**
-     * Constructs an instance of WholesaleProductPage.
-     *
-     * @param driver       The WebDriver instance used for browser interactions.
-     * @param credentials  The credentials for API login.
-     * @param productInfo The product information associated with the wholesale pricing.
-     */
-    public WholesaleProductPage(WebDriver driver, APIDashboardLogin.Credentials credentials, APIGetProductDetail.ProductInformation productInfo) {
+    public WholesaleProductPage(WebDriver driver, APIGetProductDetail.ProductInformation productInfo, String defaultLanguage) {
         this.webUtils = new WebUtils(driver);
-
-        String defaultLanguage = new APIGetStoreDefaultLanguage(credentials).getDefaultLanguage();
-
-        this.variationList = APIGetProductDetail.getVariationValues(productInfo, defaultLanguage);
-        this.variationModelList = APIGetProductDetail.getVariationModelList(productInfo);
-        this.productStockQuantity = APIGetProductDetail.getProductStockQuantityMap(productInfo);
-        this.productSellingPrice = productInfo.isHasModel() ? APIGetProductDetail.getVariationSellingPrice(productInfo) : List.of(productInfo.getNewPrice());
+        this.defaultLanguage = defaultLanguage;
+        this.productInfo = productInfo;
     }
 
-    // Locators for UI elements on the wholesale pricing page
-    private final By withoutVariationAddWholesalePricingBtn = By.cssSelector(".wholesale-btn-group-header .gs-button__gray--outline");
-    private final By saveBtn = By.cssSelector(".wholesale-btn-group-header > .gs-button__green");
-    private final By withoutVariationBuyFrom = By.cssSelector("[name ^= 'buyFrom']");
-    private final By withoutVariationWholesalePrice = By.xpath("//*[contains(@name, 'buyFrom')]/parent::div/parent::div//following-sibling::div[@class='wholesale-grid-item'][1]//input");
-    private final By withoutVariationSegmentDropdown = By.cssSelector(".dropdown-search-checkbox-custom");
-    private final By variationAddVariationBtn = By.cssSelector(".wholesale-btn-group-header > .gs-button__gray--outline");
+    // Locators
+    private final By loc_btnAddWholesalePricing = By.xpath("//*[text() ='Thêm giá bán sỉ' or text() ='Add Wholesale Pricing']");
+    private final By loc_btnSave = By.xpath("//button[*[text() ='Lưu' or text() = 'Save']]");
+    private final By loc_txtBuyFrom = By.cssSelector("[name ^= 'buyFrom']");
+    private final By loc_txtPricePerItem = By.xpath("//div[div/*[contains(@name, 'buyFrom')]]/following::div[1]//input");
+    private final By loc_ddvSelectedSegment = By.cssSelector(".dropdown-search-checkbox-custom");
+    private final By loc_ddlSegment = By.cssSelector(".label-list  input");
+    private final By variationAddVariationBtn = By.xpath("//button[*[text() ='Thêm nhóm' or text() ='Add variation']]");
+    private final By loc_dlgAddVariation_btnOK = By.cssSelector(".footer-btn .gs-button__green");
+    private final By loc_lblVariationValue = By.cssSelector(".border-bottom > .wholesale-group-header > div > div");
 
-    private By variationLocator(String variationValue) {
+    private By loc_dlgAddVariation_radVariation(String variationValue) {
         return By.xpath("//*[text() = '%s']//ancestor::label/input".formatted(variationValue));
     }
 
-    private final By okBtnOnAddVariationPopup = By.cssSelector(".footer-btn .gs-button__green");
-    private final By variationAddWholesalePricingBtn = By.cssSelector(".border-bottom > .wholesale-group-header .gs-fake-link:nth-child(1)");
-    private final By variationValue = By.cssSelector(".border-bottom > .wholesale-group-header > div > div");
-    private final By variationBuyFrom = By.cssSelector("[name^='buyFrom-']");
-    private final By variationWholesalePrice = By.xpath("//*[contains(@name, 'buyFrom')]/parent::div/parent::div//following-sibling::div[@class='wholesale-grid-item'][1]//input");
-    private final By variationSegmentDropdown = By.cssSelector(".dropdown-search-checkbox-custom");
-    private final By loc_chkSegment = By.cssSelector(".label-list  input");
-
-    private int numOfWholesaleProduct;
+    // Helper Methods
 
     /**
-     * Retrieves wholesale product information and initializes data for configuration.
-     *
-     * @return The current instance of WholesaleProductPage for method chaining.
+     * Opens the segment dropdown, randomly selects a segment, and closes the dropdown.
+     * The selected segment name is logged for reference.
      */
-    public WholesaleProductPage getWholesaleProductInfo() {
-        wholesaleProductPrice = new ArrayList<>(productSellingPrice);
-        wholesaleProductStock = new ArrayList<>();
-        IntStream.range(0, wholesaleProductPrice.size()).forEachOrdered(ignored -> wholesaleProductStock.add(0));
-        numOfWholesaleProduct = nextInt(variationList.size()) + 1;
-        IntStream.range(0, numOfWholesaleProduct).forEach(varIndex -> {
-            wholesaleProductPrice.set(varIndex, nextLong(productSellingPrice.get(varIndex)) + 1);
-            wholesaleProductStock.set(varIndex, nextInt(Math.max(Collections.max(productStockQuantity.get(variationModelList.get(varIndex))), 1)) + 1);
-        });
-        return this;
+    private void selectSegment() {
+        // Open the segment dropdown
+        webUtils.click(loc_ddvSelectedSegment);
+
+        // Retrieve the list of available segments
+        List<WebElement> segments = webUtils.getListElement(loc_ddlSegment);
+
+        // Select a random segment from the list
+        int segmentIndex = nextInt(segments.size());
+        String segmentName = webUtils.getText(loc_ddlSegment, segmentIndex);
+
+        // Click on the selected segment using JavaScript
+        webUtils.clickJS(loc_ddlSegment, segmentIndex);
+        logger.info("Selected segment: {}", segmentName);
+
+        // Close the segment dropdown
+        webUtils.click(loc_ddvSelectedSegment);
+    }
+
+
+    /**
+     * Calculate and return the 'Buy From' quantity based on branch stock.
+     *
+     * @param branchStock A list of branch stocks.
+     * @return The 'Buy From' quantity.
+     */
+    private int calculateBuyFrom(List<Integer> branchStock) {
+        return nextInt(Math.max(Collections.max(branchStock), 1)) + 1;
     }
 
     /**
-     * Adds wholesale pricing configuration for products without variations.
+     * Calculate and return the 'Price Per Item' based on the given price.
+     *
+     * @param price The product price.
+     * @return The 'Price Per Item'.
      */
-    public void addWholesaleProductWithoutVariation() {
-        // Click 'Add Wholesale Pricing' button
-        webUtils.click(withoutVariationAddWholesalePricingBtn);
-        logger.info("Opened setup wholesale price table.");
-
-        // Input 'Buy From' quantity
-        webUtils.sendKeys(withoutVariationBuyFrom, String.valueOf(wholesaleProductStock.getFirst()));
-        logger.info("Input 'Buy From': {}.", wholesaleProductStock.getFirst());
-
-        // Input 'Price Per Item'
-        webUtils.sendKeys(withoutVariationWholesalePrice, String.valueOf(wholesaleProductPrice.getFirst()));
-        logger.info("Input price per item: {}.", String.format("%,d", wholesaleProductPrice.getFirst()));
-
-        // Open and select segment from dropdown
-        webUtils.click(withoutVariationSegmentDropdown);
-        logger.info("Opened segment dropdown.");
-
-        // Get list segments
-        List<WebElement> elements = webUtils.getListElement(loc_chkSegment);
-
-        // Select segment
-        int segmentIndex = nextInt(elements.size());
-        logger.info("[WithoutVariation] Select segment: {}", webUtils.getAttribute(loc_chkSegment, "id"));
-        webUtils.clickJS(loc_chkSegment, segmentIndex);
-
-        // Close segment dropdown
-        webUtils.click(withoutVariationSegmentDropdown);
-        logger.info("Closed segment dropdown.");
-
-        // Complete wholesale product configuration
-        webUtils.click(saveBtn);
+    private long calculatePricePerItem(long price) {
+        return nextLong(Math.max(price, 1));
     }
 
     /**
-     * Selects a variation based on the provided value.
+     * Opens the 'Add Variation' popup and selects the given variation.
      *
-     * @param variationValue The variation value to be selected.
+     * @param variationValue The value of the variation to select.
      */
     private void selectVariation(String variationValue) {
-        By locator = variationLocator(variationValue);
-        webUtils.clickJS(locator);
+        // Click the 'Add Variation' button to open the variation selection popup
+        webUtils.click(variationAddVariationBtn);
+        logger.info("Opened add variation popup.");
 
-        if (!webUtils.isCheckedJS(locator)) {
-            selectVariation(variationValue);
-        }
+        // Select the specified variation by checking the corresponding checkbox
+        webUtils.checkCheckbox(loc_dlgAddVariation_radVariation(variationValue));
+        logger.info("Selected variation: {}.", variationValue);
+
+        // Click the 'OK' button to confirm the selection and close the popup
+        webUtils.click(loc_dlgAddVariation_btnOK);
+
     }
+
+    // Main Methods
 
     /**
-     * Configures wholesale pricing for variations and returns a list of variations configured for sale.
-     *
-     * @return List of variations configured for sale.
+     * Configures wholesale pricing for products without variations.
      */
-    private List<String> addConfigureForVariation() {
-        List<String> variationSaleList = new ArrayList<>();
-        for (int varIndex = 0; varIndex < numOfWholesaleProduct; varIndex++) {
-            String variation = variationList.get(varIndex).replace(" ", "|");
+    public void addWholesaleProductWithoutVariation() {
+        // Click the 'Add Wholesale Pricing' button to open the wholesale price setup table
+        webUtils.click(loc_btnAddWholesalePricing);
+        logger.info("Opened setup wholesale price table.");
 
-            // Open 'Add Variation' popup
-            webUtils.click(variationAddVariationBtn);
-            logger.info("Opened add variation popup for wholesale configuration.");
+        // Calculate and input the 'Buy From' quantity based on available branch stock
+        int buyFrom = calculateBuyFrom(APIGetProductDetail.getBranchStocks(productInfo, null));
+        webUtils.sendKeys(loc_txtBuyFrom, String.valueOf(buyFrom));
+        logger.info("Input 'Buy From' quantity: {}.", buyFrom);
 
-            // Select variation
-            selectVariation(variation);
-            logger.info("Configured wholesale pricing for variation '{}'.", variation);
+        // Calculate and input the price per item based on the product's new price
+        long pricePerItem = calculatePricePerItem(productInfo.getNewPrice());
+        webUtils.sendKeys(loc_txtPricePerItem, String.valueOf(pricePerItem));
+        logger.info("Input price per item: {}.", String.format("%,d", pricePerItem));
 
-            // Close 'Add Variation' popup
-            webUtils.click(okBtnOnAddVariationPopup);
-            variationSaleList.add("%s,".formatted(variation));
-        }
-        return variationSaleList;
+        // Select a segment from the dropdown
+        selectSegment();
+
+        // Save the wholesale pricing configuration
+        webUtils.click(loc_btnSave);
+        logger.info("Saved wholesale product configuration.");
     }
+
 
     /**
      * Adds wholesale pricing configuration for products with variations.
      */
     public void addWholesaleProductVariation() {
-        List<String> variationSaleList = addConfigureForVariation();
+        // Retrieve the list of variation values and their corresponding model IDs
+        List<String> variationValues = APIGetProductDetail.getVariationValues(productInfo, defaultLanguage);
+        List<Integer> variationModelIds = APIGetProductDetail.getVariationModelList(productInfo);
 
-        // Configure wholesale pricing for each variation
-        for (int index = 0; index < variationSaleList.size(); index++) {
-            String value = webUtils.getText(variationValue, index);
-            int varIndex = variationSaleList.indexOf(value);
+        // Determine how many variations to configure for wholesale, randomly selecting at least one
+        int numberOfWholesaleProduct = nextInt(variationValues.size()) + 1;
 
-            webUtils.clickJS(variationAddWholesalePricingBtn, index);
+        // Select the required number of variations based on their values
+        IntStream.range(0, numberOfWholesaleProduct).forEach(varIndex -> selectVariation(variationValues.get(varIndex)));
 
-            // Input 'Buy From' quantity
-            webUtils.sendKeys(variationBuyFrom, index, String.valueOf(wholesaleProductStock.get(varIndex)));
-            logger.info("[{}] Input 'Buy From': {}.", value, wholesaleProductStock.get(varIndex));
+        // For each selected variation, configure wholesale pricing
+        IntStream.range(0, numberOfWholesaleProduct).forEach(index -> {
+            // Retrieve the variation's label value
+            String value = webUtils.getText(loc_lblVariationValue, index).replace(",", "");
 
-            // Input 'Price Per Item'
-            webUtils.sendKeys(variationWholesalePrice, index, String.valueOf(wholesaleProductPrice.get(varIndex)));
-            logger.info("[{}] Input price per item: {}.", value, String.format("%,d", wholesaleProductPrice.get(varIndex)));
+            // Find the index of the variation in the variation values list
+            int varIndex = variationValues.indexOf(value);
 
-            // Open and select segment from dropdown
-            webUtils.click(variationSegmentDropdown, index);
+            // Click the 'Add Wholesale Pricing' button for the current variation
+            webUtils.clickJS(loc_btnAddWholesalePricing, index);
 
-            // Get list segments
-            List<WebElement> elements = webUtils.getListElement(loc_chkSegment);
+            // Calculate and input the 'Buy From' quantity based on available branch stock for the variation
+            int buyFrom = calculateBuyFrom(APIGetProductDetail.getBranchStocks(productInfo, variationModelIds.get(varIndex)));
+            webUtils.sendKeys(loc_txtBuyFrom, index, String.valueOf(buyFrom));
+            logger.info("[{}] Input 'Buy From' quantity: {}.", value, buyFrom);
 
-            // Select segment
-            int segmentIndex = nextInt(elements.size());
-            logger.info("[WithVariation] Select segment: {}", webUtils.getAttribute(loc_chkSegment, "id"));
-            webUtils.clickJS(loc_chkSegment, segmentIndex);
+            // Calculate and input the price per item based on the variation's selling price
+            long pricePerItem = calculatePricePerItem(APIGetProductDetail.getVariationSellingPrice(productInfo, varIndex));
+            webUtils.sendKeys(loc_txtPricePerItem, index, String.valueOf(pricePerItem));
+            logger.info("[{}] Input price per item: {}.", value, String.format("%,d", pricePerItem));
 
-            // Close segment dropdown
-            webUtils.click(variationSegmentDropdown, index);
-        }
+            // Select a segment for the variation
+            selectSegment();
+        });
 
-        // Complete wholesale product configuration
-        webUtils.click(saveBtn);
+        // Save the wholesale pricing configuration for all variations
+        webUtils.click(loc_btnSave);
+        logger.info("Saved wholesale product configuration for variations.");
     }
 }

@@ -18,7 +18,6 @@ import utility.VariationUtils;
 import utility.WebUtils;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -34,16 +33,15 @@ public class BaseProductPage extends BaseProductElement {
     private final Logger logger = LogManager.getLogger();
 
     // Product Information
-    private APIGetProductDetail.ProductInformation productInfo;
-    private int productId;
+    private APIGetProductDetail.ProductInformation apiProductInfo;
+    private APIGetProductDetail.ProductInformation utilsProductInfo;
 
     // Credentials and Information Lists
     private APIDashboardLogin.Credentials credentials;
-    private List<APIGetStoreLanguage.LanguageInformation> languageInfoList;
 
     // Default Values and Flags
     private boolean noDiscount = nextBoolean();
-    private boolean noCost = true;
+    private boolean noCost = nextBoolean();
     private boolean hasDimension = false;
     private boolean hasSEO = false;
     private boolean manageByLotDate = false;
@@ -83,7 +81,7 @@ public class BaseProductPage extends BaseProductElement {
         List<APIGetBranchList.BranchInformation> branchInfoList = new APIGetBranchList(credentials).getBranchInformation();
 
         // Retrieve and store language information
-        languageInfoList = new APIGetStoreLanguage(credentials).getStoreLanguageInformation();
+        List<APIGetStoreLanguage.LanguageInformation> languageInfoList = new APIGetStoreLanguage(credentials).getStoreLanguageInformation();
 
         // Retrieve the default language of the seller
         defaultLanguage = new APIGetStoreDefaultLanguage(credentials).getDefaultLanguage();
@@ -100,15 +98,44 @@ public class BaseProductPage extends BaseProductElement {
     }
 
     /**
-     * Generates product information based on various parameters.
+     * Fetches product information from ProductUtils based on the provided parameters.
+     * After generating the product information, it resets all relevant variables to their default values
+     * to prepare for the next test.
      *
      * @param isManagedByIMEI Whether the product is managed by IMEI.
      * @param hasModel        Whether the product has a model.
      * @param branchStock     Array of branch stock quantities.
      */
-    private void generateProductInformation(boolean isManagedByIMEI, boolean hasModel, int[] branchStock) {
+    private void fetchProductInformation(boolean isManagedByIMEI, boolean hasModel, int[] branchStock) {
         // Generate product information using the provided parameters
-        productInfo = ProductUtils.generateProductInformation(credentials, defaultLanguage, hasModel, noCost, noDiscount, isManagedByIMEI, hasSEO, hasDimension, manageByLotDate, hasAttribution, showOnWeb, showOnApp, showInStore, showInGoSocial, branchStock);
+        utilsProductInfo = ProductUtils.generateProductInformation(credentials,
+                defaultLanguage,
+                hasModel,
+                noCost,
+                noDiscount,
+                isManagedByIMEI,
+                hasSEO,
+                hasDimension,
+                manageByLotDate,
+                hasAttribution,
+                showOnWeb,
+                showOnApp,
+                showInStore,
+                showInGoSocial,
+                branchStock);
+
+        // Reset local variables for next test
+        resetAllVariables();
+    }
+
+    /**
+     * Fetches product information from the API.
+     *
+     * @param productId The ID of the product to fetch information for.
+     * @return An instance of APIGetProductDetail containing the product information.
+     */
+    private APIGetProductDetail.ProductInformation fetchProductInformation(int productId) {
+        return new APIGetProductDetail(credentials).getProductInformation(productId);
     }
 
     /**
@@ -195,6 +222,22 @@ public class BaseProductPage extends BaseProductElement {
     }
 
     /**
+     * Resets all boolean variables to their default values.
+     */
+    private void resetAllVariables() {
+        this.noDiscount = nextBoolean();
+        this.noCost = nextBoolean();
+        this.hasDimension = false;
+        this.hasSEO = false;
+        this.manageByLotDate = false;
+        this.hasAttribution = false;
+        this.showOnApp = true;
+        this.showOnWeb = true;
+        this.showInStore = true;
+        this.showInGoSocial = true;
+    }
+
+    /**
      * Navigates to the create product page and handles UI cleanup.
      *
      * @return The current instance of ProductPage for method chaining.
@@ -202,9 +245,6 @@ public class BaseProductPage extends BaseProductElement {
     public BaseProductPage navigateToCreateProductPage() {
         driver.get("%s/product/create".formatted(PropertiesUtils.getDomain()));
         logger.info("Navigated to create product page.");
-
-        // Remove facebook bubble
-        webUtils.removeFbBubble();
 
         return this;
     }
@@ -219,32 +259,13 @@ public class BaseProductPage extends BaseProductElement {
      * @return The current instance of ProductPage for method chaining.
      */
     public BaseProductPage navigateToUpdateProductPage(int productId) {
-        // Set the product ID for the page
-        this.productId = productId;
-
         // Retrieve product details from the API
-        productInfo = fetchProductInformation(productId);
+        apiProductInfo = fetchProductInformation(productId);
 
         // Navigate to the product update page
         navigateToProductPage(productId);
 
-        // Remove old wholesale product configuration if present
-        removeOldWholesaleConfig();
-
-        // Perform UI cleanup
-        webUtils.removeFbBubble();
-
         return this;
-    }
-
-    /**
-     * Fetches product information from the API.
-     *
-     * @param productId The ID of the product to fetch information for.
-     * @return An instance of APIGetProductDetail containing the product information.
-     */
-    private APIGetProductDetail.ProductInformation fetchProductInformation(int productId) {
-        return new APIGetProductDetail(credentials).getProductInformation(productId);
     }
 
     /**
@@ -258,36 +279,19 @@ public class BaseProductPage extends BaseProductElement {
     }
 
     /**
-     * Removes old wholesale product configurations if they exist.
-     */
-    private void removeOldWholesaleConfig() {
-        if (webUtils.isCheckedJS(loc_chkAddWholesalePricing)) {
-            webUtils.click(loc_chkAddWholesalePricing); // Uncheck to remove old config
-            webUtils.click(loc_dlgConfirm_btnOK); // Confirm removal
-            webUtils.click(loc_btnSave); // Save changes
-
-            // Verify removal was successful
-            boolean isSuccessNotificationPresent = !webUtils.getListElement(loc_dlgSuccessNotification).isEmpty();
-            Assert.assertTrue(isSuccessNotificationPresent, "Failed to remove old wholesale configuration.");
-            driver.navigate().refresh();
-            logger.info("Old wholesale configuration removed successfully.");
-        }
-    }
-
-    /**
      * Inputs the product name into the relevant field.
      */
     void inputProductName() {
-        webUtils.sendKeys(loc_txtProductName, productInfo.getName());
-        logger.info("Input product name: {}", productInfo.getName());
+        webUtils.sendKeys(loc_txtProductName, utilsProductInfo.getName());
+        logger.info("Input product name: {}", utilsProductInfo.getName());
     }
 
     /**
      * Inputs the product description into the relevant field.
      */
     void inputProductDescription() {
-        webUtils.sendKeys(loc_txaProductDescription, productInfo.getDescription());
-        logger.info("Input product description: {}", productInfo.getDescription());
+        webUtils.sendKeys(loc_txaProductDescription, utilsProductInfo.getDescription());
+        logger.info("Input product description: {}", utilsProductInfo.getDescription());
     }
 
     /**
@@ -299,7 +303,7 @@ public class BaseProductPage extends BaseProductElement {
         // Remove old product images
         List<WebElement> removeImageIcons = webUtils.getListElement(loc_icnRemoveImages);
         if (!removeImageIcons.isEmpty()) {
-            IntStream.range(0, removeImageIcons.size())
+            IntStream.iterate(removeImageIcons.size() - 1, index -> index >= 0, index -> index - 1)
                     .forEach(index -> webUtils.clickJS(loc_icnRemoveImages, index));
             logger.info("Removed existing product images.");
         }
@@ -318,7 +322,7 @@ public class BaseProductPage extends BaseProductElement {
         webUtils.clickJS(loc_ddvSelectedVAT);
         logger.info("Opened VAT dropdown.");
 
-        String vatName = productInfo.getTaxName();
+        String vatName = utilsProductInfo.getTaxName();
         webUtils.clickJS(vatName.equals("tax.value.include") ? loc_ddvNoVAT : loc_ddvOthersVAT(vatName));
         logger.info("Selected VAT: {}", vatName);
     }
@@ -357,19 +361,19 @@ public class BaseProductPage extends BaseProductElement {
      * Sets inventory management options based on the product's inventory type and settings.
      */
     void setManageInventory() {
-        if (!driver.getCurrentUrl().contains("/edit/") && productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
+        if (!driver.getCurrentUrl().contains("/edit/") && utilsProductInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
             webUtils.click(loc_ddlManageInventory);
             webUtils.click(loc_ddvManageInventoryByIMEI);
             logger.info("Set inventory management to IMEI/Serial Number.");
         }
 
-        if (!"IMEI_SERIAL_NUMBER".equals(productInfo.getInventoryManageType()) && manageByLotDate) {
+        if (!"IMEI_SERIAL_NUMBER".equals(utilsProductInfo.getInventoryManageType()) && manageByLotDate) {
             if (!webUtils.isCheckedJS(loc_chkManageStockByLotDate)) {
                 webUtils.clickJS(loc_chkManageStockByLotDate);
                 logger.info("Enabled manage stock by lot date.");
             }
         } else {
-            logger.info("Manage inventory by: {}", "IMEI/Serial Number".equals(productInfo.getInventoryManageType()) ? "IMEI/Serial Number" : "Product");
+            logger.info("Manage inventory by: {}", "IMEI/Serial Number".equals(utilsProductInfo.getInventoryManageType()) ? "IMEI/Serial Number" : "Product");
         }
     }
 
@@ -449,7 +453,7 @@ public class BaseProductPage extends BaseProductElement {
         // Remove existing attributions
         List<WebElement> deleteAttributionIcons = webUtils.getListElement(loc_icnDeleteAttribution);
         if (!deleteAttributionIcons.isEmpty()) {
-            IntStream.range(0, deleteAttributionIcons.size())
+            IntStream.iterate(deleteAttributionIcons.size() - 1, index -> index >= 0, index -> index - 1)
                     .forEach(index -> webUtils.clickJS(loc_icnDeleteAttribution, index));
             logger.info("Removed existing attributions.");
         }
@@ -519,7 +523,9 @@ public class BaseProductPage extends BaseProductElement {
         setPriority(nextInt(100) + 1);
         setProductDimension();
         selectPlatform();
-        addAttribution();
+        if (hasAttribution) {
+            addAttribution();
+        }
 
         // Input SEO information if applicable
         if (hasSEO) {
@@ -536,16 +542,16 @@ public class BaseProductPage extends BaseProductElement {
      */
     public void inputWithoutVariationPrice() {
         // Input listing price
-        webUtils.sendKeys(loc_txtWithoutVariationListingPrice, String.valueOf(productInfo.getOrgPrice()));
-        logger.info("Listing price: {}", String.format("%,d", productInfo.getOrgPrice())); // Log the listing price
+        webUtils.sendKeys(loc_txtWithoutVariationListingPrice, String.valueOf(utilsProductInfo.getOrgPrice()));
+        logger.info("Listing price: {}", String.format("%,d", utilsProductInfo.getOrgPrice())); // Log the listing price
 
         // Input selling price
-        webUtils.sendKeys(loc_txtWithoutVariationSellingPrice, String.valueOf(productInfo.getNewPrice()));
-        logger.info("Selling price: {}", String.format("%,d", productInfo.getNewPrice())); // Log the selling price
+        webUtils.sendKeys(loc_txtWithoutVariationSellingPrice, String.valueOf(utilsProductInfo.getNewPrice()));
+        logger.info("Selling price: {}", String.format("%,d", utilsProductInfo.getNewPrice())); // Log the selling price
 
         // Input cost price
-        webUtils.sendKeys(loc_txtWithoutVariationCostPrice, String.valueOf(productInfo.getCostPrice()));
-        logger.info("Cost price: {}", String.format("%,d", productInfo.getCostPrice())); // Log the cost price
+        webUtils.sendKeys(loc_txtWithoutVariationCostPrice, String.valueOf(utilsProductInfo.getCostPrice()));
+        logger.info("Cost price: {}", String.format("%,d", utilsProductInfo.getCostPrice())); // Log the cost price
     }
 
     /**
@@ -610,19 +616,19 @@ public class BaseProductPage extends BaseProductElement {
      * </p>
      */
     public void inputWithoutVariationStock() {
-        if (productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
+        if (utilsProductInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
             // Open the Add IMEI popup if managing by IMEI
             webUtils.click(loc_txtWithoutVariationBranchStock);
             logger.info("[Create] Open Add IMEI popup without variation product.");
 
             // Add IMEI numbers for each branch
-            addIMEIForEachBranch("", APIGetProductDetail.getBranchStocks(productInfo, null));
+            addIMEIForEachBranch("", APIGetProductDetail.getBranchStocks(utilsProductInfo, null));
             logger.info("[Create] Complete add stock for IMEI product.");
         } else {
             // Update stock for normal product
             IntStream.range(0, activeBranchNames.size()).forEach(brIndex -> {
-                webUtils.sendKeys(loc_txtWithoutVariationBranchStock, brIndex, String.valueOf(APIGetProductDetail.getBranchStocks(productInfo, null).get(brIndex)));
-                logger.info("[{}] Input stock: {}", activeBranchNames.get(brIndex), APIGetProductDetail.getBranchStocks(productInfo, null).get(brIndex));
+                webUtils.sendKeys(loc_txtWithoutVariationBranchStock, brIndex, String.valueOf(APIGetProductDetail.getBranchStocks(utilsProductInfo, null).get(brIndex)));
+                logger.info("[{}] Input stock: {}", activeBranchNames.get(brIndex), APIGetProductDetail.getBranchStocks(utilsProductInfo, null).get(brIndex));
             });
             logger.info("[Create] Complete update stock for Normal product.");
         }
@@ -644,11 +650,7 @@ public class BaseProductPage extends BaseProductElement {
         logger.info("[Update stock popup] Open all branches dropdown.");
 
         // Select all branches if not already selected
-        if (!webUtils.isCheckedJS(loc_dlgUpdateStock_chkSelectAllBranches)) {
-            webUtils.clickJS(loc_dlgUpdateStock_chkSelectAllBranches);
-        } else {
-            webUtils.click(loc_dlgUpdateStock_ddvSelectedBranch);
-        }
+        webUtils.checkCheckbox(loc_dlgUpdateStock_chkSelectAllBranches);
         logger.info("[Update stock popup] Select all branches.");
 
         // Switch to the change stock tab
@@ -664,12 +666,12 @@ public class BaseProductPage extends BaseProductElement {
             if (!webUtils.getListElement(loc_dlgUpdateStock_txtBranchStock(branchName)).isEmpty()) {
                 webUtils.sendKeys(loc_dlgUpdateStock_txtBranchStock(branchName), String.valueOf(branchStock.get(branchStockIndex)));
                 logger.info("{}[{}] Update stock: {}",
-                        productInfo.isHasModel() ? "" : "[%s]".formatted(APIGetProductDetail.getVariationValues(productInfo, defaultLanguage).get(varIndex)),
+                        utilsProductInfo.isHasModel() ? "" : "[%s]".formatted(APIGetProductDetail.getVariationValues(utilsProductInfo, defaultLanguage).get(varIndex)),
                         branchName,
                         branchStock.get(branchStockIndex));
             } else {
                 logger.info("{}[{}] Add stock: {}",
-                        productInfo.isHasModel() ? "" : "[%s]".formatted(APIGetProductDetail.getVariationValues(productInfo, defaultLanguage).get(varIndex)),
+                        utilsProductInfo.isHasModel() ? "" : "[%s]".formatted(APIGetProductDetail.getVariationValues(utilsProductInfo, defaultLanguage).get(varIndex)),
                         branchName,
                         stock);
             }
@@ -689,13 +691,13 @@ public class BaseProductPage extends BaseProductElement {
      * </p>
      */
     public void updateWithoutVariationStock() {
-        if (productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
+        if (utilsProductInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
             // Open the Add IMEI popup if managing by IMEI
             webUtils.click(loc_txtWithoutVariationBranchStock);
             logger.info("[Update] Open Add IMEI popup without variation product.");
 
             // Add IMEI numbers for each branch
-            addIMEIForEachBranch("", APIGetProductDetail.getBranchStocks(productInfo, null));
+            addIMEIForEachBranch("", APIGetProductDetail.getBranchStocks(utilsProductInfo, null));
             logger.info("[Update] Complete add stock for IMEI product.");
         } else {
             // Open the Update stock popup for normal product
@@ -703,7 +705,7 @@ public class BaseProductPage extends BaseProductElement {
             logger.info("Open Update stock popup.");
 
             // Add stock for each branch
-            addNormalStockForEachBranch(APIGetProductDetail.getBranchStocks(productInfo, null), 0);
+            addNormalStockForEachBranch(APIGetProductDetail.getBranchStocks(utilsProductInfo, null), 0);
             logger.info("[Update] Complete update stock for Normal product.");
         }
     }
@@ -716,11 +718,11 @@ public class BaseProductPage extends BaseProductElement {
      */
     public void addVariations() throws InterruptedException {
         // Generate and log variation map
-        var variationMap = VariationUtils.getVariationMap(APIGetProductDetail.getVariationGroupName(productInfo, defaultLanguage), APIGetProductDetail.getVariationValues(productInfo, defaultLanguage));
+        var variationMap = VariationUtils.getVariationMap(APIGetProductDetail.getVariationGroupName(utilsProductInfo, defaultLanguage), APIGetProductDetail.getVariationValues(utilsProductInfo, defaultLanguage));
         logger.info("Variation map: {}", variationMap);
 
         // Get and log variation list from variation map
-        logger.info("Variation list: {}", APIGetProductDetail.getVariationValues(productInfo, defaultLanguage));
+        logger.info("Variation list: {}", APIGetProductDetail.getVariationValues(utilsProductInfo, defaultLanguage));
 
         // Delete old variations
         deleteOldVariations();
@@ -802,9 +804,7 @@ public class BaseProductPage extends BaseProductElement {
      */
     void inputVariationPrice() {
         // Select all variations
-        if (!webUtils.isCheckedJS(loc_tblVariation_chkSelectAll)) {
-            webUtils.clickJS(loc_tblVariation_chkSelectAll);
-        }
+        webUtils.checkCheckbox(loc_tblVariation_chkSelectAll);
 
         // Open the actions dropdown
         webUtils.clickJS(loc_tblVariation_lnkSelectAction);
@@ -813,23 +813,23 @@ public class BaseProductPage extends BaseProductElement {
         webUtils.click(loc_tblVariation_ddvActions);
 
         // Input price details for each variation
-        IntStream.range(0, APIGetProductDetail.getVariationValues(productInfo, defaultLanguage).size())
+        IntStream.range(0, APIGetProductDetail.getVariationValues(utilsProductInfo, defaultLanguage).size())
                 .forEachOrdered(varIndex -> {
                     // Get current variation
-                    String variation = APIGetProductDetail.getVariationValues(productInfo, defaultLanguage).get(varIndex);
+                    String variation = APIGetProductDetail.getVariationValues(utilsProductInfo, defaultLanguage).get(varIndex);
 
                     // Input listing price
-                    long listingPrice = APIGetProductDetail.getVariationListingPrice(productInfo, varIndex);
+                    long listingPrice = APIGetProductDetail.getVariationListingPrice(utilsProductInfo, varIndex);
                     webUtils.sendKeys(loc_dlgUpdatePrice_txtListingPrice, varIndex, String.valueOf(listingPrice));
                     logger.info("[{}] Listing price: {}.", variation, String.format("%,d", listingPrice));
 
                     // Input selling price
-                    long sellingPrice = APIGetProductDetail.getVariationSellingPrice(productInfo, varIndex);
+                    long sellingPrice = APIGetProductDetail.getVariationSellingPrice(utilsProductInfo, varIndex);
                     webUtils.sendKeys(loc_dlgUpdatePrice_txtSellingPrice, varIndex, String.valueOf(sellingPrice));
                     logger.info("[{}] Selling price: {}.", variation, String.format("%,d", sellingPrice));
 
                     // Input cost price
-                    long costPrice = APIGetProductDetail.getVariationCostPrice(productInfo, varIndex);
+                    long costPrice = APIGetProductDetail.getVariationCostPrice(utilsProductInfo, varIndex);
                     webUtils.sendKeys(loc_dlgUpdatePrice_txtCostPrice, varIndex, String.valueOf(costPrice));
                     logger.info("[{}] Cost price: {}.", variation, String.format("%,d", costPrice));
                 });
@@ -850,17 +850,17 @@ public class BaseProductPage extends BaseProductElement {
      */
     void inputVariationStock() {
         // Input stock quantity for each variation
-        IntStream.range(0, APIGetProductDetail.getVariationValues(productInfo, defaultLanguage).size())
+        IntStream.range(0, APIGetProductDetail.getVariationValues(utilsProductInfo, defaultLanguage).size())
                 .forEach(varIndex -> {
                     webUtils.clickJS(loc_tblVariation_txtStock, varIndex);
-                    if (productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
+                    if (utilsProductInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
                         addIMEIForEachBranch(
-                                APIGetProductDetail.getVariationValues(productInfo, defaultLanguage).get(varIndex),
-                                APIGetProductDetail.getBranchStocks(productInfo, APIGetProductDetail.getVariationModelId(productInfo, varIndex))
+                                APIGetProductDetail.getVariationValues(utilsProductInfo, defaultLanguage).get(varIndex),
+                                APIGetProductDetail.getBranchStocks(utilsProductInfo, APIGetProductDetail.getVariationModelId(utilsProductInfo, varIndex))
                         );
                     } else {
                         addNormalStockForEachBranch(
-                                APIGetProductDetail.getBranchStocks(productInfo, APIGetProductDetail.getVariationModelId(productInfo, varIndex)),
+                                APIGetProductDetail.getBranchStocks(utilsProductInfo, APIGetProductDetail.getVariationModelId(utilsProductInfo, varIndex)),
                                 varIndex
                         );
                     }
@@ -876,14 +876,14 @@ public class BaseProductPage extends BaseProductElement {
      */
     void inputVariationSKU() {
         // Input SKU for each variation
-        for (int varIndex = 0; varIndex < APIGetProductDetail.getVariationValues(productInfo, defaultLanguage).size(); varIndex++) {
+        for (int varIndex = 0; varIndex < APIGetProductDetail.getVariationValues(utilsProductInfo, defaultLanguage).size(); varIndex++) {
             // Open the Update SKU popup
             webUtils.clickJS(loc_tblVariation_txtSKU, varIndex);
 
             // Input SKU for each branch
             for (int brIndex = 0; brIndex < activeBranchNames.size(); brIndex++) {
                 String sku = "SKU_%s_%s_%s".formatted(
-                        APIGetProductDetail.getVariationValues(productInfo, defaultLanguage).get(varIndex),
+                        APIGetProductDetail.getVariationValues(utilsProductInfo, defaultLanguage).get(varIndex),
                         activeBranchNames.get(brIndex),
                         Instant.now().toEpochMilli()
                 );
@@ -909,7 +909,7 @@ public class BaseProductPage extends BaseProductElement {
      * @param imageFile The image files to be uploaded.
      */
     void uploadVariationImage(String... imageFile) {
-        IntStream.range(0, APIGetProductDetail.getVariationValues(productInfo, defaultLanguage).size())
+        IntStream.range(0, APIGetProductDetail.getVariationValues(utilsProductInfo, defaultLanguage).size())
                 .forEach(varIndex -> {
                     webUtils.click(loc_tblVariation_imgUploads, varIndex);
                     logger.info("Open upload variation image popup.");
@@ -938,15 +938,9 @@ public class BaseProductPage extends BaseProductElement {
      * @return The current instance of `BaseProductPage` for method chaining.
      */
     public BaseProductPage changeProductStatus(String status, int productId) {
-        // Get product information
-        productInfo = new APIGetProductDetail(credentials).getProductInformation(productId);
-
-        if (!status.equals(productInfo.getBhStatus())) {
+        if (!status.equals(apiProductInfo.getBhStatus())) {
             // Log the status change
             logger.info("Change product status, id: {}", productId);
-
-            // Navigate to product detail page
-            navigateToProductPage(productId);
 
             // Wait for the page to load
             webUtils.getElement(loc_lblSEOSetting);
@@ -954,7 +948,7 @@ public class BaseProductPage extends BaseProductElement {
             // Change status
             webUtils.clickJS(loc_btnDeactivate);
 
-            logger.info("Change product status from {} to {}", productInfo.getBhStatus(), status);
+            logger.info("Change product status from {} to {}", apiProductInfo.getBhStatus(), status);
         }
         return this;
     }
@@ -965,19 +959,11 @@ public class BaseProductPage extends BaseProductElement {
      * This method retrieves the current product information, navigates to the product detail page, and deletes the product
      * if it is not already marked as deleted. Logs the deletion for verification.
      * </p>
-     *
-     * @param productId The ID of the product to delete.
      */
-    public void deleteProduct(int productId) {
-        // Get product information
-        productInfo = new APIGetProductDetail(credentials).getProductInformation(productId);
-
-        if (!productInfo.isDeleted()) {
+    public void deleteProduct() {
+        if (!utilsProductInfo.isDeleted()) {
             // Log the deletion
-            logger.info("Delete product id: {}", productId);
-
-            // Navigate to product detail page
-            navigateToProductPage(productId);
+            logger.info("Delete product id: {}", apiProductInfo.getId());
 
             // Wait for the page to load
             webUtils.getElement(loc_lblSEOSetting);
@@ -1009,7 +995,7 @@ public class BaseProductPage extends BaseProductElement {
         logger.info("Wait and get product id after creation.");
 
         // Wait for API response and get product ID
-        productId = new APIGetProductList(credentials).searchProductIdByName(productInfo.getName());
+        int productId = new APIGetProductList(credentials).searchProductIdByName(utilsProductInfo.getName());
 
         // Log the completion of product creation
         logger.info("Complete create product, id: {}", productId);
@@ -1031,64 +1017,82 @@ public class BaseProductPage extends BaseProductElement {
         webUtils.click(loc_dlgNotification_btnClose);
     }
 
+    /**
+     * Removes old wholesale product configurations if they exist.
+     */
+    private void removeOldWholesaleConfig() {
+        if (webUtils.isCheckedJS(loc_chkAddWholesalePricing)) {
+            webUtils.clickJS(loc_chkAddWholesalePricing); // Uncheck to remove old config
+            webUtils.click(loc_dlgConfirm_btnOK); // Confirm removal
+            webUtils.click(loc_btnSave); // Save changes
+
+            // Verify removal was successful
+            boolean isSuccessNotificationPresent = !webUtils.getListElement(loc_dlgSuccessNotification).isEmpty();
+            Assert.assertTrue(isSuccessNotificationPresent, "Failed to remove old wholesale configuration.");
+            logger.info("Old wholesale configuration removed successfully.");
+
+            // Refresh page
+            driver.navigate().refresh();
+        }
+    }
 
     /**
      * Navigates to the wholesale pricing page for the specified product.
      *
      * @param driver      The WebDriver instance to use for interaction with the web page.
-     * @param credentials The API credentials required for accessing product details.
      * @param productInfo The product information containing details like ID and models.
      * @return An instance of WholesaleProductPage for further interactions and method chaining.
      */
-    public WholesaleProductPage navigateToWholesaleProductPage(WebDriver driver, APIDashboardLogin.Credentials credentials, APIGetProductDetail.ProductInformation productInfo) {
-        // Navigate to the update product page using the product ID from productInfo
-        navigateToUpdateProductPage(productInfo.getId());
+    private WholesaleProductPage navigateToWholesaleProductPage(WebDriver driver, APIGetProductDetail.ProductInformation productInfo) {
+        // Remove old wholesale product configuration if present
+        removeOldWholesaleConfig();
 
         // Ensure the 'Add Wholesale Pricing' checkbox is selected
-        if (!webUtils.isCheckedJS(loc_chkAddWholesalePricing)) {
-            webUtils.clickJS(loc_chkAddWholesalePricing);
-        }
+        webUtils.checkCheckbox(loc_chkAddWholesalePricing);
 
         // Click the 'Configure Wholesale Pricing' button
-        webUtils.click(loc_btnConfigureWholesalePricing);
-        webUtils.removeFbBubble(); // Remove Facebook bubble if present
+        webUtils.clickJS(loc_btnConfigureWholesalePricing);
 
         // Return a new instance of WholesaleProductPage for further actions
-        return new WholesaleProductPage(driver, credentials, productInfo);
+        return new WholesaleProductPage(driver, productInfo, defaultLanguage);
     }
 
     /**
      * Configures wholesale pricing for a product based on its information.
-     *
-     * @param productId The ID of the product to configure.
      */
-    public void configWholesaleProduct(int productId) {
-        // Retrieve product information using the provided product ID
-        var productInfo = new APIGetProductDetail(credentials).getProductInformation(productId);
-
-        // Validate if the product ID is valid
-        if (productId == 0) {
-            logger.info("Cannot find product ID."); // Log an error message if ID is invalid
-            return; // Exit the method if the product ID is invalid
-        }
-
-        // Navigate to the update product page
-        navigateToUpdateProductPage(productId);
-
+    public void configWholesaleProduct() {
         // Navigate to the wholesale product page and obtain the page object
-        WholesaleProductPage wholesalePage = navigateToWholesaleProductPage(driver, credentials, productInfo);
+        WholesaleProductPage wholesalePage = navigateToWholesaleProductPage(driver, apiProductInfo);
 
         // Configure the product's wholesale pricing based on its model presence
-        if (productInfo.isHasModel()) {
+        if (apiProductInfo.isHasModel()) {
             // Add wholesale product variation if the product has models
-            wholesalePage.getWholesaleProductInfo().addWholesaleProductVariation();
+            wholesalePage.addWholesaleProductVariation();
         } else {
             // Add wholesale product without variation if no models are present
-            wholesalePage.getWholesaleProductInfo().addWholesaleProductWithoutVariation();
+            wholesalePage.addWholesaleProductWithoutVariation();
         }
 
         // Save the wholesale product configuration
         webUtils.click(loc_btnSave);
+    }
+
+    /**
+     * Removes old conversion unit configurations if they exist.
+     */
+    private void removeOldConversionUnit() {
+        if (webUtils.isCheckedJS(loc_chkAddConversionUnit)) {
+            webUtils.uncheckCheckbox(loc_chkAddConversionUnit); // Uncheck to remove old config
+            webUtils.click(loc_btnSave); // Save changes
+
+            // Verify removal was successful
+            boolean isSuccessNotificationPresent = !webUtils.getListElement(loc_dlgSuccessNotification).isEmpty();
+            Assert.assertTrue(isSuccessNotificationPresent, "Failed to remove old conversion unit configuration.");
+            logger.info("Old conversion unit configuration removed successfully.");
+
+            // Refresh page
+            driver.navigate().refresh();
+        }
     }
 
     /**
@@ -1099,51 +1103,34 @@ public class BaseProductPage extends BaseProductElement {
      * @param productInfo The product information containing details like ID and inventory management type.
      * @return An instance of ConversionUnitPage for further interactions and method chaining.
      */
-    public ConversionUnitPage navigateToConversionUnitPage(WebDriver driver, APIDashboardLogin.Credentials credentials, APIGetProductDetail.ProductInformation productInfo) {
-        // Navigate to the update product page using the product ID from productInfo
-        navigateToUpdateProductPage(productInfo.getId());
-
-        // Uncheck the 'Add Conversion Unit' checkbox if it is currently checked
-        if (webUtils.isCheckedJS(loc_chkAddConversionUnit)) {
-            webUtils.clickJS(loc_chkAddConversionUnit);
-        }
+    private ConversionUnitPage navigateToConversionUnitPage(WebDriver driver, APIDashboardLogin.Credentials credentials, APIGetProductDetail.ProductInformation productInfo) {
+        // Remove old conversion unit configuration if present
+        removeOldConversionUnit();
 
         // Check the 'Add Conversion Unit' checkbox to enable configuration
-        webUtils.clickJS(loc_chkAddConversionUnit);
+        webUtils.checkCheckbox(loc_chkAddConversionUnit);
 
         // Handle conversion unit configuration based on inventory management type
-        if (productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
+        if (apiProductInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
             logger.info("Conversion units are not supported for products managed by IMEI/Serial at this time.");
         } else {
             // Click the 'Configure Add Conversion Unit' button
             webUtils.click(loc_btnConfigureAddConversionUnit);
-            webUtils.removeFbBubble(); // Remove Facebook bubble if present
         }
 
         // Return a new instance of ConversionUnitPage for further actions
-        return new ConversionUnitPage(driver, credentials, productInfo);
+        return new ConversionUnitPage(driver, credentials, productInfo, defaultLanguage);
     }
 
     /**
      * Configures the conversion unit for a product based on whether it has variations.
-     *
-     * @param productId The ID of the product to configure.
      */
-    public void configConversionUnit(int productId) {
-        // Retrieve product information using the provided product ID
-        var productInfo = new APIGetProductDetail(credentials).getProductInformation(productId);
-
+    public void configConversionUnit() {
         // Navigate to the Conversion Unit page and obtain the page object
-        ConversionUnitPage conversionUnitPage = navigateToConversionUnitPage(driver, credentials, productInfo);
+        ConversionUnitPage conversionUnitPage = navigateToConversionUnitPage(driver, credentials, apiProductInfo);
 
         // Configure the conversion unit based on whether the product has variations
-        if (productInfo.isHasModel()) {
-            // Add conversion unit variation if the product has models
-            conversionUnitPage.addConversionUnitVariation();
-        } else {
-            // Add conversion unit without variation if no models are present
-            conversionUnitPage.addConversionUnitWithoutVariation();
-        }
+        conversionUnitPage.addConversionUnitConfiguration();
     }
 
     /**
@@ -1161,12 +1148,12 @@ public class BaseProductPage extends BaseProductElement {
         logger.info("===== STEP =====> [CreateWithoutVariationProduct] START... ");
 
         // Generate product information
-        generateProductInformation(isIMEIProduct, false, branchStock);
+        fetchProductInformation(isIMEIProduct, false, branchStock);
 
         // Initialize product details
         initBasicProductInformation();
         inputWithoutVariationPrice();
-        if (!manageByLotDate) {
+        if (!utilsProductInfo.isLotAvailable()) {
             inputWithoutVariationStock();
         }
         inputWithoutVariationProductSKU();
@@ -1194,14 +1181,14 @@ public class BaseProductPage extends BaseProductElement {
         logger.info("===== STEP =====> [CreateVariationProduct] START... ");
 
         // Generate product information
-        generateProductInformation(isIMEIProduct, true, branchStock);
+        fetchProductInformation(isIMEIProduct, true, branchStock);
 
         // Initialize product details
         initBasicProductInformation();
         addVariations();
         uploadVariationImage("images.jpg");
         inputVariationPrice();
-        if (!manageByLotDate) {
+        if (!utilsProductInfo.isLotAvailable()) {
             inputVariationStock();
         }
         inputVariationSKU();
@@ -1226,12 +1213,12 @@ public class BaseProductPage extends BaseProductElement {
         logger.info("===== STEP =====> [UpdateWithoutVariationProduct] START... ");
 
         // Generate updated product information
-        generateProductInformation(productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER"), true, branchStock);
+        fetchProductInformation(utilsProductInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER"), true, branchStock);
 
         // Initialize product details
         initBasicProductInformation();
         inputWithoutVariationPrice();
-        if (!manageByLotDate) {
+        if (!utilsProductInfo.isLotAvailable()) {
             updateWithoutVariationStock();
         }
         updateWithoutVariationProductSKU();
@@ -1250,19 +1237,19 @@ public class BaseProductPage extends BaseProductElement {
      * </p>
      *
      * @param branchStock Stock quantities for each branch.
-     * @throws InterruptedException If an error occurs during the process.
      * @return The current instance of `BaseProductPage` for method chaining.
+     * @throws InterruptedException If an error occurs during the process.
      */
     public BaseProductPage updateVariationProduct(int... branchStock) throws InterruptedException {
         // Log the start of product update
         logger.info("===== STEP =====> [UpdateVariationProduct] START... ");
 
         // Generate updated product information
-        generateProductInformation(productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER"), true, branchStock);
+        fetchProductInformation(utilsProductInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER"), true, branchStock);
 
         // Initialize product details
         initBasicProductInformation();
-        if (!productInfo.isLotAvailable() && !manageByLotDate) {
+        if (!utilsProductInfo.isLotAvailable()) {
             addVariations();
             uploadVariationImage("images.jpg");
             inputVariationPrice();
@@ -1291,11 +1278,11 @@ public class BaseProductPage extends BaseProductElement {
         logger.info("===== STEP =====> [ChangeProductStatus] START... ");
 
         // Get current product information
-        APIGetProductDetail.ProductInformation productInfo = new APIGetProductDetail(credentials).getProductInformation(productId);
+        var productInfo = fetchProductInformation(productId);
 
         // Update variation status
-        APIGetProductDetail.getVariationModelList(productInfo).forEach(modelId ->
-                new VariationDetailPage(driver, modelId, productInfo, credentials)
+        IntStream.range(0, APIGetProductDetail.getVariationModelList(productInfo).size()).forEach(varIndex ->
+                new VariationDetailPage(driver, varIndex, productInfo, credentials)
                         .changeVariationStatus(List.of("ACTIVE", "INACTIVE").get(nextInt(2)))
         );
 
@@ -1310,111 +1297,21 @@ public class BaseProductPage extends BaseProductElement {
      * translation process.
      * </p>
      *
-     * @param productID The ID of the product for which translations are to be edited.
+     * @param productId The ID of the product for which translations are to be edited.
      */
-    public void editVariationTranslation(int productID) {
+    public void editVariationTranslation(int productId) {
         // Log the start of adding variation translations
         logger.info("===== STEP =====> [AddVariationTranslation] START... ");
 
         // Get current product information
-        APIGetProductDetail.ProductInformation productInfo = new APIGetProductDetail(credentials).getProductInformation(productID);
+        var productInfo = fetchProductInformation(productId);
 
-        APIGetProductDetail.getVariationModelList(productInfo).forEach(barcode ->
-                new VariationDetailPage(driver, barcode, productInfo, credentials).updateVariationProductNameAndDescription()
+        IntStream.range(0, APIGetProductDetail.getVariationModelList(productInfo).size()).forEach(varIndex ->
+                new VariationDetailPage(driver, varIndex, productInfo, credentials).updateVariationProductNameAndDescription()
         );
 
         // Log the completion of adding variation translations
         logger.info("===== STEP =====> [AddVariationTranslation] DONE!!! ");
-    }
-
-    /**
-     * Adds translation details for a product.
-     * <p>
-     * This method opens the edit translation popup, inputs translated product details, including name, description, SEO
-     * fields, and variation details (if any), and saves the translation. The process is logged for tracking.
-     * </p>
-     *
-     * @param language      The language code for the translation.
-     * @param languageName  The language name for the translation.
-     * @param productInfo   The product information to be translated.
-     */
-    void addTranslation(String language, String languageName, APIGetProductDetail.ProductInformation productInfo) {
-        // Open edit translation popup if more than one language is available
-        if (APIGetStoreLanguage.getAllStoreLanguageCodes(languageInfoList).size() > 1) {
-            if (!webUtils.getListElement(loc_dlgEditTranslation).isEmpty()) {
-                // Convert language code to language name if necessary
-                if (language.equals("en") && (webUtils.getLangKey().equals("vi"))) {
-                    languageName = "Tiếng Anh";
-                }
-
-                // Select language for translation
-                if (!webUtils.getText(loc_dlgEditTranslation_ddvSelectedLanguage).equals(languageName)) {
-                    webUtils.click(loc_dlgEditTranslation_ddvSelectedLanguage);
-                    webUtils.click(dlgEditTranslation_ddvOtherLanguage(languageName));
-                }
-                logger.info("Add translation for '{}' language.", languageName);
-
-                // Input translated product name
-                String name = "[%s] %s%s".formatted(language,
-                        productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER") ?
-                                "Auto - IMEI - without variation - " : "Auto - Normal - without variation - ",
-                        OffsetDateTime.now()
-                );
-                webUtils.sendKeys(loc_dlgEditTranslation_txtProductName, name);
-                logger.info("Input translation for product name: {}", name);
-
-                // Input translated product description
-                String description = "[%s] product description".formatted(language);
-                webUtils.sendKeys(loc_dlgEditTranslation_txtProductDescription, description);
-                logger.info("Input translation for product description: {}", description);
-
-                // Input variation details if applicable
-                if (productInfo.isHasModel()) {
-                    List<String> variationName = IntStream.range(0,
-                            APIGetProductDetail.getVariationGroupName(productInfo, defaultLanguage).split("\\|").length
-                    ).mapToObj(i -> "%s_var%s".formatted(language, i + 1)).toList();
-                    List<String> variationValue = new ArrayList<>();
-                    List<String> variationList = APIGetProductDetail.getVariationValues(productInfo, defaultLanguage);
-                    variationList.stream()
-                            .map(varValue -> varValue.replace(defaultLanguage, language).split("\\|"))
-                            .forEach(varValueList -> Arrays.stream(varValueList)
-                                    .filter(varValue -> !variationValue.contains(varValue))
-                                    .forEach(var -> variationValue.add(var.contains("%s_".formatted(language)) ? var : "%s_%s".formatted(language, var)))
-                            );
-                    Collections.sort(variationList);
-                    // Input variation name
-                    IntStream.range(0, variationName.size())
-                            .forEachOrdered(varIndex -> webUtils.sendKeys(loc_dlgEditTranslation_txtVariationName, varIndex, variationName.get(varIndex)));
-                    // Input variation value
-                    IntStream.range(0, variationValue.size())
-                            .forEachOrdered(varIndex -> webUtils.sendKeys(loc_dlgEditTranslation_txtVariationValue, varIndex, variationValue.get(varIndex)));
-                }
-
-                // Input SEO fields
-                String title = "[%s] Auto - SEO Title - %s".formatted(language, Instant.now().toEpochMilli());
-                webUtils.sendKeys(loc_dlgEditTranslation_txtSEOTitle, title);
-                logger.info("Input translation for SEO title: {}", title);
-
-                String seoDescription = "[%s] Auto - SEO Description - %s".formatted(language, Instant.now().toEpochMilli());
-                webUtils.sendKeys(loc_dlgEditTranslation_txtSEODescription, seoDescription);
-                logger.info("Input translation for SEO description: {}", seoDescription);
-
-                String keywords = "[%s] Auto - SEO Keyword - %s".formatted(language, Instant.now().toEpochMilli());
-                webUtils.sendKeys(loc_dlgEditTranslation_txtSEOKeywords, keywords);
-                logger.info("Input translation for SEO keywords: {}", keywords);
-
-                String url = "%s%s".formatted(language, Instant.now().toEpochMilli());
-                webUtils.sendKeys(loc_dlgEditTranslation_txtSEOUrl, url);
-                logger.info("Input translation for SEO url: {}", url);
-
-                // Save changes
-                webUtils.clickJS(loc_dlgEditTranslation_btnSave);
-                logger.info("Save translation");
-                Assert.assertFalse(webUtils.getListElement(loc_dlgToastSuccess).isEmpty(),
-                        "Cannot add new translation for '%s' language.".formatted(languageName)
-                );
-            }
-        }
     }
 
     /**
@@ -1423,36 +1320,30 @@ public class BaseProductPage extends BaseProductElement {
      * This method navigates to the product detail page, retrieves available store languages, and adds translations for
      * each language that has not been translated yet. The process is logged for tracking.
      * </p>
-     *
-     * @param productId The ID of the product for which translations are to be edited.
      */
-    public void editTranslation(int productId) {
+    public void editTranslation() {
         // Log the start of adding product translations
         logger.info("===== STEP =====> [AddProductTranslation] START... ");
 
-        // Navigate to product detail page
-        navigateToProductPage(productId);
-        logger.info("Navigate to product detail page, productId: {}", productId);
-
-        // Get store languages and product information
+        // Retrieve the list of store languages and product information
         List<String> langCodeList = new ArrayList<>(storeLanguageCodes);
         List<String> langNameList = new ArrayList<>(storeLanguageNames);
+
+        // Remove the default language from the list
         langCodeList.remove(defaultLanguage);
-        logger.info("List languages are not translated: {}", langCodeList.toString());
+        logger.info("Languages not yet translated: {}", langCodeList);
 
-        productInfo = new APIGetProductDetail(credentials).getProductInformation(productId);
-
-        // Add translations
+        // Open the edit translation popup
         webUtils.clickJS(loc_lblEditTranslation);
-        Assert.assertFalse(webUtils.getListElement(loc_dlgEditTranslation).isEmpty(),
-                "Cannot open edit translation popup."
-        );
 
-        langCodeList.forEach(langCode ->
-                addTranslation(langCode, langNameList.get(storeLanguageCodes.indexOf(langCode)), productInfo)
-        );
+        // Add translations for each language that has not been translated yet
+        langCodeList.forEach(langCode -> {
+            String langName = langNameList.get(storeLanguageCodes.indexOf(langCode));
+            new EditTranslationPopup(driver, langCode, langName, defaultLanguage)
+                    .addTranslation(apiProductInfo);
+        });
 
-        // Save updated translations
+        // Save the updated translations
         completeUpdateProduct();
 
         // Log the completion of adding product translations
@@ -1469,12 +1360,9 @@ public class BaseProductPage extends BaseProductElement {
         // Log the start of adding variation attributes
         logger.info("===== STEP =====> [AddVariationAttribution] START... ");
 
-        // Get current product information
-        APIGetProductDetail.ProductInformation productInfo = new APIGetProductDetail(credentials).getProductInformation(productId);
-
         // Update variation attributes
-        APIGetProductDetail.getVariationModelList(productInfo).forEach(modelId ->
-                new VariationDetailPage(driver, modelId, productInfo, credentials).updateAttribution()
+        IntStream.range(0, APIGetProductDetail.getVariationModelList(apiProductInfo).size()).forEach(varIndex ->
+                new VariationDetailPage(driver, varIndex, apiProductInfo, credentials).updateAttribution()
         );
 
         // Log the completion of adding variation attributes

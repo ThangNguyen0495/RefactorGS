@@ -44,7 +44,7 @@ public class VariationDetailPage {
     /**
      * The variation value for the product.
      */
-    private final String variation;
+    private final String variationValue;
 
     /**
      * The default language code for the seller's store.
@@ -81,7 +81,7 @@ public class VariationDetailPage {
         this.webUtils = new WebUtils(driver);
         this.defaultLanguage = new APIGetStoreDefaultLanguage(credentials).getDefaultLanguage();
         this.languageInfoList = new APIGetStoreLanguage(credentials).getStoreLanguageInformation();
-        this.variation = APIGetProductDetail.getVariationValue(productInfo, defaultLanguage, varIndex);
+        this.variationValue = APIGetProductDetail.getVariationValue(productInfo, defaultLanguage, varIndex);
     }
 
     // Locators
@@ -120,10 +120,10 @@ public class VariationDetailPage {
      * Updates the product version name.
      */
     private void updateVariationProductName() {
-        String name = "[Update][%s][%s] product version name".formatted(defaultLanguage, variation);
+        String name = "[Update][%s][%s] product version name".formatted(defaultLanguage, variationValue);
         webUtils.click(loc_txtProductVersionName);
         webUtils.sendKeys(loc_txtProductVersionName, name);
-        logger.info("[{}] Updated product version name to: {}", variation, name);
+        logger.info("[{}] Updated product version name to: {}", variationValue, name);
     }
 
     /**
@@ -136,9 +136,9 @@ public class VariationDetailPage {
         }
 
         if (!reuseDescription) {
-            String description = "[Update][%s][%s] Product description".formatted(defaultLanguage, variation);
+            String description = "[Update][%s][%s] Product description".formatted(defaultLanguage, variationValue);
             webUtils.sendKeys(loc_rtfDescription, description);
-            logger.info("[{}] Updated product description to: {}.", variation, description);
+            logger.info("[{}] Updated product description to: {}.", variationValue, description);
         }
     }
 
@@ -147,7 +147,7 @@ public class VariationDetailPage {
      */
     private void completeUpdateProductVersionNameAndDescription() {
         webUtils.click(loc_btnSave);
-        logger.info("[{}] Update successful.", variation);
+        logger.info("[{}] Update successfully.", variationValue);
     }
 
     /**
@@ -159,7 +159,7 @@ public class VariationDetailPage {
     private void updateVariationTranslation(String languageCode, String languageName) {
         String variation = APIGetProductDetail.getVariationValue(productInfo, languageCode, varIndex);
         if (!webUtils.getListElement(loc_dlgEditTranslation).isEmpty()) {
-            if (languageCode.equals("en") && webUtils.getLangKey().equals("vi")) {
+            if (languageCode.equals("en") && webUtils.getLocalStorageValue("langKey").equals("vi")) {
                 languageName = "Tiếng Anh";
             }
 
@@ -189,7 +189,6 @@ public class VariationDetailPage {
         navigateToVariationDetailPage();
         updateVariationProductName();
         updateVariationProductDescription();
-        completeUpdateProductVersionNameAndDescription();
 
         List<String> langCodeList = new ArrayList<>(APIGetStoreLanguage.getAllStoreLanguageCodes(languageInfoList));
         List<String> langNameList = new ArrayList<>(APIGetStoreLanguage.getAllStoreLanguageNames(languageInfoList));
@@ -199,6 +198,8 @@ public class VariationDetailPage {
         Assert.assertFalse(webUtils.getListElement(loc_dlgEditTranslation).isEmpty(), "Cannot open edit translation popup.");
 
         langCodeList.forEach(languageCode -> updateVariationTranslation(languageCode, langNameList.get(langCodeList.indexOf(languageCode))));
+
+        completeUpdateProductVersionNameAndDescription();
     }
 
     /**
@@ -211,7 +212,7 @@ public class VariationDetailPage {
         if (APIGetProductDetail.getVariationStatus(productInfo, varIndex).equals(status)) {
             webUtils.clickJS(loc_btnDeactivate);
         }
-        logger.info("[{}] Status updated to: {}.", variation, status);
+        logger.info("[{}] Status updated to: {}.", variationValue, status);
     }
 
     /**
@@ -221,8 +222,10 @@ public class VariationDetailPage {
         navigateToVariationDetailPage();
 
         boolean isUseParentAttribution = nextBoolean();
-        if (!Objects.equals(webUtils.isCheckedJS(loc_chkReUseParentAttribution), isUseParentAttribution)) {
-            webUtils.clickJS(loc_chkReUseParentAttribution);
+        if (isUseParentAttribution) {
+            webUtils.checkCheckbox(loc_chkReUseParentAttribution);
+        } else {
+            webUtils.uncheckCheckbox(loc_chkReUseParentAttribution);
         }
 
         if (!isUseParentAttribution) {

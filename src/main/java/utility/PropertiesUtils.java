@@ -12,6 +12,11 @@ public class PropertiesUtils {
     private static final String PROPERTIES_FILE = "config.properties";
     private static final Properties properties = new Properties();
 
+    /*
+      Static block to load the properties from the "config.properties" file.
+      The file is loaded from the classpath, and if it cannot be found or an error occurs while loading,
+      a RuntimeException is thrown.
+     */
     static {
         try (InputStream input = PropertiesUtils.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
             if (input == null) {
@@ -110,9 +115,19 @@ public class PropertiesUtils {
     /**
      * Retrieves the Storefront endpoint property value.
      *
-     * @return The Storefront endpoint property value.
+     * @return The Storefront endpoint property value as a String.
      */
     public static String getSFEndPoint() {
         return getProperty("sfEndpoint");
     }
+
+    /**
+     * Retrieves the value of the "enableProxy" property and returns it as a boolean.
+     *
+     * @return {@code true} if the "enableProxy" property is set to "true", {@code false} otherwise.
+     */
+    public static boolean getEnableProxy() {
+        return Boolean.parseBoolean(getProperty("enableProxy"));
+    }
+
 }

@@ -10,8 +10,15 @@ import static io.restassured.RestAssured.given;
 
 public class APIUtils {
 
+    /**
+     * Initializes the APIUtils class.
+     * If the "enableProxy" property is set to true, it configures RestAssured to use a proxy on localhost:8888.
+     * Also sets the base URI for API requests using the value from the "apiHost" property.
+     */
     public APIUtils() {
-        RestAssured.proxy("localhost", 8888);
+        if (PropertiesUtils.getEnableProxy()) {
+            RestAssured.proxy("localhost", 8888);
+        }
         RestAssured.baseURI = PropertiesUtils.getAPIHost();
     }
 

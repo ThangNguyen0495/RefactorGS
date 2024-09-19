@@ -151,7 +151,7 @@ public class WebUtils {
      *                Use 0 to click the first element.
      */
     public void click(By locator, int index) {
-        retryOnStaleElement( () -> {
+        retryOnStaleElement(() -> {
             // Highlight the element by adding a red border
             highlightElement(locator, index);
 
@@ -194,11 +194,14 @@ public class WebUtils {
      *                Use 0 to click the first element.
      */
     public void clickJS(By locator, int index) {
-        // Highlight the element
-        ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator, index));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", getElement(locator, index));
-        // Perform click using JavaScript
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator, index));
+        retryOnStaleElement( () -> {
+            // Highlight the element
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator, index));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", getElement(locator, index));
+            // Perform click using JavaScript
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator, index));
+            return null;
+        });
     }
 
 
@@ -338,10 +341,12 @@ public class WebUtils {
     /**
      * Clears the text from a web element specified by the given locator and index.
      * This method sends a sequence of DELETE and BACK_SPACE keys to ensure the field is cleared.
-     * It retries up to a maximum number of attempts if the element is stale or not interactable.
+     * It retries up to 5 times if the element is stale or not interactable.
+     * If the field is not cleared after 5 attempts, an exception is thrown.
      *
      * @param locator the {@link By} locator used to find the web element
-     * @param index the index of the element to interact with, if multiple elements are matched
+     * @param index   the index of the element to interact with, if multiple elements are matched
+     * @throws IllegalStateException if the element cannot be cleared after 5 attempts
      */
     public void clear(By locator, int index) {
         // Generate an array of CharSequence consisting of DELETE and BACK_SPACE keys repeated 100 times
@@ -351,20 +356,28 @@ public class WebUtils {
 
         // Retry up to 5 times to clear the field
         for (int retriesIndex = 0; retriesIndex < 5; retriesIndex++) {
-            // Exit if the field is already empty
-            if (getElement(locator, index).getText().isEmpty() &&
-                (getValue(locator, index) == null || getValue(locator, index).isEmpty())) {
-                break;
-            }
-
-            // Attempt to clear the text field by sending keystrokes
             retryOnStaleElement(() -> {
+                // Check if the element is already empty
+                if (getElement(locator, index).getText().isEmpty() &&
+                    (getValue(locator, index) == null || getValue(locator, index).isEmpty())) {
+                    return null; // Field is already clear, exit
+                }
+
+                // Attempt to clear the field by sending keystrokes
                 getElement(locator, index).sendKeys(clearChars);
                 return null;
             });
-        }
-    }
 
+            // Check if the field is cleared after sending the keys
+            if (getElement(locator, index).getText().isEmpty() &&
+                (getValue(locator, index) == null || getValue(locator, index).isEmpty())) {
+                return; // Successfully cleared the field, exit
+            }
+        }
+
+        // After 5 attempts, if the field is still not cleared, throw an exception
+        throw new IllegalStateException("Failed to clear the text field after 5 attempts.");
+    }
 
 
     /**
@@ -452,21 +465,40 @@ public class WebUtils {
     }
 
     /**
-     * Retrieves the value of 'langKey' from localStorage using JavaScript.
-     * Refreshes the page and retries if the value is null.
+     * Retrieves the value of a specified key from localStorage using JavaScript.
+     * Refreshes the page and retries up to 5 times if the value is null.
      *
-     * @return The value of 'langKey' from localStorage.
+     * @param key The key to retrieve from localStorage.
+     * @return The value of the specified key from localStorage.
+     * @throws IllegalStateException if the value is still null after 5 attempts.
      */
-    public String getLangKey() {
+    public String getLocalStorageValue(String key) {
+        return getLocalStorageValueWithRetry(key, 5);
+    }
+
+    /**
+     * Helper method that retrieves the value of a specified key from localStorage and retries a specified number of times.
+     *
+     * @param key              The key to retrieve from localStorage.
+     * @param retriesRemaining The number of retries left.
+     * @return The value of the specified key from localStorage.
+     * @throws IllegalStateException if the value is still null after the specified number of retries.
+     */
+    private String getLocalStorageValueWithRetry(String key, int retriesRemaining) {
         return retryOnStaleElement(() -> {
-            Object langKey = ((JavascriptExecutor) driver).executeScript("return localStorage.getItem('langKey')");
-            if (langKey == null) {
-                driver.navigate().refresh();
-                return getLangKey();
+            Object value = ((JavascriptExecutor) driver).executeScript("return localStorage.getItem(arguments[0])", key);
+            if (value == null) {
+                if (retriesRemaining > 0) {
+                    driver.navigate().refresh();
+                    return getLocalStorageValueWithRetry(key, retriesRemaining - 1); // Retry by calling the method recursively
+                } else {
+                    throw new IllegalStateException("Failed to retrieve '" + key + "' from localStorage after 5 attempts.");
+                }
             }
-            return langKey.toString();
+            return value.toString(); // Return the retrieved value as a string
         });
     }
+
 
     /**
      * Waits for the element identified by the locator to become visible.
@@ -529,4 +561,74 @@ public class WebUtils {
             return driver.getCurrentUrl().contains(path);
         });
     }
+
+    /**
+     * Attempts to check a checkbox by selecting it, retrying up to 5 times if necessary.
+     * This method uses JavaScript to check the checkbox if it is not already selected.
+     * If the checkbox is still unchecked after 5 attempts, an exception is thrown.
+     *
+     * @param locator The locator for the checkbox element.
+     */
+    public void checkCheckbox(By locator) {
+        checkCheckbox(locator, 0);
+    }
+
+    /**
+     * Attempts to check a checkbox by selecting it, retrying up to 5 times if necessary.
+     * This method uses JavaScript to check the checkbox at a specified index if there are multiple checkboxes.
+     * If the checkbox is still unchecked after 5 attempts, an exception is thrown.
+     *
+     * @param locator The locator for the checkbox element.
+     * @param index   The index of the checkbox if multiple checkboxes match the locator.
+     * @throws IllegalStateException if the checkbox is still unchecked after 5 attempts.
+     */
+    public void checkCheckbox(By locator, int index) {
+        for (int retriesIndex = 0; retriesIndex < 5; retriesIndex++) {
+            if (!isCheckedJS(locator, index)) {
+                clickJS(locator, index); // Attempts to check the checkbox using JS
+            } else {
+                return; // Checkbox is checked, exit method
+            }
+        }
+        // After 5 attempts, if the checkbox is still unchecked, throw an error
+        if (!isCheckedJS(locator, index)) {
+            throw new IllegalStateException("Failed to check the checkbox after 5 attempts.");
+        }
+    }
+
+    /**
+     * Attempts to uncheck a checkbox, retrying up to 5 times if necessary.
+     * This method uses JavaScript to uncheck the checkbox if it is currently selected.
+     * If the checkbox is still checked after 5 attempts, an exception is thrown.
+     *
+     * @param locator The locator for the checkbox element.
+     */
+    public void uncheckCheckbox(By locator) {
+        uncheckCheckbox(locator, 0);
+    }
+
+    /**
+     * Attempts to uncheck a checkbox, retrying up to 5 times if necessary.
+     * This method uses JavaScript to uncheck the checkbox at a specified index if there are multiple checkboxes.
+     * If the checkbox is still checked after 5 attempts, an exception is thrown.
+     *
+     * @param locator The locator for the checkbox element.
+     * @param index   The index of the checkbox if multiple checkboxes match the locator.
+     * @throws IllegalStateException if the checkbox is still checked after 5 attempts.
+     */
+    public void uncheckCheckbox(By locator, int index) {
+        for (int retriesIndex = 0; retriesIndex < 5; retriesIndex++) {
+            if (isCheckedJS(locator, index)) {
+                clickJS(locator, index); // Attempts to uncheck the checkbox using JS
+            } else {
+                return; // Checkbox is unchecked, exit method
+            }
+        }
+        // After 5 attempts, if the checkbox is still checked, throw an error
+        if (isCheckedJS(locator, index)) {
+            throw new IllegalStateException("Failed to uncheck the checkbox after 5 attempts.");
+        }
+    }
+
+
 }

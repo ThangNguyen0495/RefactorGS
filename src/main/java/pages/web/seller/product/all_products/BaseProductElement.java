@@ -86,31 +86,15 @@ public class BaseProductElement {
     }
 
     protected final By loc_btnDeleteVariation = By.cssSelector(".d-none .product-form-variation-selector__btn-delete");
-    protected final By loc_dlgEditTranslation = By.cssSelector(".modal.fade.show");
-    protected final By loc_dlgEditTranslation_ddvSelectedLanguage = By.cssSelector(".product-translate .text-truncate");
-
-    protected By dlgEditTranslation_ddvOtherLanguage(String languageName) {
-        return By.xpath("//*[@class = 'uik-select__label']//*[text()='%s']".formatted(languageName));
-    }
-
-    protected final By loc_dlgEditTranslation_txtProductName = By.cssSelector("#informationName");
-    protected final By loc_dlgEditTranslation_txtProductDescription = By.cssSelector(".modal-body .fr-element");
-    protected final By loc_dlgEditTranslation_txtVariationName = By.xpath("//*[@class = 'product-translate-modal']/*[@class = 'product-translate__titleBody']/h3/parent::div/following-sibling::div[@class]/div[1]/descendant::input");
-    protected final By loc_dlgEditTranslation_txtVariationValue = By.xpath("//*[@class = 'product-translate-modal']/*[@class = 'product-translate__titleBody']/h3/parent::div/following-sibling::div[@class]/div[2]/descendant::input");
-    protected final By loc_dlgEditTranslation_txtSEOTitle = By.cssSelector(".modal-body #seoTitle");
-    protected final By loc_dlgEditTranslation_txtSEODescription = By.cssSelector(".modal-body #seoDescription");
-    protected final By loc_dlgEditTranslation_txtSEOKeywords = By.cssSelector(".modal-body #seoKeywords");
-    protected final By loc_dlgEditTranslation_txtSEOUrl = By.cssSelector(".modal-body #seoUrl");
-    protected final By loc_dlgEditTranslation_btnSave = By.cssSelector(".modal-footer .gs-button__green");
-    protected final By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast--success");
     protected final By loc_lblVariations = By.cssSelector("[class $= --n1] > .gs-widget:nth-child(4) > .gs-widget__header > h3");
     protected final By loc_chkAddWholesalePricing = By.cssSelector(".uik-checkbox__wrapper > [name='enabledListing']");
     protected final By loc_btnConfigureWholesalePricing = By.xpath("//label/*[@name = 'enabledListing']//ancestor::div[contains(@class,'gs-widget__header')]/following-sibling::div//button");
     protected final By loc_chkAddConversionUnit = By.cssSelector(".uik-checkbox__wrapper > [name='conversionUnitCheckbox']");
-    protected final By loc_btnConfigureAddConversionUnit = By.xpath("//*[@name = 'conversionUnitCheckbox']//ancestor::div[contains(@class, 'border-radius-bottom')]/following-sibling::div//button");
+    protected final By loc_btnConfigureAddConversionUnit = By.xpath("//div[div/label/input[@name=\"conversionUnitCheckbox\"]]/following-sibling::div//button");
     protected final By loc_dlgConfirm_btnOK = By.cssSelector(".modal-footer .gs-button__green");
     protected final By loc_lblEditTranslation = By.xpath("(//*[text() = 'Sửa bản dịch' or text() = 'Edit Translation'])[1]/parent::div/parent::button");
     protected final By loc_ttlUpdatePrice = By.cssSelector(".modal-title");
     protected final By loc_ttlUpdateSKU = By.cssSelector(".modal-title");
     protected final By loc_lblSEOSetting = By.xpath("//div[contains(@class, ' seo-editor')]//div/h3");
+
 }

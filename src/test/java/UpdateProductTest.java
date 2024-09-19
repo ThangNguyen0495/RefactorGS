@@ -71,7 +71,6 @@ public class UpdateProductTest {
         productPage.setHasDimension(false)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
@@ -79,14 +78,12 @@ public class UpdateProductTest {
         productPage.setHasDimension(true)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
     void UP_PRODUCT_G1_03_UpdateProductWithInStock() {
         productPage.navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
@@ -101,7 +98,6 @@ public class UpdateProductTest {
         productPage.setNoDiscount(false)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
@@ -109,7 +105,6 @@ public class UpdateProductTest {
         productPage.setNoDiscount(true)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
@@ -117,7 +112,6 @@ public class UpdateProductTest {
         productPage.setNoCost(true)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
@@ -125,7 +119,6 @@ public class UpdateProductTest {
         productPage.setNoCost(false)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
@@ -133,7 +126,6 @@ public class UpdateProductTest {
         productPage.setSellingPlatform(false, false, false, false)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
@@ -141,7 +133,6 @@ public class UpdateProductTest {
         productPage.setSellingPlatform(nextBoolean(), nextBoolean(), nextBoolean(), nextBoolean())
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
@@ -149,7 +140,6 @@ public class UpdateProductTest {
         productPage.setHasAttribution(true)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
@@ -157,7 +147,6 @@ public class UpdateProductTest {
         productPage.setHasAttribution(false)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
@@ -165,7 +154,6 @@ public class UpdateProductTest {
         productPage.setHasSEO(true)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
@@ -173,50 +161,50 @@ public class UpdateProductTest {
         productPage.setHasSEO(false)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
-    void UP_PRODUCT_G1_15_UpdateProductWithoutManageByLotDate() {
-        productPage.setManageByLotDate(false)
-                .navigateToUpdateProductPage(productId)
-                .updateWithoutVariationProduct(5);
-
-    }
-
-    @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
-    void UP_PRODUCT_G1_16_UpdateProductWithManageByLotDate() {
+    void UP_PRODUCT_G1_15_UpdateProductWithManageByLotDate() {
         productPage.setManageByLotDate(true)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
+    }
 
+    @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
+    void UP_PRODUCT_G1_16_UpdateProductWithoutManageByLotDate() {
+        productPage.setManageByLotDate(false)
+                .navigateToUpdateProductPage(productId)
+                .updateWithoutVariationProduct(5);
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
     void UP_PRODUCT_G1_17_EditTranslation() {
-        productPage.editTranslation(productId);
+        productPage.navigateToUpdateProductPage(productId)
+                .editTranslation();
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
     void UP_PRODUCT_G1_18_ChangeProductStatus() {
-        productPage.changeProductStatus("INACTIVE", productId);
+        productPage.navigateToUpdateProductPage(productId)
+                .changeProductStatus("INACTIVE", productId);
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
     void UP_PRODUCT_G1_19_AddWholesaleProduct() {
-        productPage.configWholesaleProduct(productId);
-
+        productPage.navigateToUpdateProductPage(productId)
+                .configWholesaleProduct();
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
     void UP_PRODUCT_G1_20_AddConversionUnit() {
-        productPage.configConversionUnit(productId);
-
+        productPage.navigateToUpdateProductPage(productId)
+                .configConversionUnit();
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Without variation")
     void UP_PRODUCT_G1_21_DeleteProduct() {
-        productPage.deleteProduct(productId);
+        productPage.navigateToUpdateProductPage(productId)
+                .deleteProduct();
     }
 
     //G2: IMEI product without variation
@@ -225,7 +213,6 @@ public class UpdateProductTest {
         productPage.setHasDimension(false)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Without variation")
@@ -233,14 +220,12 @@ public class UpdateProductTest {
         productPage.setHasDimension(true)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Without variation")
     void UP_PRODUCT_G2_03_UpdateProductWithInStock() {
         productPage.navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Without variation")
@@ -249,7 +234,6 @@ public class UpdateProductTest {
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(0);
 
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Without variation")
@@ -257,7 +241,6 @@ public class UpdateProductTest {
         productPage.setNoDiscount(false)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Without variation")
@@ -265,7 +248,6 @@ public class UpdateProductTest {
         productPage.setNoDiscount(true)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Without variation")
@@ -273,7 +255,6 @@ public class UpdateProductTest {
         productPage.setNoCost(true)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Without variation")
@@ -281,7 +262,6 @@ public class UpdateProductTest {
         productPage.setNoCost(false)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Without variation")
@@ -289,7 +269,6 @@ public class UpdateProductTest {
         productPage.setSellingPlatform(false, false, false, false)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Without variation")
@@ -297,7 +276,6 @@ public class UpdateProductTest {
         productPage.setSellingPlatform(nextBoolean(), nextBoolean(), nextBoolean(), nextBoolean())
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Without variation")
@@ -305,7 +283,6 @@ public class UpdateProductTest {
         productPage.setHasAttribution(true)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Without variation")
@@ -313,7 +290,6 @@ public class UpdateProductTest {
         productPage.setHasAttribution(false)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Without variation")
@@ -321,7 +297,6 @@ public class UpdateProductTest {
         productPage.setHasSEO(true)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Without variation")
@@ -329,30 +304,31 @@ public class UpdateProductTest {
         productPage.setHasSEO(false)
                 .navigateToUpdateProductPage(productId)
                 .updateWithoutVariationProduct(5);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Without variation")
     void UP_PRODUCT_G2_15_EditTranslation() {
-        productPage.editTranslation(productId);
+        productPage.navigateToUpdateProductPage(productId)
+                .editTranslation();
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Without variation")
     void UP_PRODUCT_G2_16_ChangeProductStatus() {
-        productPage.changeProductStatus("INACTIVE", productId);
+        productPage.navigateToUpdateProductPage(productId)
+                .changeProductStatus("INACTIVE", productId);
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Without variation")
     void UP_PRODUCT_G2_17_AddWholesaleProduct() {
 
-        productPage.configWholesaleProduct(productId);
-
+        productPage.navigateToUpdateProductPage(productId)
+                .configWholesaleProduct();
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Without variation")
     void UP_PRODUCT_G2_18_DeleteProduct() {
-        productPage.deleteProduct(productId);
-
+        productPage.navigateToUpdateProductPage(productId)
+                .deleteProduct();
     }
 
     //G3: Normal product with variation
@@ -361,7 +337,6 @@ public class UpdateProductTest {
         productPage.setHasDimension(false)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
@@ -369,14 +344,12 @@ public class UpdateProductTest {
         productPage.setHasDimension(true)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
     void UP_PRODUCT_G3_03_UpdateProductWithInStock() throws InterruptedException {
         productPage.navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
@@ -385,7 +358,6 @@ public class UpdateProductTest {
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(0);
 
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
@@ -393,7 +365,6 @@ public class UpdateProductTest {
         productPage.setNoDiscount(false)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
@@ -401,7 +372,6 @@ public class UpdateProductTest {
         productPage.setNoDiscount(true)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
@@ -409,7 +379,6 @@ public class UpdateProductTest {
         productPage.setNoCost(true)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
@@ -417,7 +386,6 @@ public class UpdateProductTest {
         productPage.setNoCost(false)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
@@ -425,7 +393,6 @@ public class UpdateProductTest {
         productPage.setSellingPlatform(false, false, false, false)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
@@ -433,16 +400,13 @@ public class UpdateProductTest {
         productPage.setSellingPlatform(nextBoolean(), nextBoolean(), nextBoolean(), nextBoolean())
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
-    void UP_PRODUCT_G3_11_UpdateProductWithAttribution() throws InterruptedException {
+    void UP_PRODUCT_G3_11_UpdateProductWithAttribution() {
         productPage.setHasAttribution(true)
                 .navigateToUpdateProductPage(productId)
-                .updateVariationProduct(1)
                 .addVariationAttribution();
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
@@ -450,7 +414,6 @@ public class UpdateProductTest {
         productPage.setHasAttribution(false)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
@@ -458,7 +421,6 @@ public class UpdateProductTest {
         productPage.setHasSEO(true)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
@@ -466,28 +428,26 @@ public class UpdateProductTest {
         productPage.setHasSEO(false)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
-    void UP_PRODUCT_G3_15_UpdateProductWithoutManageByLotDate() throws InterruptedException {
-        productPage.setManageByLotDate(false)
-                .navigateToUpdateProductPage(productId)
-                .updateVariationProduct(1);
-
-    }
-
-    @Test(groups = "[WEB][UPDATE] Normal product - Variation")
-    void UP_PRODUCT_G3_16_UpdateProductWithManageByLotDate() throws InterruptedException {
+    void UP_PRODUCT_G3_15_UpdateProductWithManageByLotDate() throws InterruptedException {
         productPage.setManageByLotDate(true)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
+    }
 
+    @Test(groups = "[WEB][UPDATE] Normal product - Variation")
+    void UP_PRODUCT_G3_16_UpdateProductWithoutManageByLotDate() throws InterruptedException {
+        productPage.setManageByLotDate(false)
+                .navigateToUpdateProductPage(productId)
+                .updateVariationProduct(1);
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
     void UP_PRODUCT_G3_17_EditTranslationForMainProduct() {
-        productPage.editTranslation(productId);
+        productPage.navigateToUpdateProductPage(productId)
+                .editTranslation();
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
@@ -502,27 +462,26 @@ public class UpdateProductTest {
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
     void UP_PRODUCT_G3_20_ChangeVariationStatus() {
-        productPage.changeProductStatus("ACTIVE", productId).changeVariationStatus(productId);
+        productPage.navigateToUpdateProductPage(productId)
+                .changeProductStatus("ACTIVE", productId).changeVariationStatus(productId);
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
     void UP_PRODUCT_G3_21_AddWholesaleProduct() {
-
-        productPage.configWholesaleProduct(productId);
-
+        productPage.navigateToUpdateProductPage(productId)
+                .configWholesaleProduct();
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
     void UP_PRODUCT_G3_22_AddConversionUnit() {
-
-        productPage.configWholesaleProduct(productId);
-
+        productPage.navigateToUpdateProductPage(productId)
+                .configConversionUnit();
     }
 
     @Test(groups = "[WEB][UPDATE] Normal product - Variation")
     void UP_PRODUCT_G3_23_DeleteProduct() {
-        productPage.deleteProduct(productId);
-
+        productPage.navigateToUpdateProductPage(productId)
+                .deleteProduct();
     }
 
     //G4: IMEI product with variation
@@ -531,7 +490,6 @@ public class UpdateProductTest {
         productPage.setHasDimension(false)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
@@ -539,14 +497,12 @@ public class UpdateProductTest {
         productPage.setHasDimension(true)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
     void UP_PRODUCT_G4_03_UpdateProductWithInStock() throws InterruptedException {
         productPage.navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
@@ -554,8 +510,6 @@ public class UpdateProductTest {
         productPage.setHasDimension(true)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(0);
-
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
@@ -563,7 +517,6 @@ public class UpdateProductTest {
         productPage.setNoDiscount(false)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
@@ -571,7 +524,6 @@ public class UpdateProductTest {
         productPage.setNoDiscount(true)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
@@ -579,7 +531,6 @@ public class UpdateProductTest {
         productPage.setNoCost(true)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
@@ -587,7 +538,6 @@ public class UpdateProductTest {
         productPage.setNoCost(false)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
@@ -595,7 +545,6 @@ public class UpdateProductTest {
         productPage.setSellingPlatform(false, false, false, false)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
@@ -603,7 +552,6 @@ public class UpdateProductTest {
         productPage.setSellingPlatform(nextBoolean(), nextBoolean(), nextBoolean(), nextBoolean())
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
@@ -612,7 +560,6 @@ public class UpdateProductTest {
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1)
                 .addVariationAttribution();
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
@@ -620,7 +567,6 @@ public class UpdateProductTest {
         productPage.setHasAttribution(false)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
@@ -628,7 +574,6 @@ public class UpdateProductTest {
         productPage.setHasSEO(true)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
@@ -636,12 +581,12 @@ public class UpdateProductTest {
         productPage.setHasSEO(false)
                 .navigateToUpdateProductPage(productId)
                 .updateVariationProduct(1);
-
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
     void UP_PRODUCT_G4_15_EditTranslationForMainProduct() {
-        productPage.editTranslation(productId);
+        productPage.navigateToUpdateProductPage(productId)
+                .editTranslation();
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
@@ -651,24 +596,26 @@ public class UpdateProductTest {
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
     void UP_PRODUCT_G4_17_ChangeProductStatus() {
-        productPage.changeProductStatus("INACTIVE", productId);
+        productPage.navigateToUpdateProductPage(productId)
+                .changeProductStatus("INACTIVE", productId);
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
     void UP_PRODUCT_G4_18_ChangeVariationStatus() {
-        productPage.changeProductStatus("ACTIVE", productId).changeVariationStatus(productId);
+        productPage.navigateToUpdateProductPage(productId)
+                .changeProductStatus("ACTIVE", productId).changeVariationStatus(productId);
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
     void UP_PRODUCT_G4_19_AddWholesaleProduct() {
 
-        productPage.configWholesaleProduct(productId);
-
+        productPage.navigateToUpdateProductPage(productId)
+                .configWholesaleProduct();
     }
 
     @Test(groups = "[WEB][UPDATE] IMEI product - Variation")
     void UP_PRODUCT_G4_20_DeleteProduct() {
-        productPage.deleteProduct(productId);
-
+        productPage.navigateToUpdateProductPage(productId)
+                .deleteProduct();
     }
 }

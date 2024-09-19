@@ -12,6 +12,7 @@ import utility.WebUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 
@@ -25,148 +26,166 @@ public class ConversionUnitPage {
     private final APIDashboardLogin.Credentials credentials;
     private final Logger logger = LogManager.getLogger();
     private final APIGetProductDetail.ProductInformation productInfo;
-    List<String> variationList;
+    private final List<String> variationValues;
     private final List<APIGetConversionUnitList.UnitInformation> unitInfoList;
+
+    // Locators
+    private final By loc_btnSelectUnit = By.xpath("//*[text() = 'Chọn đơn vị' or text() = 'Select unit']/parent::button");
+    private final By loc_btnSelectVariation = By.cssSelector(".gs-button__green--outline");
+    private final By loc_btnSave = By.xpath("//*[text() = 'Lưu' or text() = 'Save']/parent::button");
+    private By loc_ddvUnitResult(String unitName) {
+        return By.xpath("//*[text() = '%s']".formatted(unitName));
+    }
+    private By loc_dlgSelectVariation_radVariation(String variationValue) {
+        return By.xpath("//div[*[text() = '%s']]/input".formatted(variationValue));
+    }
+    private final By loc_dlgSelectVariation_btnSave = By.cssSelector(".modal-footer > .gs-button__green");
+    private final By loc_lblVariationValue = By.xpath("//*[contains(@class, 'conversion-variation')]/*[@class='name-variation']");
+    private final By loc_btnVariationConfigure = By.xpath("//button[*[text() = 'Thiết lập' or text() = 'Configure']]");
+    private final By loc_txtUnitName = By.cssSelector("#unit-0");
+    private final By loc_txtUnitQuantity = By.cssSelector("[name *= quantity]");
 
     /**
      * Constructs an instance of ConversionUnitPage.
      *
-     * @param driver      The WebDriver instance used for browser interactions.
-     * @param credentials The credentials for API login.
-     * @param productInfo The product information associated with the conversion unit.
+     * @param driver          The WebDriver instance used for browser interactions.
+     * @param credentials     The credentials for API login.
+     * @param productInfo     The product information associated with the conversion unit.
+     * @param defaultLanguage The default language for variations.
      */
-    public ConversionUnitPage(WebDriver driver, APIDashboardLogin.Credentials credentials, APIGetProductDetail.ProductInformation productInfo) {
+    public ConversionUnitPage(WebDriver driver, APIDashboardLogin.Credentials credentials, APIGetProductDetail.ProductInformation productInfo, String defaultLanguage) {
         this.credentials = credentials;
         this.productInfo = productInfo;
         this.webUtils = new WebUtils(driver);
         this.unitInfoList = new APIGetConversionUnitList(credentials).getAllConversionUnits();
+        this.variationValues = APIGetProductDetail.getVariationValues(productInfo, defaultLanguage);
     }
-
-    // Locators
-    private final By withoutVariationSelectUnitBtn = By.cssSelector(".gs-content-header-right-el .gs-button__green--outline");
-    private final By withoutVariationSaveBtn = By.cssSelector(".gs-content-header-right-el .gs-button__green");
-    private final By withoutVariationUnitTextBox = By.cssSelector("#unit-0");
-
-    private By unitLocator(String unitName) {
-        return By.xpath("//*[text() = '%s']".formatted(unitName));
-    }
-
-    private final By withoutVariationQuantity = By.cssSelector("[name *= quantity]");
-    private final By selectVariationBtn = By.cssSelector(".gs-button__green--outline");
-    private final By variationSaveBtn = By.cssSelector(".gs-button__green");
-
-    private By variationLocator(String variationValue) {
-        return By.xpath("//div[* = '%s'][@class = 'variation-name']/div/input".formatted(variationValue));
-    }
-
-    private final By saveBtnOnSelectVariationPopup = By.cssSelector(".modal-footer > .gs-button__green");
-    private final By variationConfigureBtn = By.cssSelector(".conversion-configure > .gs-button__blue--outline");
-    private final By selectUnitBtnOnSetupVariationConversionUnitPage = By.cssSelector(".btn-header-wrapper > .gs-button__green--outline");
-    private final By saveBtnOnSetupVariationConversionUnitPage = By.cssSelector(".btn-header-wrapper > .gs-button__green");
-    private final By unitTextBoxOnSetupVariationConversionUnitPage = By.cssSelector("#unit-0");
-    private final By quantityOnSetupVariationConversionUnitPage = By.cssSelector("[name *= quantity]");
 
     /**
-     * Adds a conversion unit configuration without variation.
+     * Adds a conversion unit configuration based on whether variations are used.
      */
-    public void addConversionUnitWithoutVariation() {
+    public void addConversionUnitConfiguration() {
         if (!productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
-            // Click Select Unit button
-            webUtils.click(withoutVariationSelectUnitBtn);
-            logger.info("Add new conversion unit.");
-
-            // Select conversion unit
-            webUtils.click(withoutVariationUnitTextBox);
-
-            // Get all conversion unit names in store
-            List<String> unitNameList = APIGetConversionUnitList.getConversionUnitNames(unitInfoList);
-
-            // Get conversion name to assign to this product
-            String unitName = unitNameList.isEmpty() ? new APICreateConversionUnit(credentials).createConversionUnitAndGetName() : unitNameList.get(nextInt(unitNameList.size()));
-            webUtils.sendKeys(unitTextBoxOnSetupVariationConversionUnitPage, unitName);
-            webUtils.click(unitLocator(unitName));
-            logger.info("Select conversion unit: {}", unitName);
-
-            // Input conversion unit quantity
-            long quantity = Math.min(Math.max(Collections.max(APIGetProductDetail.getBranchStocks(productInfo, null)), 1), MAX_PRICE / productInfo.getOrgPrice());
-            webUtils.sendKeys(withoutVariationQuantity, String.valueOf(quantity));
-            logger.info("Conversion unit quantity: {}", quantity);
-
-            // Click Save button
-            webUtils.click(withoutVariationSaveBtn);
-        }
-    }
-
-    /**
-     * Selects a variation for the product.
-     *
-     * @param variationValue The variation name to select.
-     */
-    private void selectVariation(String variationValue) {
-        webUtils.clickJS(variationLocator(variationValue));
-
-        if (!webUtils.isCheckedJS(variationLocator(variationValue))) selectVariation(variationValue);
-    }
-
-    /**
-     * Adds a conversion unit configuration with variations.
-     */
-    public void addConversionUnitVariation() {
-        if (!productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
-            // Number of conversion units
-            int numberOfConversionUnit = nextInt(APIGetProductDetail.getVariationModelList(productInfo).size()) + 1;
-
-            // Select variation
-            for (int varIndex = 0; varIndex < numberOfConversionUnit; varIndex++) {
-                // Open Select Variation popup
-                webUtils.click(selectVariationBtn);
-                logger.info("Open select variation popup.");
-
-                // Get variation
-                String variation = variationList.get(varIndex);
-
-                // Select variation
-                selectVariation(variation);
-                logger.info("Select variation: {}", variation);
-
-                // Close Add variation popup
-                webUtils.click(saveBtnOnSelectVariationPopup);
-                logger.info("Close Select variation popup.");
-
-                // Add conversion unit configuration for variation
-                webUtils.clickJS(variationConfigureBtn, varIndex);
-                logger.info("Navigation to configure conversion unit for variation page.");
-
-                // Click Select Unit button
-                webUtils.clickJS(selectUnitBtnOnSetupVariationConversionUnitPage);
-
-                // Get all conversion unit names in store
-                List<String> unitNameList = APIGetConversionUnitList.getConversionUnitNames(unitInfoList);
-
-                // Get conversion name to assign to this product
-                String unitName = unitNameList.isEmpty() ? new APICreateConversionUnit(credentials).createConversionUnitAndGetName() : unitNameList.get(nextInt(unitNameList.size()));
-
-                // Select conversion unit
-                webUtils.sendKeys(withoutVariationUnitTextBox, unitName);
-                webUtils.click(unitLocator(unitName));
-                logger.info("[{}] Select conversion unit: {}", variation, unitName);
-
-                // Input conversion unit quantity
-                long quantity = MAX_PRICE / APIGetProductDetail.getVariationListingPrice(productInfo, varIndex);
-                webUtils.sendKeys(quantityOnSetupVariationConversionUnitPage, String.valueOf(quantity));
-                logger.info("[{}] Conversion unit quantity: {}", variation, quantity);
-
-                // Click Save button on variation config
-                webUtils.click(saveBtnOnSetupVariationConversionUnitPage);
-                logger.info("[{}] Complete configure conversion unit.", variation);
-
-                // Wait for conversion unit page to load
-                webUtils.waitURLShouldBeContains("/conversion-unit/variation/edit/");
-                logger.info("[{}] Wait setup conversion unit page loaded.", variation);
+            if (productInfo.isHasModel()) {
+                configureConversionUnitsWithVariations();
+            } else {
+                configureConversionUnitForWithoutVariation();
             }
-
-            // Click Save button on setup conversion unit page
-            webUtils.click(variationSaveBtn);
+        } else {
+            logger.info("Skipping conversion unit configuration: Product inventory is managed by IMEI/SERIAL.");
         }
+    }
+
+    /**
+     * Configures a conversion unit for a product without variations.
+     */
+    private void configureConversionUnitForWithoutVariation() {
+        configureConversionUnit();
+    }
+
+    /**
+     * Configures a conversion unit for a product with or without variations.
+     */
+    private void configureConversionUnit() {
+        clickSelectUnitButton();
+        selectConversionUnit();
+
+        long quantity = getQuantityForUnit();
+        webUtils.sendKeys(loc_txtUnitQuantity, String.valueOf(quantity));
+        logger.info("Conversion unit quantity: {}", quantity);
+
+        clickSaveButton();
+    }
+
+
+
+    /**
+     * Configures conversion units with variations.
+     */
+    private void configureConversionUnitsWithVariations() {
+        int numberOfConversionUnits = nextInt(APIGetProductDetail.getVariationModelList(productInfo).size()) + 1;
+        logger.info("Number of conversion units to configure: {}", numberOfConversionUnits);
+
+        // Process each variation
+        IntStream.range(0, numberOfConversionUnits).forEach(this::processVariation);
+
+        clickSaveButton(); // Save the configurations
+    }
+
+    /**
+     * Clicks the button to select a unit.
+     */
+    private void clickSelectUnitButton() {
+        webUtils.click(loc_btnSelectUnit);
+        logger.info("Clicked Select Unit button.");
+    }
+
+    /**
+     * Selects a conversion unit from the list.
+     */
+    private void selectConversionUnit() {
+        List<String> unitNameList = APIGetConversionUnitList.getConversionUnitNames(unitInfoList);
+        String unitName = unitNameList.isEmpty() ? new APICreateConversionUnit(credentials).createConversionUnitAndGetName() : unitNameList.get(nextInt(unitNameList.size()));
+
+        webUtils.sendKeys(loc_txtUnitName, unitName);
+        webUtils.click(loc_txtUnitName);
+        webUtils.click(loc_ddvUnitResult(unitName));
+        logger.info("Selected conversion unit: {}", unitName);
+    }
+
+    /**
+     * Calculates the quantity for the conversion unit.
+     *
+     * @return The calculated quantity.
+     */
+    private long getQuantityForUnit() {
+        long maxBranchStock = Collections.max(APIGetProductDetail.getBranchStocks(productInfo, null));
+        long quantity = Math.min(Math.max(maxBranchStock, 1), MAX_PRICE / productInfo.getOrgPrice());
+        logger.info("Calculated quantity for conversion unit: {}", quantity);
+        return quantity;
+    }
+
+    /**
+     * Processes and configures conversion units for each variation.
+     *
+     * @param varIndex The index of the current variation.
+     */
+    private void processVariation(int varIndex) {
+        webUtils.click(loc_btnSelectVariation);
+        logger.info("Opened select variation popup.");
+
+        String variation = variationValues.get(varIndex);
+        logger.info("Selecting variation: {}", variation);
+        webUtils.checkCheckbox(loc_dlgSelectVariation_radVariation(variation));
+
+        webUtils.click(loc_dlgSelectVariation_btnSave);
+        logger.info("Closed Select Variation popup.");
+
+        configureConversionUnitForVariation(varIndex);
+    }
+
+    /**
+     * Configures a conversion unit for a specific variation.
+     *
+     * @param varIndex The index of the current variation.
+     */
+    private void configureConversionUnitForVariation(int varIndex) {
+        String variationValue = webUtils.getText(loc_lblVariationValue, varIndex);
+        webUtils.clickJS(loc_btnVariationConfigure, varIndex);
+        logger.info("Navigated to configure conversion unit for variation page, variation value: {}", variationValue);
+
+        // Add conversion unit for variation
+        configureConversionUnit();
+
+        webUtils.waitURLShouldBeContains("/conversion-unit/variation/edit/");
+        logger.info("Waiting for setup conversion unit page to load.");
+    }
+
+    /**
+     * Clicks the save button to apply changes.
+     */
+    private void clickSaveButton() {
+        webUtils.click(loc_btnSave);
+        logger.info("Clicked Save button.");
     }
 }
