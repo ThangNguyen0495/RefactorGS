@@ -99,8 +99,6 @@ public class BaseProductPage extends BaseProductElement {
 
     /**
      * Fetches product information from ProductUtils based on the provided parameters.
-     * After generating the product information, it resets all relevant variables to their default values
-     * to prepare for the next test.
      *
      * @param isManagedByIMEI Whether the product is managed by IMEI.
      * @param hasModel        Whether the product has a model.
@@ -123,9 +121,6 @@ public class BaseProductPage extends BaseProductElement {
                 showInStore,
                 showInGoSocial,
                 branchStock);
-
-        // Reset local variables for next test
-        resetAllVariables();
     }
 
     /**
@@ -1159,6 +1154,9 @@ public class BaseProductPage extends BaseProductElement {
         inputWithoutVariationProductSKU();
         completeCreateProduct();
 
+        // Reset local variables for next test
+        resetAllVariables();
+
         // Log the completion of product creation
         logger.info("===== STEP =====> [CreateWithoutVariationProduct] DONE!!! ");
 
@@ -1194,6 +1192,9 @@ public class BaseProductPage extends BaseProductElement {
         inputVariationSKU();
         completeCreateProduct();
 
+        // Reset local variables for next test
+        resetAllVariables();
+
         // Log the completion of product creation
         logger.info("===== STEP =====> [CreateVariationProduct] DONE!!! ");
 
@@ -1213,7 +1214,7 @@ public class BaseProductPage extends BaseProductElement {
         logger.info("===== STEP =====> [UpdateWithoutVariationProduct] START... ");
 
         // Generate updated product information
-        fetchProductInformation(utilsProductInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER"), true, branchStock);
+        fetchProductInformation(apiProductInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER"), true, branchStock);
 
         // Initialize product details
         initBasicProductInformation();
@@ -1223,6 +1224,9 @@ public class BaseProductPage extends BaseProductElement {
         }
         updateWithoutVariationProductSKU();
         completeUpdateProduct();
+
+        // Reset local variables for next test
+        resetAllVariables();
 
         // Log the completion of product update
         logger.info("===== STEP =====> [UpdateWithoutVariationProduct] DONE!!! ");
@@ -1245,7 +1249,7 @@ public class BaseProductPage extends BaseProductElement {
         logger.info("===== STEP =====> [UpdateVariationProduct] START... ");
 
         // Generate updated product information
-        fetchProductInformation(utilsProductInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER"), true, branchStock);
+        fetchProductInformation(apiProductInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER"), true, branchStock);
 
         // Initialize product details
         initBasicProductInformation();
@@ -1257,6 +1261,9 @@ public class BaseProductPage extends BaseProductElement {
             inputVariationSKU();
         }
         completeUpdateProduct();
+
+        // Reset local variables for next test
+        resetAllVariables();
 
         // Log the completion of product update
         logger.info("===== STEP =====> [UpdateVariationProduct] DONE!!! ");
