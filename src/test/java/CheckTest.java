@@ -14,7 +14,7 @@ import static api.seller.login.APIDashboardLogin.Credentials;
 public class CheckTest {
     @Test
     void t() throws JsonProcessingException {
-//        Credentials credentials = new Credentials("stgaboned@nbobd.com", "Abc@12345");
+        Credentials credentials = new Credentials(PropertiesUtils.getSellerAccount(), PropertiesUtils.getSellerPassword());
 ////        new APICreateProduct(credentials).createProduct(false, false, 5);
 ////        var languageInformation = new APIGetStoreLanguage(credentials).getStoreLanguageInformation();
 ////        System.out.println(new ObjectMapper().writeValueAsString(languageInformation));

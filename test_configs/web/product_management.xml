@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Default Suite">
+    <test thread-count="5" name="GoSELL-Automation">
+        <classes>
+            <class name="ProductManagementTest">
+                <methods>
+                    <include name="MN_PRODUCT_01_CheckBulkActionClearStock"/>
+                    <include name="MN_PRODUCT_02_CheckBulkActionDelete"/>
+                    <include name="MN_PRODUCT_03_CheckBulkActionDeactivate"/>
+                    <include name="MN_PRODUCT_04_CheckBulkActionActivate"/>
+                    <include name="MN_PRODUCT_05_CheckBulkActionUpdateStock"/>
+                    <include name="MN_PRODUCT_06_CheckBulkActionUpdateTax"/>
+                    <include name="MN_PRODUCT_07_CheckBulkActionDisplayOutOfStockProduct"/>
+                    <include name="MN_PRODUCT_08_CheckBulkActionUpdateSellingPlatform"/>
+                    <include name="MN_PRODUCT_09_CheckBulkActionUpdatePrice"/>
+                    <include name="MN_PRODUCT_10_CheckBulkActionSetStockAlert"/>
+                    <include name="MN_PRODUCT_11_CheckBulkActionManageStockByLotDate"/>
+                </methods>
+            </class> <!-- web.Dashboard.ProductManagementTest -->
+        </classes>
+    </test> <!-- GoSELL-Automation -->
+</suite> <!-- Default Suite -->

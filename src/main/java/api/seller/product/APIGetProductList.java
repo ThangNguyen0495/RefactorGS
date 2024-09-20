@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.response.Response;
 import lombok.Data;
+import org.apache.logging.log4j.LogManager;
 import utility.APIUtils;
 
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import java.util.stream.IntStream;
 public class APIGetProductList {
 
     private final APIDashboardLogin.SellerInformation loginInfo;
+    private final APIDashboardLogin.Credentials credentials;
 
     /**
      * Constructs an instance of APIGetProductList with seller credentials.
@@ -26,6 +28,7 @@ public class APIGetProductList {
      * @param credentials The credentials used for login to the seller's account.
      */
     public APIGetProductList(APIDashboardLogin.Credentials credentials) {
+        this.credentials = credentials;
         this.loginInfo = new APIDashboardLogin().getSellerInformation(credentials);
     }
 
@@ -83,7 +86,7 @@ public class APIGetProductList {
      * @param branchIds Optional branch IDs for filtering products by branch.
      * @return The response from the API request.
      */
-    private Response getAllProductsResponse(String keywords, int pageIndex, int... branchIds) {
+    private Response getProductListResponse(String keywords, int pageIndex, int... branchIds) {
         return new APIUtils().get(getListProductPath(keywords, pageIndex, branchIds), loginInfo.getAccessToken())
                 .then()
                 .statusCode(200)
@@ -101,7 +104,7 @@ public class APIGetProductList {
     public List<Product> getAllProductInformation(String keyword, int... branchIds) {
         List<Product> products = new ArrayList<>();
         // Get the total number of products
-        int totalOfProducts = Integer.parseInt(getAllProductsResponse(keyword, 0, branchIds).getHeader("X-Total-Count"));
+        int totalOfProducts = Integer.parseInt(getProductListResponse(keyword, 0, branchIds).getHeader("X-Total-Count"));
 
         // Calculate the number of pages
         int numberOfPages = (totalOfProducts + 99) / 100; // Ensure rounding up
@@ -109,7 +112,7 @@ public class APIGetProductList {
         // Fetch product data from all pages
         List<String> responseStrings = IntStream.range(0, numberOfPages)
                 .parallel()
-                .mapToObj(pageIndex -> getAllProductsResponse(keyword, pageIndex, branchIds).asPrettyString())
+                .mapToObj(pageIndex -> getProductListResponse(keyword, pageIndex, branchIds).asPrettyString())
                 .toList();
 
         responseStrings.forEach(responseString -> {
@@ -125,9 +128,12 @@ public class APIGetProductList {
 
     /**
      * Searches for a product ID by its name.
+     * <p>
+     * This method retrieves all product information and searches for a product with the exact matching name.
+     * It returns the product's ID if found, or 0 if the product is not found.
      *
      * @param name The name of the product to search for.
-     * @return The product ID if found, or 0 if not found.
+     * @return The product ID if found, or {@code 0} if the product is not found.
      */
     public int searchProductIdByName(String name) {
         return getAllProductInformation(name).parallelStream()
@@ -136,4 +142,67 @@ public class APIGetProductList {
                 .map(Product::getId)
                 .orElse(0);
     }
+    /**
+     * Retrieves the remaining stock quantity for a product by its ID.
+     * <p>
+     * This method searches through all product information to find a product with the matching ID
+     * and returns the product's remaining stock. If the product is not found, it returns 0.
+     *
+     * @param productId The ID of the product to search for.
+     * @return The remaining stock of the product, or {@code 0} if the product is not found.
+     */
+    public int fetchRemainingStockByProductId(int productId) {
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [FetchElasticsearchProductRemainingStock] ProductId: {} ", productId);
+
+        // Get product name
+        String productName = new APIGetProductDetail(credentials).getProductInformation(productId).getName();
+
+        // Fetch and return product's remaining stock
+        return getAllProductInformation(productName).parallelStream()
+                .filter(product -> product.getId() == productId)
+                .findAny()
+                .map(Product::getRemainingStock)
+                .orElse(0);
+    }
+
+    /**
+     * Checks whether a product is deleted from Elasticsearch by its ID.
+     *
+     * @param productId The ID of the product to check.
+     * @return {@code true} if the product is deleted from Elasticsearch, {@code false} otherwise.
+     */
+    public boolean isProductDeletedFromElasticsearch(int productId) {
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [CheckIsDeletedFromElasticsearch] ProductId: {} ", productId);
+
+        // Get product name
+        String productName = new APIGetProductDetail(credentials).getProductInformation(productId).getName();
+
+        // Check if the product exists in Elasticsearch
+        return getAllProductInformation(productName).parallelStream()
+                .noneMatch(product -> product.getId() == productId);
+    }
+
+    /**
+     * Retrieves the status of a product by its ID.
+     *
+     * @param productId The ID of the product whose status is to be retrieved.
+     * @return The status of the product if found, or an empty string if the product is not found.
+     */
+    public String fetchElasticsearchProductStatus(int productId) {
+        // Logger
+        LogManager.getLogger().info("===== STEP =====> [FetchElasticsearchProductStatus] ProductId: {} ", productId);
+
+        // Retrieve the product name using the product ID
+        String productName = new APIGetProductDetail(credentials).getProductInformation(productId).getName();
+
+        // Fetch the product status from Elasticsearch
+        return getAllProductInformation(productName).parallelStream()
+                .filter(product -> product.getId() == productId)
+                .findAny()
+                .map(Product::getBhStatus)
+                .orElse("");
+    }
+
 }

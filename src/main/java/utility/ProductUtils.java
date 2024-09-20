@@ -99,7 +99,7 @@ public class ProductUtils {
         ProductInformation productInfo = new ProductInformation();
 
         // Construct the product name based on IMEI management and model/variation status
-        String modelType = manageByIMEI ? "IMEI_SERIAL_NUMBER" : "PRODUCT";
+        String modelType = manageByIMEI ? "IMEI" : "PRODUCT";
         String variationStatus = hasModel ? "Variation" : "without variation";
         String productName = "[%s] Auto - %s - %s - %s".formatted(langKey, modelType, variationStatus, OffsetDateTime.now());
         String productDescription = "[%s] product description".formatted(langKey);
@@ -226,8 +226,8 @@ public class ProductUtils {
         productInfo.setOnApp(onApp);
         productInfo.setOnWeb(onWeb);
         productInfo.setInStore(inStore);
-        productInfo.setInGoSocial(inGoSOCIAL);
-        productInfo.setInventoryManageType(manageByIMEI ? "IMEI_SERIAL_NUMBER" : "Product");
+        productInfo.setInGosocial(inGoSOCIAL);
+        productInfo.setInventoryManageType(manageByIMEI ? "IMEI_SERIAL_NUMBER" : "PRODUCT");
         productInfo.setBhStatus("ACTIVE");
         productInfo.setLotAvailable(hasLot);
         productInfo.setExpiredQuality(nextBoolean());
