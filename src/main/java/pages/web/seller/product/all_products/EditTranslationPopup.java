@@ -9,7 +9,7 @@ import org.testng.Assert;
 import utility.WebUtils;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -107,7 +107,7 @@ public class EditTranslationPopup {
         String name = "[%s] %s%s".formatted(
                 translationLangCode,
                 productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER") ? "Auto - IMEI - without variation - " : "Auto - Normal - without variation - ",
-                OffsetDateTime.now()
+                LocalDateTime.now().toString().substring(0, 19)
         );
         webUtils.sendKeys(loc_dlgEditTranslation_txtProductName, name);
         logger.info("Input translation for product name: {}", name);

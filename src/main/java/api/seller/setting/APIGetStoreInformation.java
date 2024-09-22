@@ -1,6 +1,6 @@
 package api.seller.setting;
 
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import utility.APIUtils;
@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * This class provides functionality to retrieve store information from the API.
- * It uses credentials from {@link APIDashboardLogin} to fetch details about the store.
+ * It uses credentials from {@link APISellerLogin} to fetch details about the store.
  */
 public class APIGetStoreInformation {
 
@@ -101,15 +101,15 @@ public class APIGetStoreInformation {
     /**
      * Seller information retrieved using the provided credentials.
      */
-    private final APIDashboardLogin.SellerInformation loginInfo;
+    private final APISellerLogin.LoginInformation loginInfo;
 
     /**
      * Constructs an instance of {@link APIGetStoreInformation} with the specified credentials.
      *
      * @param credentials The credentials used to authenticate and access the store API.
      */
-    public APIGetStoreInformation(APIDashboardLogin.Credentials credentials) {
-        loginInfo = new APIDashboardLogin().getSellerInformation(credentials);
+    public APIGetStoreInformation(APISellerLogin.Credentials credentials) {
+        loginInfo = new APISellerLogin().getSellerInformation(credentials);
     }
 
     /**
@@ -117,10 +117,9 @@ public class APIGetStoreInformation {
      *
      * @return A list of {@link StoreInformation} objects representing the details of the store.
      */
-    public List<StoreInformation> getStoreInformation() {
+    public StoreInformation getStoreInformation() {
         return new APIUtils().get("/storeservice/api/stores/%d".formatted(loginInfo.getStore().getId()), loginInfo.getAccessToken())
                 .then().statusCode(200)
-                .extract().jsonPath()
-                .getList(".", StoreInformation.class);
+                .extract().as(StoreInformation.class);
     }
 }

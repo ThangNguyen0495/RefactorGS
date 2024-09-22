@@ -1,6 +1,6 @@
 package api.seller.product;
 
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import utility.APIUtils;
 
 import java.time.Instant;
@@ -10,15 +10,15 @@ import java.time.Instant;
  */
 public class APICreateConversionUnit {
 
-    private final APIDashboardLogin.SellerInformation loginInfo;
+    private final APISellerLogin.LoginInformation loginInfo;
 
     /**
      * Constructs an instance of APICreateConversionUnit with the provided login credentials.
      *
      * @param loginInformation The login credentials for accessing the API.
      */
-    public APICreateConversionUnit(APIDashboardLogin.Credentials loginInformation) {
-        this.loginInfo = new APIDashboardLogin().getSellerInformation(loginInformation);
+    public APICreateConversionUnit(APISellerLogin.Credentials loginInformation) {
+        this.loginInfo = new APISellerLogin().getSellerInformation(loginInformation);
     }
 
     /**

@@ -3,6 +3,7 @@ package utility;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 
 import java.util.Map;
 
@@ -94,23 +95,30 @@ public class APIUtils {
     }
 
     /**
-     * Performs a PUT request to the specified path with OAuth2 authentication, optional headers, and body.
+     * Performs a PUT request to the specified path with OAuth2 authentication and optional headers.
+     * This version handles requests both with and without a body.
      *
      * @param path    The API endpoint path.
      * @param token   The OAuth2 token for authentication.
-     * @param body    The request body to send.
+     * @param body    The request body to send (can be null for no body).
      * @param headers Optional headers to include in the request.
      * @return The API response.
      */
     public Response put(String path, String token, Object body, Map<String, Object> headers) {
-        return given()
+        RequestSpecification request = given()
                 .relaxedHTTPSValidation()
                 .auth().oauth2(token)
                 .headers((headers == null) ? Map.of() : headers)
-                .contentType(ContentType.JSON)
-                .body(body)
-                .when().put(path);
+                .contentType(ContentType.JSON);
+
+        // Only add body if it's not null
+        if (body != null) {
+            request.body(body);
+        }
+
+        return request.when().put(path);
     }
+
 
     /**
      * Performs a PUT request to the specified path with OAuth2 authentication and no headers.
@@ -125,6 +133,19 @@ public class APIUtils {
     }
 
     /**
+     * Performs a PUT request to the specified path with OAuth2 authentication and no headers or body.
+     * This method is a shortcut for performing a PUT request when no additional headers or body are required.
+     *
+     * @param path  The API endpoint path to which the PUT request will be sent.
+     * @param token The OAuth2 token used for authentication.
+     * @return The API response from the PUT request.
+     */
+    public Response put(String path, String token) {
+        return put(path, token, null, null);
+    }
+
+
+    /**
      * Performs a DELETE request to the specified path with OAuth2 authentication, optional headers, and body.
      *
      * @param path    The API endpoint path.
@@ -134,13 +155,18 @@ public class APIUtils {
      * @return The API response.
      */
     public Response delete(String path, String token, String body, Map<String, Object> headers) {
-        return given()
+        RequestSpecification request = given()
                 .relaxedHTTPSValidation()
                 .auth().oauth2(token)
                 .headers((headers == null) ? Map.of() : headers)
-                .contentType(ContentType.JSON)
-                .body(body)
-                .when().delete(path);
+                .contentType(ContentType.JSON);
+
+        // Only add body if it's not null
+        if (body != null) {
+            request.body(body);
+        }
+
+        return request.when().delete(path);
     }
 
     /**

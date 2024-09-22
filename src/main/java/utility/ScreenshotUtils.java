@@ -11,8 +11,7 @@ import org.openqa.selenium.WebElement;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 
 public class ScreenshotUtils {
     /**
@@ -30,7 +29,7 @@ public class ScreenshotUtils {
         }
 
         // Define the file path for the screenshot
-        String path = "./debug/%s_%s.png".formatted("debug", OffsetDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
+        String path = "./debug/%s_%s.png".formatted("debug", LocalDateTime.now().toString().substring(0, 19))
                 .replace("/", File.separator);
         FileUtils.copyFile(((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE), new File(path));
     }

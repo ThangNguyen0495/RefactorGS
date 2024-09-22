@@ -1,6 +1,6 @@
 package pages.web.seller.product.all_products;
 
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import api.seller.product.APIGetProductDetail;
 import api.seller.product.APIGetProductList;
 import api.seller.setting.APIGetBranchList;
@@ -37,7 +37,7 @@ public class BaseProductPage extends BaseProductElement {
     private APIGetProductDetail.ProductInformation utilsProductInfo;
 
     // Credentials and Information Lists
-    private APIDashboardLogin.Credentials credentials;
+    private APISellerLogin.Credentials credentials;
 
     // Default Values and Flags
     private boolean noDiscount = nextBoolean();
@@ -73,7 +73,7 @@ public class BaseProductPage extends BaseProductElement {
      * @param credentials The API credentials containing login information (username, password).
      * @return The current instance of ProductPage, with updated information for method chaining.
      */
-    public BaseProductPage fetchInformation(APIDashboardLogin.Credentials credentials) {
+    public BaseProductPage fetchInformation(APISellerLogin.Credentials credentials) {
         // Update credentials for further API requests
         this.credentials = credentials;
 
@@ -1126,7 +1126,7 @@ public class BaseProductPage extends BaseProductElement {
      * @param productInfo The product information containing details like ID and inventory management type.
      * @return An instance of ConversionUnitPage for further interactions and method chaining.
      */
-    private ConversionUnitPage navigateToConversionUnitPage(WebDriver driver, APIDashboardLogin.Credentials credentials, APIGetProductDetail.ProductInformation productInfo) {
+    private ConversionUnitPage navigateToConversionUnitPage(WebDriver driver, APISellerLogin.Credentials credentials, APIGetProductDetail.ProductInformation productInfo) {
         // Remove old conversion unit configuration if present
         removeOldConversionUnit();
 

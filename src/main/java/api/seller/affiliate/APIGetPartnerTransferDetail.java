@@ -1,6 +1,6 @@
 package api.seller.affiliate;
 
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import utility.APIUtils;
@@ -13,15 +13,15 @@ import java.util.List;
  */
 public class APIGetPartnerTransferDetail {
 
-    private final APIDashboardLogin.SellerInformation loginInfo;
+    private final APISellerLogin.LoginInformation loginInfo;
 
     /**
      * Constructor to initialize the APIGetPartnerTransferDetail with credentials.
      *
      * @param credentials The seller's credentials to authenticate the request.
      */
-    public APIGetPartnerTransferDetail(APIDashboardLogin.Credentials credentials) {
-        loginInfo = new APIDashboardLogin().getSellerInformation(credentials);
+    public APIGetPartnerTransferDetail(APISellerLogin.Credentials credentials) {
+        loginInfo = new APISellerLogin().getSellerInformation(credentials);
     }
 
     /**

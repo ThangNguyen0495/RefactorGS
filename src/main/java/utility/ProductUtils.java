@@ -1,12 +1,14 @@
 package utility;
 
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import api.seller.product.APIGetProductDetail.ProductInformation;
 import api.seller.setting.APIGetBranchList;
 import api.seller.setting.APIGetVATList;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +43,7 @@ public class ProductUtils {
      * @param branchStock    Array of stock quantities across branches
      * @return A populated ProductInformation object
      */
-    public static ProductInformation generateProductInformation(APIDashboardLogin.Credentials credentials, String langKey,
+    public static ProductInformation generateProductInformation(APISellerLogin.Credentials credentials, String langKey,
                                                                 boolean hasModel, boolean noCost, boolean noDiscount,
                                                                 boolean manageByIMEI, boolean hasSEO, boolean hasDimension,
                                                                 boolean hasLot, boolean hasAttribution, boolean onWeb, boolean onApp,
@@ -101,7 +103,7 @@ public class ProductUtils {
         // Construct the product name based on IMEI management and model/variation status
         String modelType = manageByIMEI ? "IMEI" : "PRODUCT";
         String variationStatus = hasModel ? "Variation" : "without variation";
-        String productName = "[%s] Auto - %s - %s - %s".formatted(langKey, modelType, variationStatus, OffsetDateTime.now());
+        String productName = "[%s] Auto - %s - %s - %s".formatted(langKey, modelType, variationStatus, LocalDateTime.now().toString().substring(0, 19));
         String productDescription = "[%s] product description".formatted(langKey);
 
         productInfo.setId(nextInt(10000));
@@ -214,7 +216,7 @@ public class ProductUtils {
      * @param inStore        Whether the product is available in physical stores
      * @param inGoSOCIAL     Whether the product is available in GoSOCIAL
      */
-    private static void setOtherAttributes(ProductInformation productInfo, APIDashboardLogin.Credentials credentials, boolean hasAttribution,
+    private static void setOtherAttributes(ProductInformation productInfo, APISellerLogin.Credentials credentials, boolean hasAttribution,
                                            boolean manageByIMEI, boolean hasLot, boolean onWeb, boolean onApp,
                                            boolean inStore, boolean inGoSOCIAL) {
         var vatInfoList = new APIGetVATList(credentials).getVATInformation();

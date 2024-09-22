@@ -12,6 +12,7 @@ import org.openqa.selenium.WebDriver;
 import org.testng.*;
 
 import java.io.File;
+import java.util.Arrays;
 
 /**
  * The {@code ExtendReportListener} class is a TestNG listener that generates an Extent report for
@@ -151,8 +152,15 @@ public class ExtendReportListener implements ITestListener, ISuiteListener, IInv
     @Override
     public void onTestStart(ITestResult result) {
         test = extent.createTest(result.getMethod().getMethodName());
-        test.info("Test Started: " + result.getMethod().getMethodName());
+        String testName = (result.getParameters().length > 0)
+                ? result.getParameters()[result.getParameters().length - 1].toString()
+                : result.getMethod().getMethodName();
+
+        test.info("Test Started: " + testName);
+        logger.info("Test Started: {}", testName);
     }
+
+
 
     /**
      * Logs a successful test method execution.

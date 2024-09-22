@@ -1,6 +1,6 @@
 package api.seller.order;
 
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -18,15 +18,15 @@ import java.util.stream.IntStream;
  */
 public class APIGetReturnOrderList {
 
-    private final APIDashboardLogin.SellerInformation loginInfo;
+    private final APISellerLogin.LoginInformation loginInfo;
 
     /**
      * Constructs an APIGetAllReturnOrder instance.
      *
      * @param credentials the seller's API credentials
      */
-    public APIGetReturnOrderList(APIDashboardLogin.Credentials credentials) {
-        this.loginInfo = new APIDashboardLogin().getSellerInformation(credentials);
+    public APIGetReturnOrderList(APISellerLogin.Credentials credentials) {
+        this.loginInfo = new APISellerLogin().getSellerInformation(credentials);
     }
 
     /**

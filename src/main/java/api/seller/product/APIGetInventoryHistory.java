@@ -1,7 +1,7 @@
 package api.seller.product;
 
 import api.seller.affiliate.APIGetPartnerTransferDetail;
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import api.seller.order.APIGetReturnOrderList;
 import api.seller.order.APIGetOrderDetail;
 import api.seller.supplier.APIGetPurchaseOrderDetail;
@@ -20,8 +20,8 @@ import java.util.stream.IntStream;
  * Class responsible for retrieving inventory history data via the API.
  */
 public class APIGetInventoryHistory {
-    private final APIDashboardLogin.SellerInformation loginInfo;
-    private final APIDashboardLogin.Credentials credentials;
+    private final APISellerLogin.LoginInformation loginInfo;
+    private final APISellerLogin.Credentials credentials;
 
     private static final String INVENTORY_HISTORY_PATH = "/itemservice/api/inventory-search/%s?search=%s&branchIds=%s&page=%s&size=100";
 
@@ -30,9 +30,9 @@ public class APIGetInventoryHistory {
      *
      * @param credentials The credentials required to authenticate and retrieve seller information.
      */
-    public APIGetInventoryHistory(APIDashboardLogin.Credentials credentials) {
+    public APIGetInventoryHistory(APISellerLogin.Credentials credentials) {
         this.credentials = credentials;
-        this.loginInfo = new APIDashboardLogin().getSellerInformation(credentials);
+        this.loginInfo = new APISellerLogin().getSellerInformation(credentials);
     }
 
     /**

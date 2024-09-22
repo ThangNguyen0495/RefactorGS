@@ -1,21 +1,21 @@
 package api.seller.setting;
 
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import utility.APIUtils;
 
 public class APIGetStoreDefaultLanguage {
     /**
      * Seller information retrieved using the provided credentials.
      */
-    private final APIDashboardLogin.SellerInformation loginInfo;
+    private final APISellerLogin.LoginInformation loginInfo;
 
     /**
      * Constructs an instance of {@link APIGetStoreDefaultLanguage} with the specified credentials.
      *
      * @param credentials The credentials used to authenticate and access the store API.
      */
-    public APIGetStoreDefaultLanguage(APIDashboardLogin.Credentials credentials) {
-        loginInfo = new APIDashboardLogin().getSellerInformation(credentials);
+    public APIGetStoreDefaultLanguage(APISellerLogin.Credentials credentials) {
+        loginInfo = new APISellerLogin().getSellerInformation(credentials);
     }
 
     /**

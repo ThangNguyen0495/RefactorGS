@@ -1,6 +1,6 @@
 package api.seller.product;
 
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import api.seller.setting.APIGetBranchList;
 import api.seller.setting.APIGetStoreDefaultLanguage;
 import api.seller.setting.APIGetVATList;
@@ -12,7 +12,7 @@ import utility.APIUtils;
 import utility.VariationUtils;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,8 +27,8 @@ public class APICreateProduct {
     private static final String CREATE_PRODUCT_PATH = "/itemservice/api/items?fromSource=DASHBOARD";
     private static final long MAX_PRICE = 99999999999L;
 
-    private final APIDashboardLogin.Credentials credentials;
-    private APIDashboardLogin.SellerInformation loginInfo;
+    private final APISellerLogin.Credentials credentials;
+    private APISellerLogin.LoginInformation loginInfo;
 
     private String defaultLanguage;
     private List<Integer> vatIds;
@@ -36,8 +36,10 @@ public class APICreateProduct {
     private List<String> branchNames;
     private List<String> branchTypes;
     private ProductPayload payload;
+    private boolean showOutOfStock = true;
+    private boolean isHideStock = false;
 
-    public APICreateProduct(APIDashboardLogin.Credentials credentials) {
+    public APICreateProduct(APISellerLogin.Credentials credentials) {
         this.credentials = credentials;
         this.payload = new ProductPayload();
     }
@@ -48,7 +50,7 @@ public class APICreateProduct {
      * Also sets up default language, VAT IDs, branch IDs, branch names, and branch types.
      */
     private void fetchInformation() {
-        loginInfo = new APIDashboardLogin().getSellerInformation(credentials);
+        loginInfo = new APISellerLogin().getSellerInformation(credentials);
         var vatInfoList = new APIGetVATList(credentials).getVATInformation();
         var branchInfoList = new APIGetBranchList(credentials).getBranchInformation();
 
@@ -57,6 +59,16 @@ public class APICreateProduct {
         branchIds = APIGetBranchList.getBranchIds(branchInfoList);
         branchNames = APIGetBranchList.getBranchNames(branchInfoList);
         branchTypes = APIGetBranchList.getBranchTypes(branchInfoList);
+    }
+
+    public APICreateProduct setHideStock(boolean isHideStock) {
+        this.isHideStock = isHideStock;
+        return this;
+    }
+
+    public APICreateProduct setShowOutOfStock(boolean showOutOfStock) {
+        this.showOutOfStock = showOutOfStock;
+        return this;
     }
 
     @Data
@@ -92,9 +104,9 @@ public class APICreateProduct {
         private String taxId;
         private final boolean quantityChanged = true;
         private final boolean isSelfDelivery = false;
-        private boolean showOutOfStock = true;
+        private boolean showOutOfStock;
         private String barcode;
-        private Boolean isHideStock = false;
+        private Boolean isHideStock;
         private boolean lotAvailable;
         private boolean expiredQuality;
         private String inventoryManageType;
@@ -183,6 +195,15 @@ public class APICreateProduct {
      */
     private ProductPayload initializeBasicInformation(boolean isManagedByIMEI) {
         ProductPayload payload = new ProductPayload();
+        // Set storefront display
+        payload.setIsHideStock(isHideStock);
+        payload.setShowOutOfStock(showOutOfStock);
+
+        // Then clear it for next test
+        isHideStock = false;
+        showOutOfStock = true;
+
+        // Init other information
         payload.setLotAvailable(payload.isLotAvailable() && !isManagedByIMEI);
         payload.setInventoryManageType(isManagedByIMEI ? "IMEI_SERIAL_NUMBER" : "PRODUCT");
         payload.setDescription(String.format("[%s] product description.", defaultLanguage));
@@ -212,7 +233,7 @@ public class APICreateProduct {
         // Set product name with a timestamp
         String productName = String.format("[%s] %s%s", defaultLanguage,
                 isManagedByIMEI ? "Auto - IMEI - without variation - " : "Auto - Normal - without variation - ",
-                OffsetDateTime.now());
+                LocalDateTime.now().toString().substring(0, 19));
         payload.setName(productName);
 
         // Set pricing values
@@ -252,7 +273,7 @@ public class APICreateProduct {
         // Set product name with a timestamp
         String productName = String.format("[%s] %s%s", defaultLanguage,
                 isManagedByIMEI ? "Auto - IMEI - variation - " : "Auto - Normal - variation - ",
-                OffsetDateTime.now());
+                LocalDateTime.now().toString().substring(0, 19));
         payload.setName(productName);
 
         // Generate variation data

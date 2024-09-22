@@ -1,6 +1,6 @@
 package api.seller.supplier;
 
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import lombok.Data;
 import utility.APIUtils;
 
@@ -12,17 +12,17 @@ import java.util.List;
  */
 public class APIGetPurchaseOrderDetail {
 
-    APIDashboardLogin.SellerInformation loginInfo;
-    APIDashboardLogin.Credentials credentials;
+    APISellerLogin.LoginInformation loginInfo;
+    APISellerLogin.Credentials credentials;
 
     /**
      * Constructs a new {@code APIGetPurchaseOrderDetail} object using the provided credentials.
      *
      * @param credentials the credentials used to log in and retrieve seller information
      */
-    public APIGetPurchaseOrderDetail(APIDashboardLogin.Credentials credentials) {
+    public APIGetPurchaseOrderDetail(APISellerLogin.Credentials credentials) {
         this.credentials = credentials;
-        loginInfo = new APIDashboardLogin().getSellerInformation(credentials);
+        loginInfo = new APISellerLogin().getSellerInformation(credentials);
     }
 
     /**

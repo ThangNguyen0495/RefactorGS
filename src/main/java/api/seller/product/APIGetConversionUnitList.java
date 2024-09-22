@@ -1,6 +1,6 @@
 package api.seller.product;
 
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import utility.APIUtils;
@@ -12,15 +12,15 @@ import java.util.List;
  */
 public class APIGetConversionUnitList {
 
-    private final APIDashboardLogin.SellerInformation loginInfo;
+    private final APISellerLogin.LoginInformation loginInfo;
 
     /**
      * Constructs an instance of APIGetConversionUnitList with the provided login credentials.
      *
      * @param credentials The login credentials for accessing the API.
      */
-    public APIGetConversionUnitList(APIDashboardLogin.Credentials credentials) {
-        this.loginInfo = new APIDashboardLogin().getSellerInformation(credentials);
+    public APIGetConversionUnitList(APISellerLogin.Credentials credentials) {
+        this.loginInfo = new APISellerLogin().getSellerInformation(credentials);
     }
 
     /**

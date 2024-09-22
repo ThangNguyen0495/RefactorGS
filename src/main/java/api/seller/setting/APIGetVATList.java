@@ -1,6 +1,6 @@
 package api.seller.setting;
 
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import utility.APIUtils;
@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class APIGetVATList {
 
-    private final APIDashboardLogin.SellerInformation loginInfo;
+    private final APISellerLogin.LoginInformation loginInfo;
 
     /**
      * Constructs an APIGetVATList instance with the given credentials.
@@ -21,8 +21,8 @@ public class APIGetVATList {
      *
      * @param credentials The credentials to use for authentication.
      */
-    public APIGetVATList(APIDashboardLogin.Credentials credentials) {
-        loginInfo = new APIDashboardLogin().getSellerInformation(credentials);
+    public APIGetVATList(APISellerLogin.Credentials credentials) {
+        loginInfo = new APISellerLogin().getSellerInformation(credentials);
     }
 
     /**

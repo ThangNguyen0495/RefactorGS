@@ -1,6 +1,6 @@
 package pages.web.seller.login;
 
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
@@ -14,9 +14,9 @@ import utility.PropertiesUtils;
  * user information in local storage using JavaScript.
  * </p>
  */
-public class LoginPage {
+public class DashboardLoginPage {
 
-    private static final Logger logger = LogManager.getLogger(LoginPage.class);
+    private static final Logger logger = LogManager.getLogger(DashboardLoginPage.class);
 
     private final WebDriver driver;
 
@@ -25,7 +25,7 @@ public class LoginPage {
      *
      * @param driver The WebDriver instance used to interact with the browser.
      */
-    public LoginPage(WebDriver driver) {
+    public DashboardLoginPage(WebDriver driver) {
         this.driver = driver;
     }
 
@@ -39,12 +39,12 @@ public class LoginPage {
      *
      * @param credentials The credentials used to log in and retrieve user information.
      */
-    public void loginDashboardByJs(APIDashboardLogin.Credentials credentials) {
+    public void loginDashboardByJs(APISellerLogin.Credentials credentials) {
         // Access the dashboard to set the cookie
         driver.get(PropertiesUtils.getDomain());
 
         // Initialize login information model
-        APIDashboardLogin.SellerInformation loginInfo = new APIDashboardLogin().getSellerInformation(credentials);
+        APISellerLogin.LoginInformation loginInfo = new APISellerLogin().getSellerInformation(credentials);
 
         // Set local storage items using JavaScript
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('accessToken', '%s')".formatted(loginInfo.getAccessToken()));

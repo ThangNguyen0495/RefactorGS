@@ -1,6 +1,6 @@
 package pages.web.seller.product.all_products;
 
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import api.seller.product.APIGetInventoryHistory;
 import api.seller.product.APIGetProductDetail;
 import api.seller.product.APIGetProductList;
@@ -48,7 +48,7 @@ public class ProductManagementPage {
      * @param credentials the credentials to use for API service authentication.
      * @return the current instance of {@code ProductManagementPage}.
      */
-    public ProductManagementPage fetchInformation(APIDashboardLogin.Credentials credentials) {
+    public ProductManagementPage fetchInformation(APISellerLogin.Credentials credentials) {
         this.apiGetProductDetail = new APIGetProductDetail(credentials);
         this.apiGetProductList = new APIGetProductList(credentials);
         this.apiGetInventoryHistory = new APIGetInventoryHistory(credentials);
@@ -232,14 +232,14 @@ public class ProductManagementPage {
     /**
      * Clears the stock of products in bulk and verifies the stock updates on ItemService and Elasticsearch.
      */
-    public void bulkClearStock() {
+    private void bulkClearStock() {
         bulkStockUpdateAction(0, loc_dlgClearStock_btnOK, "CLEAR STOCK");
     }
 
     /**
      * Updates the stock of products in bulk and verifies the stock updates on ItemService and Elasticsearch.
      */
-    public void bulkUpdateStock() {
+    private void bulkUpdateStock() {
         int newStock = generateRandomStock();
         bulkStockUpdateAction(4, loc_dlgUpdateStock_btnUpdate, "UPDATE STOCK", newStock);
     }
@@ -376,7 +376,7 @@ public class ProductManagementPage {
      * and then verifies that the products have been deleted by checking their statuses in both
      * ItemService and Elasticsearch.
      */
-    public void bulkDeleteProducts() {
+    private void bulkDeleteProducts() {
         // Retrieve the list of product IDs on the first page
         List<Integer> productIds = fetchSelectedProductIds();
 
@@ -486,21 +486,21 @@ public class ProductManagementPage {
     /**
      * Performs bulk deactivation of products and verifies the status updates.
      */
-    public void bulkDeactivateProduct() {
+    private void bulkDeactivateProduct() {
         bulkUpdateProductStatus(2, loc_dlgDeactivateProduct_btnYes, "INACTIVE", "DEACTIVATE");
     }
 
     /**
      * Performs bulk activation of products and verifies the status updates.
      */
-    public void bulkActivateProduct() {
+    private void bulkActivateProduct() {
         bulkUpdateProductStatus(3, loc_dlgActiveProduct_btnYes, "ACTIVE", "ACTIVATE");
     }
 
     /**
      * Performs bulk update of the tax for products and verifies the updates.
      */
-    public void bulkUpdateTax() {
+    private void bulkUpdateTax() {
         // Get the list of product IDs from the first page
         List<Integer> productIds = fetchSelectedProductIds();
 
@@ -601,7 +601,7 @@ public class ProductManagementPage {
     /**
      * Manages the display of products when they are out of stock. Verifies the changes for both display options.
      */
-    public void bulkDisplayOutOfStockProduct() {
+    private void bulkDisplayOutOfStockProduct() {
         // Get the list of product IDs from the first page
         List<Integer> productIds = fetchSelectedProductIds();
 
@@ -622,7 +622,7 @@ public class ProductManagementPage {
      * This method updates selling platforms (App, Web, InStore, GoSocial) in bulk for products
      * on the first page and verifies the updates.
      */
-    public void bulkUpdateSellingPlatform() {
+    private void bulkUpdateSellingPlatform() {
         // Retrieve the list of product IDs from the first page
         List<Integer> productIds = fetchSelectedProductIds();
 
@@ -754,7 +754,7 @@ public class ProductManagementPage {
      *   <li>Verifying that the prices have been updated correctly.</li>
      * </ul>
      */
-    public void bulkUpdatePrice() {
+    private void bulkUpdatePrice() {
         List<Integer> productIds = fetchSelectedProductIds();
 
         // Retrieve and calculate price lists
@@ -850,7 +850,7 @@ public class ProductManagementPage {
     /**
      * Sets a stock alert value for all selected products.
      */
-    public void bulkSetStockAlert() {
+    private void bulkSetStockAlert() {
         List<Integer> productIds = fetchSelectedProductIds();
 
         // Open the bulk actions menu and select the 'Set stock alert' action
@@ -888,7 +888,7 @@ public class ProductManagementPage {
     /**
      * Manages stock by lot date for selected products.
      */
-    public void bulkManageStockByLotDate() {
+    private void bulkManageStockByLotDate() {
         List<Integer> productIds = fetchSelectedProductIds();
 
         // Get current product lot date status
@@ -962,4 +962,46 @@ public class ProductManagementPage {
         logger.info("Check product stock lot and expired quality after bulk actions: MANAGE STOCK BY LOT DATE.");
     }
 
+    /**
+     * Performs a bulk update of selected products on the product management page
+     * and verifies the product information after the update.
+     *
+     * <p>This method provides various bulk operations such as clearing stock,
+     * deleting products, activating or deactivating products, updating stock,
+     * and managing prices. Each action corresponds to a specific index.</p>
+     *
+     * @param actionIndex The index representing the bulk action to be performed.
+     *                    Valid values are:
+     *                    <ul>
+     *                      <li>0 - Clear stock</li>
+     *                      <li>1 - Delete products</li>
+     *                      <li>2 - Deactivate product</li>
+     *                      <li>3 - Activate product</li>
+     *                      <li>4 - Update stock</li>
+     *                      <li>5 - Update tax</li>
+     *                      <li>6 - Display out of stock products</li>
+     *                      <li>7 - Update selling platform</li>
+     *                      <li>8 - Update price</li>
+     *                      <li>9 - Set stock alert</li>
+     *                      <li>10 - Manage stock by lot date</li>
+     *                    </ul>
+     *
+     * @throws IllegalArgumentException if the actionIndex is out of range.
+     */
+    public void bulkUpdateAndVerifyProducts(int actionIndex) {
+        switch (actionIndex) {
+            case 0 -> bulkClearStock();
+            case 1 -> bulkDeleteProducts();
+            case 2 -> bulkDeactivateProduct();
+            case 3 -> bulkActivateProduct();
+            case 4 -> bulkUpdateStock();
+            case 5 -> bulkUpdateTax();
+            case 6 -> bulkDisplayOutOfStockProduct();
+            case 7 -> bulkUpdateSellingPlatform();
+            case 8 -> bulkUpdatePrice();
+            case 9 -> bulkSetStockAlert();
+            case 10 -> bulkManageStockByLotDate();
+            default -> throw new IllegalArgumentException("Invalid action index: " + actionIndex);
+        }
+    }
 }

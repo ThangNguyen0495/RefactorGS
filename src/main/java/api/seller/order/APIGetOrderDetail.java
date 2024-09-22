@@ -1,6 +1,6 @@
 package api.seller.order;
 
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import utility.APIUtils;
@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class APIGetOrderDetail {
 
-    private final APIDashboardLogin.SellerInformation loginInfo;
+    private final APISellerLogin.LoginInformation loginInfo;
 
     /**
      * Constructor for APIGetOrderDetail.
@@ -21,8 +21,8 @@ public class APIGetOrderDetail {
      *
      * @param credentials API credentials for authentication.
      */
-    public APIGetOrderDetail(APIDashboardLogin.Credentials credentials) {
-        loginInfo = new APIDashboardLogin().getSellerInformation(credentials);
+    public APIGetOrderDetail(APISellerLogin.Credentials credentials) {
+        loginInfo = new APISellerLogin().getSellerInformation(credentials);
     }
 
     /**

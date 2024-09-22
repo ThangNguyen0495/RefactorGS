@@ -1,6 +1,6 @@
 package api.seller.product;
 
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -19,17 +19,17 @@ import java.util.stream.IntStream;
  */
 public class APIGetProductList {
 
-    private final APIDashboardLogin.SellerInformation loginInfo;
-    private final APIDashboardLogin.Credentials credentials;
+    private final APISellerLogin.LoginInformation loginInfo;
+    private final APISellerLogin.Credentials credentials;
 
     /**
      * Constructs an instance of APIGetProductList with seller credentials.
      *
      * @param credentials The credentials used for login to the seller's account.
      */
-    public APIGetProductList(APIDashboardLogin.Credentials credentials) {
+    public APIGetProductList(APISellerLogin.Credentials credentials) {
         this.credentials = credentials;
-        this.loginInfo = new APIDashboardLogin().getSellerInformation(credentials);
+        this.loginInfo = new APISellerLogin().getSellerInformation(credentials);
     }
 
     /**

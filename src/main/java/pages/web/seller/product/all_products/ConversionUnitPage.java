@@ -1,6 +1,6 @@
 package pages.web.seller.product.all_products;
 
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import api.seller.product.APICreateConversionUnit;
 import api.seller.product.APIGetConversionUnitList;
 import api.seller.product.APIGetProductDetail;
@@ -23,7 +23,7 @@ public class ConversionUnitPage {
 
     private static final long MAX_PRICE = 99999999999L;
     private final WebUtils webUtils;
-    private final APIDashboardLogin.Credentials credentials;
+    private final APISellerLogin.Credentials credentials;
     private final Logger logger = LogManager.getLogger();
     private final APIGetProductDetail.ProductInformation productInfo;
     private final List<String> variationValues;
@@ -53,7 +53,7 @@ public class ConversionUnitPage {
      * @param productInfo     The product information associated with the conversion unit.
      * @param defaultLanguage The default language for variations.
      */
-    public ConversionUnitPage(WebDriver driver, APIDashboardLogin.Credentials credentials, APIGetProductDetail.ProductInformation productInfo, String defaultLanguage) {
+    public ConversionUnitPage(WebDriver driver, APISellerLogin.Credentials credentials, APIGetProductDetail.ProductInformation productInfo, String defaultLanguage) {
         this.credentials = credentials;
         this.productInfo = productInfo;
         this.webUtils = new WebUtils(driver);

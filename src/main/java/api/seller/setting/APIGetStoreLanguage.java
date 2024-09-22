@@ -1,6 +1,6 @@
 package api.seller.setting;
 
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import utility.APIUtils;
@@ -14,7 +14,7 @@ import java.util.function.Function;
  */
 public class APIGetStoreLanguage {
 
-    private final APIDashboardLogin.SellerInformation loginInfo;
+    private final APISellerLogin.LoginInformation loginInfo;
 
     /**
      * Constructs an APIGetStoreLanguage instance with the given credentials.
@@ -22,8 +22,8 @@ public class APIGetStoreLanguage {
      *
      * @param credentials The credentials to use for authentication.
      */
-    public APIGetStoreLanguage(APIDashboardLogin.Credentials credentials) {
-        this.loginInfo = new APIDashboardLogin().getSellerInformation(credentials);
+    public APIGetStoreLanguage(APISellerLogin.Credentials credentials) {
+        this.loginInfo = new APISellerLogin().getSellerInformation(credentials);
     }
 
     /**

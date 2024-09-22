@@ -1,6 +1,6 @@
 package api.seller.product;
 
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import utility.APIUtils;
@@ -9,11 +9,11 @@ import java.util.List;
 
 public class APIGetStockAlert {
 
-    APIDashboardLogin.SellerInformation loginInfo;
-    APIDashboardLogin.Credentials loginInformation;
-    public APIGetStockAlert(APIDashboardLogin.Credentials loginInformation) {
+    APISellerLogin.LoginInformation loginInfo;
+    APISellerLogin.Credentials loginInformation;
+    public APIGetStockAlert(APISellerLogin.Credentials loginInformation) {
         this.loginInformation = loginInformation;
-    	loginInfo = new APIDashboardLogin().getSellerInformation(loginInformation);
+    	loginInfo = new APISellerLogin().getSellerInformation(loginInformation);
     }
 
     @Data

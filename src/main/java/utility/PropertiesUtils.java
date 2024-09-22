@@ -1,5 +1,7 @@
 package utility;
 
+import api.seller.login.APISellerLogin;
+
 import java.io.InputStream;
 import java.io.IOException;
 import java.util.Properties;
@@ -75,50 +77,43 @@ public class PropertiesUtils {
         String headlessProperty = getProperty("headless");
         return Boolean.parseBoolean(headlessProperty);
     }
-
     /**
-     * Retrieves the seller account property value.
+     * Retrieves the seller credentials from the property file.
      *
-     * @return The seller account property value.
+     * @return APISellerLogin.Credentials containing the seller account and password.
      */
-    public static String getSellerAccount() {
-        return getProperty("sellerAccount");
+    public static APISellerLogin.Credentials getSellerCredentials() {
+        return getCredentials("sellerAccount", "sellerPassword");
     }
 
     /**
-     * Retrieves the seller password property value.
+     * Retrieves the buyer credentials from the property file.
      *
-     * @return The seller password property value.
+     * @return APISellerLogin.Credentials containing the buyer account and password.
      */
-    public static String getSellerPassword() {
-        return getProperty("sellerPassword");
+    public static APISellerLogin.Credentials getBuyerCredentials() {
+        return getCredentials("buyerAccount", "buyerPassword");
     }
 
     /**
-     * Retrieves the buyer account property value.
+     * Helper method to retrieve credentials based on the provided account and password keys.
      *
-     * @return The buyer account property value.
+     * @param accountKey  The key to retrieve the account from the property file.
+     * @param passwordKey The key to retrieve the password from the property file.
+     * @return APISellerLogin.Credentials containing the account and password.
      */
-    public static String getBuyerAccount() {
-        return getProperty("buyerAccount");
+    private static APISellerLogin.Credentials getCredentials(String accountKey, String passwordKey) {
+        return new APISellerLogin.Credentials(getProperty(accountKey), getProperty(passwordKey));
     }
 
     /**
-     * Retrieves the buyer password property value.
+     * Retrieves the Storefront URL from the configuration properties.
      *
-     * @return The buyer password property value.
+     * @return The Storefront URL as a {@code String}.
+     *         This is typically used to access the Storefront endpoint.
      */
-    public static String getBuyerPassword() {
-        return getProperty("buyerPassword");
-    }
-
-    /**
-     * Retrieves the Storefront endpoint property value.
-     *
-     * @return The Storefront endpoint property value as a String.
-     */
-    public static String getSFEndPoint() {
-        return getProperty("sfEndpoint");
+    public static String getStoreURL() {
+        return getProperty("storeURL");
     }
 
     /**

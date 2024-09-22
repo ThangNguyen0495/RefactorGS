@@ -1,6 +1,8 @@
 package utility;
 
+import org.apache.logging.log4j.LogManager;
 import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -194,7 +196,7 @@ public class WebUtils {
      *                Use 0 to click the first element.
      */
     public void clickJS(By locator, int index) {
-        retryOnStaleElement( () -> {
+        retryOnStaleElement(() -> {
             // Highlight the element
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= '1px solid red'", getElement(locator, index));
             ((JavascriptExecutor) driver).executeScript("arguments[0].style.border= ''", getElement(locator, index));
@@ -240,7 +242,15 @@ public class WebUtils {
             waitVisibilityOfElementLocated(locator, index);
             clear(locator, index);
             click(locator, index);
-            getElement(locator, index).sendKeys(content);
+            try {
+                getElement(locator, index).sendKeys(content);
+            } catch (ElementNotInteractableException ex) {
+                new Actions(driver).moveToElement(getElement(locator, index))
+                        .click()
+                        .sendKeys(content)
+                        .build()
+                        .perform();
+            }
             clickOutOfTextBox(locator, index);
             return null;
         });
@@ -458,13 +468,6 @@ public class WebUtils {
     }
 
     /**
-     * Removes a specific Facebook bubble element from the page.
-     */
-    public void removeFbBubble() {
-        removeElement(By.cssSelector("#fb-root"));
-    }
-
-    /**
      * Retrieves the value of a specified key from localStorage using JavaScript.
      * Refreshes the page and retries up to 5 times if the value is null.
      *
@@ -473,32 +476,62 @@ public class WebUtils {
      * @throws IllegalStateException if the value is still null after 5 attempts.
      */
     public String getLocalStorageValue(String key) {
-        return getLocalStorageValueWithRetry(key, 5);
-    }
-
-    /**
-     * Helper method that retrieves the value of a specified key from localStorage and retries a specified number of times.
-     *
-     * @param key              The key to retrieve from localStorage.
-     * @param retriesRemaining The number of retries left.
-     * @return The value of the specified key from localStorage.
-     * @throws IllegalStateException if the value is still null after the specified number of retries.
-     */
-    private String getLocalStorageValueWithRetry(String key, int retriesRemaining) {
-        return retryOnStaleElement(() -> {
+        int retriesRemaining = 5;
+        while (retriesRemaining > 0) {
             Object value = ((JavascriptExecutor) driver).executeScript("return localStorage.getItem(arguments[0])", key);
-            if (value == null) {
-                if (retriesRemaining > 0) {
-                    driver.navigate().refresh();
-                    return getLocalStorageValueWithRetry(key, retriesRemaining - 1); // Retry by calling the method recursively
-                } else {
-                    throw new IllegalStateException("Failed to retrieve '" + key + "' from localStorage after 5 attempts.");
+
+            if (value != null) {
+                return value.toString(); // Return the retrieved value as a string
+            }
+
+            retriesRemaining--;
+
+            if (retriesRemaining > 0) {
+                driver.navigate().refresh(); // Refresh the page before retrying
+                try {
+                    Thread.sleep(1000); // Wait 1 second before retrying
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt(); // Restore the interrupted status
+                    throw new RuntimeException("Thread interrupted during localStorage retrieval retry", e);
                 }
             }
-            return value.toString(); // Return the retrieved value as a string
-        });
+        }
+
+        throw new IllegalStateException("Failed to retrieve '" + key + "' from localStorage after 5 attempts.");
     }
 
+
+    /**
+     * Retrieves the value of a specific cookie by its key, retrying up to 5 times if the cookie is not found.
+     *
+     * @param key the name of the cookie to retrieve
+     * @return the value of the cookie associated with the specified key
+     * @throws NoSuchElementException if the cookie is not found after 5 attempts
+     */
+    public String getCookieValue(String key) {
+        int attempts = 0;
+        while (attempts < 5) {
+            try {
+                Cookie cookie = driver.manage().getCookieNamed(key);
+                if (cookie != null) {
+                    return cookie.getValue();
+                }
+            } catch (NullPointerException e) {
+                // Log the failure and retry
+                LogManager.getLogger().warn("Attempt {} failed to retrieve cookie '{}'. Retrying...", attempts + 1, key);
+            }
+
+            attempts++;
+            try {
+                Thread.sleep(1000); // Wait 1 second before retrying
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // Restore the interrupted status
+                throw new RuntimeException("Thread interrupted during cookie retrieval retry", e);
+            }
+        }
+
+        throw new NoSuchElementException("Cookie '" + key + "' not found after 5 attempts");
+    }
 
     /**
      * Waits for the element identified by the locator to become visible.

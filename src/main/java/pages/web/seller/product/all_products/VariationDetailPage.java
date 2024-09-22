@@ -1,6 +1,6 @@
 package pages.web.seller.product.all_products;
 
-import api.seller.login.APIDashboardLogin;
+import api.seller.login.APISellerLogin;
 import api.seller.product.APIGetProductDetail;
 import api.seller.setting.APIGetStoreDefaultLanguage;
 import api.seller.setting.APIGetStoreLanguage;
@@ -74,7 +74,7 @@ public class VariationDetailPage {
      * @param productInfo The product information associated with the variation.
      * @param credentials The credentials for API login.
      */
-    public VariationDetailPage(WebDriver driver, int varIndex, APIGetProductDetail.ProductInformation productInfo, APIDashboardLogin.Credentials credentials) {
+    public VariationDetailPage(WebDriver driver, int varIndex, APIGetProductDetail.ProductInformation productInfo, APISellerLogin.Credentials credentials) {
         this.driver = driver;
         this.varIndex = varIndex;
         this.productInfo = productInfo;

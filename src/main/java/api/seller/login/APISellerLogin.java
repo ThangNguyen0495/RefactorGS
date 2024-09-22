@@ -12,10 +12,10 @@ import java.util.Objects;
  * This class handles the login functionality for the dashboard API.
  * It provides methods to authenticate and retrieve seller information.
  */
-public class APIDashboardLogin {
+public class APISellerLogin {
 
     private static Credentials cachedCredentials;
-    private static SellerInformation cachedSellerInfo;
+    private static LoginInformation cachedSellerInfo;
 
     /**
      * Represents the credentials used for logging into the dashboard.
@@ -33,8 +33,8 @@ public class APIDashboardLogin {
      */
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class SellerInformation {
-        private long id;
+    public static class LoginInformation {
+        private int id;
         private String login;
         private String displayName;
         private String email;
@@ -53,7 +53,7 @@ public class APIDashboardLogin {
         @Data
         @JsonIgnoreProperties(ignoreUnknown = true)
         public static class Store {
-            private long id;
+            private int id;
             private String name;
             private String symbol;
         }
@@ -64,9 +64,9 @@ public class APIDashboardLogin {
      * If the same credentials are used, cached information is returned.
      *
      * @param credentials The {@link Credentials} used to authenticate the seller.
-     * @return A {@link SellerInformation} object containing details about the authenticated seller.
+     * @return A {@link LoginInformation} object containing details about the authenticated seller.
      */
-    public SellerInformation getSellerInformation(Credentials credentials) {
+    public LoginInformation getSellerInformation(Credentials credentials) {
         // If cached credentials match, return cached seller information
         if (Objects.equals(credentials, cachedCredentials)) {
             return cachedSellerInfo;
@@ -83,13 +83,13 @@ public class APIDashboardLogin {
      * Authenticates the seller and retrieves seller information by making a login API call.
      *
      * @param credentials The credentials to authenticate with.
-     * @return A {@link SellerInformation} object with the seller's details.
+     * @return A {@link LoginInformation} object with the seller's details.
      */
-    private SellerInformation authenticateSeller(Credentials credentials) {
+    private LoginInformation authenticateSeller(Credentials credentials) {
         return new APIUtils().login("/api/authenticate/store/email/gosell", credentials)
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(SellerInformation.class);
+                .as(LoginInformation.class);
     }
 }
