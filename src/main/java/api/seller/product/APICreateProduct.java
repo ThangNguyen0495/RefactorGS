@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import utility.APIUtils;
 import utility.VariationUtils;
 
@@ -36,6 +37,7 @@ public class APICreateProduct {
     private List<String> branchNames;
     private List<String> branchTypes;
     private ProductPayload payload;
+    @Setter
     private boolean showOutOfStock = true;
     private boolean isHideStock = false;
 
@@ -61,14 +63,8 @@ public class APICreateProduct {
         branchTypes = APIGetBranchList.getBranchTypes(branchInfoList);
     }
 
-    public APICreateProduct setHideStock(boolean isHideStock) {
+    public void setHideStock(boolean isHideStock) {
         this.isHideStock = isHideStock;
-        return this;
-    }
-
-    public APICreateProduct setShowOutOfStock(boolean showOutOfStock) {
-        this.showOutOfStock = showOutOfStock;
-        return this;
     }
 
     @Data

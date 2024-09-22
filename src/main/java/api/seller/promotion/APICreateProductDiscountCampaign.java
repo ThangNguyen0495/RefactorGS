@@ -161,7 +161,9 @@ public class APICreateProductDiscountCampaign {
         // Getting variation model list for the product
         List<Integer> variationModelList = APIGetProductDetail.getVariationModelList(productInfo);
         // Finding minimum stock across branches
-        int min = Collections.min(productInfo.isHasModel() ? APIGetProductDetail.getBranchStocks(productInfo, variationModelList.get(0)) : APIGetProductDetail.getBranchStocks(productInfo, null));
+        int min = Collections.min(productInfo.isHasModel()
+                ? APIGetProductDetail.getBranchStocks(productInfo, variationModelList.getFirst())
+                : APIGetProductDetail.getBranchStocks(productInfo, null));
 
         // If the product has models, find the minimum stock across all models
         if (productInfo.isHasModel()) {

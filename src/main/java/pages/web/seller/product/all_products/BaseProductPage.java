@@ -6,6 +6,7 @@ import api.seller.product.APIGetProductList;
 import api.seller.setting.APIGetBranchList;
 import api.seller.setting.APIGetStoreDefaultLanguage;
 import api.seller.setting.APIGetStoreLanguage;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.Keys;
@@ -39,12 +40,54 @@ public class BaseProductPage extends BaseProductElement {
     // Credentials and Information Lists
     private APISellerLogin.Credentials credentials;
 
+    /**
+     * -- SETTER --
+     *  Sets whether discounts are not applicable.
+     *
+     * @param noDiscount True if no discount is applicable, otherwise false.
+     */
     // Default Values and Flags
+    @Setter
     private boolean noDiscount = nextBoolean();
+    /**
+     * -- SETTER --
+     *  Sets whether cost is not applicable.
+     *
+     * @param noCost True if no cost is applicable, otherwise false.
+     */
+    @Setter
     private boolean noCost = nextBoolean();
+    /**
+     * -- SETTER --
+     *  Sets whether the product has dimensions.
+     *
+     * @param hasDimension True if the product has dimensions, otherwise false.
+     */
+    @Setter
     private boolean hasDimension = false;
+    /**
+     * -- SETTER --
+     *  Sets whether SEO information should be included for the product.
+     *
+     * @param hasSEO True if SEO information should be included, otherwise false.
+     */
+    @Setter
     private boolean hasSEO = false;
+    /**
+     * -- SETTER --
+     *  Sets whether inventory management should be by lot date.
+     *
+     * @param manageByLotDate True if inventory management should be by lot date, otherwise false.
+     */
+    @Setter
     private boolean manageByLotDate = false;
+    /**
+     * -- SETTER --
+     *  Sets whether attributions should be included for the product.
+     *
+     * @param hasAttribution True if attributions should be included, otherwise false.
+     */
+    @Setter
     private boolean hasAttribution = false;
     private boolean showOnApp = true;
     private boolean showOnWeb = true;
@@ -134,86 +177,18 @@ public class BaseProductPage extends BaseProductElement {
     }
 
     /**
-     * Sets whether discounts are not applicable.
-     *
-     * @param noDiscount True if no discount is applicable, otherwise false.
-     * @return The current instance of ProductPage.
-     */
-    public BaseProductPage setNoDiscount(boolean noDiscount) {
-        this.noDiscount = noDiscount;
-        return this;
-    }
-
-    /**
-     * Sets whether cost is not applicable.
-     *
-     * @param noCost True if no cost is applicable, otherwise false.
-     * @return The current instance of ProductPage.
-     */
-    public BaseProductPage setNoCost(boolean noCost) {
-        this.noCost = noCost;
-        return this;
-    }
-
-    /**
-     * Sets whether the product has dimensions.
-     *
-     * @param hasDimension True if the product has dimensions, otherwise false.
-     * @return The current instance of ProductPage.
-     */
-    public BaseProductPage setHasDimension(boolean hasDimension) {
-        this.hasDimension = hasDimension;
-        return this;
-    }
-
-    /**
-     * Sets whether SEO information should be included for the product.
-     *
-     * @param hasSEO True if SEO information should be included, otherwise false.
-     * @return The current instance of ProductPage.
-     */
-    public BaseProductPage setHasSEO(boolean hasSEO) {
-        this.hasSEO = hasSEO;
-        return this;
-    }
-
-    /**
-     * Sets whether inventory management should be by lot date.
-     *
-     * @param manageByLotDate True if inventory management should be by lot date, otherwise false.
-     * @return The current instance of ProductPage.
-     */
-    public BaseProductPage setManageByLotDate(boolean manageByLotDate) {
-        this.manageByLotDate = manageByLotDate;
-        return this;
-    }
-
-    /**
-     * Sets whether attributions should be included for the product.
-     *
-     * @param hasAttribution True if attributions should be included, otherwise false.
-     * @return The current instance of ProductPage.
-     */
-    public BaseProductPage setHasAttribution(boolean hasAttribution) {
-        this.hasAttribution = hasAttribution;
-        return this;
-    }
-
-    /**
      * Sets the selling platforms for the product.
      *
      * @param showOnApp      True if the product should be shown on the app.
      * @param showOnWeb      True if the product should be shown on the web.
      * @param showInStore    True if the product should be shown in-store.
      * @param showInGoSocial True if the product should be shown on GoSocial.
-     * @return The current instance of ProductPage.
      */
-    public BaseProductPage setSellingPlatform(boolean showOnApp, boolean showOnWeb, boolean showInStore, boolean showInGoSocial) {
+    public void setSellingPlatform(boolean showOnApp, boolean showOnWeb, boolean showInStore, boolean showInGoSocial) {
         this.showOnApp = showOnApp;
         this.showOnWeb = showOnWeb;
         this.showInStore = showInStore;
         this.showInGoSocial = showInGoSocial;
-        return this;
     }
 
     /**

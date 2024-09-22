@@ -2,7 +2,6 @@ package api.seller.promotion;
 
 import api.seller.login.APISellerLogin;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import utility.APIUtils;
 

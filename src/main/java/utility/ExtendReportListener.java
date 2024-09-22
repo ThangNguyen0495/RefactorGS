@@ -12,7 +12,6 @@ import org.openqa.selenium.WebDriver;
 import org.testng.*;
 
 import java.io.File;
-import java.util.Arrays;
 
 /**
  * The {@code ExtendReportListener} class is a TestNG listener that generates an Extent report for

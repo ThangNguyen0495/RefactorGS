@@ -12,7 +12,6 @@ import api.seller.product.APIGetProductDetail;
 import api.seller.product.APIGetProductDetail.ProductInformation;
 import api.seller.sale_channel.APIGetPreferences;
 import api.seller.setting.APIGetBranchList;
-import api.seller.setting.APIGetStoreLanguage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
