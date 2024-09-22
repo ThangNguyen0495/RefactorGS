@@ -40,20 +40,19 @@ public class BaseProductPage extends BaseProductElement {
     // Credentials and Information Lists
     private APISellerLogin.Credentials credentials;
 
+
+    // Default Values and Flags
     /**
      * -- SETTER --
      *  Sets whether discounts are not applicable.
      *
-     * @param noDiscount True if no discount is applicable, otherwise false.
      */
-    // Default Values and Flags
     @Setter
     private boolean noDiscount = nextBoolean();
     /**
      * -- SETTER --
      *  Sets whether cost is not applicable.
      *
-     * @param noCost True if no cost is applicable, otherwise false.
      */
     @Setter
     private boolean noCost = nextBoolean();
@@ -61,7 +60,6 @@ public class BaseProductPage extends BaseProductElement {
      * -- SETTER --
      *  Sets whether the product has dimensions.
      *
-     * @param hasDimension True if the product has dimensions, otherwise false.
      */
     @Setter
     private boolean hasDimension = false;
@@ -69,7 +67,6 @@ public class BaseProductPage extends BaseProductElement {
      * -- SETTER --
      *  Sets whether SEO information should be included for the product.
      *
-     * @param hasSEO True if SEO information should be included, otherwise false.
      */
     @Setter
     private boolean hasSEO = false;
@@ -77,7 +74,6 @@ public class BaseProductPage extends BaseProductElement {
      * -- SETTER --
      *  Sets whether inventory management should be by lot date.
      *
-     * @param manageByLotDate True if inventory management should be by lot date, otherwise false.
      */
     @Setter
     private boolean manageByLotDate = false;
@@ -85,7 +81,6 @@ public class BaseProductPage extends BaseProductElement {
      * -- SETTER --
      *  Sets whether attributions should be included for the product.
      *
-     * @param hasAttribution True if attributions should be included, otherwise false.
      */
     @Setter
     private boolean hasAttribution = false;
@@ -933,9 +928,8 @@ public class BaseProductPage extends BaseProductElement {
      *
      * @param status    The new status to set for the product.
      * @param productId The ID of the product to update.
-     * @return The current instance of `BaseProductPage` for method chaining.
      */
-    public BaseProductPage changeProductStatus(String status, int productId) {
+    public void changeProductStatus(String status, int productId) {
         if (!status.equals(apiProductInfo.getBhStatus())) {
             // Log the status change
             logger.info("Change product status, id: {}", productId);
@@ -948,7 +942,6 @@ public class BaseProductPage extends BaseProductElement {
 
             logger.info("Change product status from {} to {}", apiProductInfo.getBhStatus(), status);
         }
-        return this;
     }
 
     /**
@@ -1238,10 +1231,9 @@ public class BaseProductPage extends BaseProductElement {
      * </p>
      *
      * @param branchStock Stock quantities for each branch.
-     * @return The current instance of `BaseProductPage` for method chaining.
      * @throws InterruptedException If an error occurs during the process.
      */
-    public BaseProductPage updateVariationProduct(int... branchStock) throws InterruptedException {
+    public void updateVariationProduct(int... branchStock) throws InterruptedException {
         // Log the start of product update
         logger.info("===== STEP =====> [UpdateVariationProduct] START... ");
 
@@ -1264,7 +1256,6 @@ public class BaseProductPage extends BaseProductElement {
         // Log the completion of product update
         logger.info("===== STEP =====> [UpdateVariationProduct] DONE!!! ");
 
-        return this;
     }
 
     /**

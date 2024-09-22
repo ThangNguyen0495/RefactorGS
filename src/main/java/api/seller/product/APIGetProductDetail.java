@@ -404,9 +404,7 @@ public class APIGetProductDetail {
                 Map<Integer, Integer> branchStockMap = new HashMap<>();
 
                 // Populate branchId -> stock map for this model
-                model.getBranches().forEach(branchStock -> {
-                    branchStockMap.put(branchStock.getBranchId(), branchStock.getTotalItem() - branchStock.getSoldItem());
-                });
+                model.getBranches().forEach(branchStock -> branchStockMap.put(branchStock.getBranchId(), branchStock.getTotalItem() - branchStock.getSoldItem()));
 
                 // Add modelId -> branchId -> stock map to the main map
                 modelBranchStockMap.put(model.getId(), branchStockMap);
@@ -414,9 +412,7 @@ public class APIGetProductDetail {
         } else {
             // No variations; map stock by branch with null as the modelId key
             Map<Integer, Integer> branchStockMap = new HashMap<>();
-            productInformation.getBranches().forEach(branchStock -> {
-                branchStockMap.put(branchStock.getBranchId(), branchStock.getTotalItem() - branchStock.getSoldItem());
-            });
+            productInformation.getBranches().forEach(branchStock -> branchStockMap.put(branchStock.getBranchId(), branchStock.getTotalItem() - branchStock.getSoldItem()));
             modelBranchStockMap.put(null, branchStockMap);
         }
 
