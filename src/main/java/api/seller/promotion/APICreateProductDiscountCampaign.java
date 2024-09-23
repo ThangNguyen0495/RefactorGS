@@ -158,22 +158,19 @@ public class APICreateProductDiscountCampaign {
      * @return Condition related to minimum requirements
      */
     private Condition getMinimumRequirement() {
-        // Getting variation model list for the product
-        List<Integer> variationModelList = APIGetProductDetail.getVariationModelList(productInfo);
-        // Finding minimum stock across branches
-        int min = Collections.min(productInfo.isHasModel()
-                ? APIGetProductDetail.getBranchStocks(productInfo, variationModelList.getFirst())
-                : APIGetProductDetail.getBranchStocks(productInfo, null));
+        // Get variation model list or null for without variation products
+        List<Integer> variationModelList = productInfo.isHasModel()
+                ? APIGetProductDetail.getVariationModelList(productInfo)
+                : Collections.singletonList(null);
 
-        // If the product has models, find the minimum stock across all models
-        if (productInfo.isHasModel()) {
-            for (int index = 1; index < variationModelList.size(); index++) {
-                min = Math.min(Collections.min(APIGetProductDetail.getBranchStocks(productInfo, index)), min);
-            }
-        }
+        // Find the minimum stock across all model variations or non-model product
+        int minStock = variationModelList.stream()
+                .map(modelId -> Collections.min(APIGetProductDetail.getBranchStocks(productInfo, modelId)))
+                .min(Integer::compare)
+                .orElse(0);
 
         // Setting the minimum required quantity condition value
-        var conditionValue = new ConditionValue(String.valueOf(RandomUtils.nextInt(Math.max(min, 1)) + 1));
+        var conditionValue = new ConditionValue(String.valueOf(RandomUtils.nextInt(Math.max(minStock, 1)) + 1));
 
         // Returning the constructed minimum requirement condition
         return new Condition("MIN_REQUIREMENTS_QUANTITY_OF_ITEMS", "MINIMUM_REQUIREMENTS", Collections.singletonList(conditionValue));
@@ -283,9 +280,9 @@ public class APICreateProductDiscountCampaign {
 
         // Making an API call to create the discount campaign
         new APIUtils().post("/orderservices2/api/gs-discount-campaigns/coupons",
-                loginInfo.getAccessToken(),
-                discountCampaignPayload,
-                Map.of("time-zone", "Asia/Saigon"))
+                        loginInfo.getAccessToken(),
+                        discountCampaignPayload,
+                        Map.of("time-zone", "Asia/Saigon"))
                 .then().statusCode(200); // Verifying the response status is 200 OK
 
         LogManager.getLogger().info("===== STEP =====> [CreateDiscountCampaign] DONE!!! "); // Logging the successful creation of the campaign

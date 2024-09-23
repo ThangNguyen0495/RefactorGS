@@ -102,7 +102,7 @@ public class APIUpdateBranchInformation {
 
             // Change the status of the branch
             String statusChangePath = String.format(CHANGE_BRANCH_STATUS_PATH, loginInfo.getStore().getId(), branchId, branchStatus);
-            new APIUtils().put(statusChangePath, loginInfo.getAccessToken());
+            new APIUtils().put(statusChangePath, loginInfo.getAccessToken(), null);
             logger.info("[API] Updated branch '{}' status: {}", branchName, branchStatus); // Log the status change
         } else {
             logger.info("[{}] Branch information has not changed; skipping API update.", branchName);
@@ -140,7 +140,5 @@ public class APIUpdateBranchInformation {
 
         // Update the visibility of the free branch based on the hide parameter
         updateBranchInfo(freeBranchId, true, hide, ACTIVE_STATUS);
-
-        // Return the current instance to allow for method chaining
     }
 }

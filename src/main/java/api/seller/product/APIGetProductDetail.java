@@ -7,6 +7,7 @@ import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import utility.APIUtils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -440,6 +441,39 @@ public class APIGetProductDetail {
         return getModelBranchStockMap(productInfo).get(modelId).get(branchId);
     }
 
+    /**
+     * Retrieves the minimum available stock for a specific model variation across all branches.
+     * <p>
+     * This method looks up the stock quantities for a product variation (identified by its model ID)
+     * across all branches and returns the minimum stock available. If the product does not have variations,
+     * the stock for the default product model is retrieved.
+     *
+     * @param productInfo The product information, containing details about pricing, descriptions, attributes, and stock.
+     *                    It includes nested classes to manage various aspects of the product, including stock for branches.
+     * @param modelId     The ID of the model variation to retrieve stock for. If the product does not have variations,
+     *                    this should be null.
+     * @return The minimum available stock quantity for the specified model variation across all branches.
+     * @throws IllegalArgumentException If the model ID does not exist in the product information, or if stock data is missing.
+     */
+    public static int getMinimumBranchStockForModel(ProductInformation productInfo, Integer modelId) {
+        // Retrieve stock map for the specified model variation
+        Map<Integer, Map<Integer, Integer>> modelStockMap = getModelBranchStockMap(productInfo);
+
+        // Ensure the model exists in the stock map
+        if (!modelStockMap.containsKey(modelId)) {
+            throw new IllegalArgumentException("Model ID " + modelId + " not found in product information.");
+        }
+
+        // Retrieve stock for all branches for the specified model
+        Map<Integer, Integer> branchStockMap = modelStockMap.get(modelId);
+
+        if (branchStockMap == null || branchStockMap.isEmpty()) {
+            throw new IllegalArgumentException("No stock information available for model ID " + modelId);
+        }
+
+        // Return the minimum stock available across all branches
+        return Collections.min(branchStockMap.values());
+    }
 
     /**
      * Creates a map of stock quantities for each model variation, indexed by variation model ID.

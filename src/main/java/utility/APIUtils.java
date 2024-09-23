@@ -9,42 +9,105 @@ import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 
+/**
+ * Utility class for interacting with APIs using RestAssured.
+ * It supports GET, POST, PUT, and DELETE requests with optional OAuth2 authentication and headers.
+ * This class also handles proxy configuration and base URI settings.
+ */
 public class APIUtils {
 
     /**
      * Initializes the APIUtils class.
-     * If the "enableProxy" property is set to true, it configures RestAssured to use a proxy on localhost:8888.
-     * Also sets the base URI for API requests using the value from the "apiHost" property.
+     * Configures RestAssured proxy settings if enabled, and sets the base URI from the properties.
      */
     public APIUtils() {
+        configureProxy();
+        setBaseURI();
+    }
+
+    /**
+     * Configures proxy settings if the 'enableProxy' property is set to true.
+     * The proxy is set to 'localhost' on port 8888.
+     */
+    private void configureProxy() {
         if (PropertiesUtils.getEnableProxy()) {
             RestAssured.proxy("localhost", 8888);
         }
+    }
+
+    /**
+     * Sets the base URI for API requests using the 'apiHost' property.
+     */
+    private void setBaseURI() {
         RestAssured.baseURI = PropertiesUtils.getAPIHost();
     }
 
     /**
-     * Performs a GET request to the specified path with OAuth2 authentication and optional headers.
+     * Builds a request specification with optional OAuth2 authentication and headers.
+     *
+     * @param token   The OAuth2 token for authentication (can be null).
+     * @param headers Optional headers to include in the request. If null, an empty map is used.
+     * @return A RequestSpecification object for making API requests.
+     */
+    private RequestSpecification buildRequest(String token, Map<String, Object> headers) {
+        RequestSpecification request = given()
+                .relaxedHTTPSValidation()
+                .contentType(ContentType.JSON);
+
+        if (token != null) {
+            request.auth().oauth2(token);
+        }
+
+        if (headers != null) {
+            request.headers(headers);
+        }
+
+        return request;
+    }
+
+    /**
+     * Sends an HTTP request with the specified method, path, token, body, and headers.
+     *
+     * @param method  The HTTP method to use (GET, POST, PUT, DELETE).
+     * @param path    The API endpoint path.
+     * @param token   The OAuth2 token for authentication (can be null).
+     * @param body    The request body (can be null).
+     * @param headers Optional headers to include in the request.
+     * @return The API response.
+     */
+    private Response sendRequest(String method, String path, String token, Object body, Map<String, Object> headers) {
+        RequestSpecification request = buildRequest(token, headers);
+
+        if (body != null) {
+            request.body(body);
+        }
+
+        return switch (method.toUpperCase()) {
+            case "GET" -> request.get(path);
+            case "POST" -> request.post(path);
+            case "PUT" -> request.put(path);
+            case "DELETE" -> request.delete(path);
+            default -> throw new IllegalArgumentException("Unsupported HTTP method: " + method);
+        };
+    }
+
+    /**
+     * Performs a GET request to the specified path with optional OAuth2 authentication and headers.
      *
      * @param path    The API endpoint path.
-     * @param token   The OAuth2 token for authentication.
+     * @param token   The OAuth2 token for authentication (can be null).
      * @param headers Optional headers to include in the request.
      * @return The API response.
      */
     public Response get(String path, String token, Map<String, Object> headers) {
-        return given()
-                .relaxedHTTPSValidation()
-                .auth().oauth2(token)
-                .headers((headers == null) ? Map.of() : headers)
-                .contentType(ContentType.JSON)
-                .when().get(path);
+        return sendRequest("GET", path, token, null, headers);
     }
 
     /**
-     * Performs a GET request to the specified path with OAuth2 authentication and no headers.
+     * Performs a GET request to the specified path with optional OAuth2 authentication.
      *
      * @param path  The API endpoint path.
-     * @param token The OAuth2 token for authentication.
+     * @param token The OAuth2 token for authentication (can be null).
      * @return The API response.
      */
     public Response get(String path, String token) {
@@ -52,42 +115,24 @@ public class APIUtils {
     }
 
     /**
-     * Performs a POST request to the specified path with OAuth2 authentication and optional headers and body.
+     * Performs a POST request to the specified path with optional OAuth2 authentication, body, and headers.
      *
      * @param path    The API endpoint path.
-     * @param token   The OAuth2 token for authentication.
-     * @param body    The request body to send.
+     * @param token   The OAuth2 token for authentication (can be null).
+     * @param body    The request body to send (can be null).
      * @param headers Optional headers to include in the request.
      * @return The API response.
      */
     public Response post(String path, String token, Object body, Map<String, Object> headers) {
-        return given()
-                .relaxedHTTPSValidation()
-                .auth().oauth2(token)
-                .headers((headers == null) ? Map.of() : headers)
-                .contentType(ContentType.JSON)
-                .body(body)
-                .when().post(path);
+        return sendRequest("POST", path, token, body, headers);
     }
 
     /**
-     * Performs a POST request to the specified path with OAuth2 authentication and optional headers.
-     *
-     * @param path    The API endpoint path.
-     * @param token   The OAuth2 token for authentication.
-     * @param headers Optional headers to include in the request.
-     * @return The API response.
-     */
-    public Response post(String path, String token, Map<String, Object> headers) {
-        return post(path, token, null, headers);
-    }
-
-    /**
-     * Performs a POST request to the specified path with OAuth2 authentication and no headers.
+     * Performs a POST request to the specified path with optional OAuth2 authentication and body.
      *
      * @param path  The API endpoint path.
-     * @param token The OAuth2 token for authentication.
-     * @param body  The request body to send.
+     * @param token The OAuth2 token for authentication (can be null).
+     * @param body  The request body to send (can be null).
      * @return The API response.
      */
     public Response post(String path, String token, Object body) {
@@ -95,37 +140,24 @@ public class APIUtils {
     }
 
     /**
-     * Performs a PUT request to the specified path with OAuth2 authentication and optional headers.
-     * This version handles requests both with and without a body.
+     * Performs a PUT request to the specified path with optional OAuth2 authentication, body, and headers.
      *
      * @param path    The API endpoint path.
-     * @param token   The OAuth2 token for authentication.
-     * @param body    The request body to send (can be null for no body).
+     * @param token   The OAuth2 token for authentication (can be null).
+     * @param body    The request body to send (can be null).
      * @param headers Optional headers to include in the request.
      * @return The API response.
      */
     public Response put(String path, String token, Object body, Map<String, Object> headers) {
-        RequestSpecification request = given()
-                .relaxedHTTPSValidation()
-                .auth().oauth2(token)
-                .headers((headers == null) ? Map.of() : headers)
-                .contentType(ContentType.JSON);
-
-        // Only add body if it's not null
-        if (body != null) {
-            request.body(body);
-        }
-
-        return request.when().put(path);
+        return sendRequest("PUT", path, token, body, headers);
     }
 
-
     /**
-     * Performs a PUT request to the specified path with OAuth2 authentication and no headers.
+     * Performs a PUT request to the specified path with optional OAuth2 authentication and body.
      *
      * @param path  The API endpoint path.
-     * @param token The OAuth2 token for authentication.
-     * @param body  The request body to send.
+     * @param token The OAuth2 token for authentication (can be null).
+     * @param body  The request body to send (can be null).
      * @return The API response.
      */
     public Response put(String path, String token, Object body) {
@@ -133,108 +165,26 @@ public class APIUtils {
     }
 
     /**
-     * Performs a PUT request to the specified path with OAuth2 authentication and no headers or body.
-     * This method is a shortcut for performing a PUT request when no additional headers or body are required.
-     *
-     * @param path  The API endpoint path to which the PUT request will be sent.
-     * @param token The OAuth2 token used for authentication.
-     * @return The API response from the PUT request.
-     */
-    public Response put(String path, String token) {
-        return put(path, token, null, null);
-    }
-
-
-    /**
-     * Performs a DELETE request to the specified path with OAuth2 authentication, optional headers, and body.
+     * Performs a DELETE request to the specified path with optional OAuth2 authentication, body, and headers.
      *
      * @param path    The API endpoint path.
-     * @param token   The OAuth2 token for authentication.
-     * @param body    The request body to send (optional).
+     * @param token   The OAuth2 token for authentication (can be null).
+     * @param body    The request body to send (can be null).
      * @param headers Optional headers to include in the request.
      * @return The API response.
      */
-    public Response delete(String path, String token, String body, Map<String, Object> headers) {
-        RequestSpecification request = given()
-                .relaxedHTTPSValidation()
-                .auth().oauth2(token)
-                .headers((headers == null) ? Map.of() : headers)
-                .contentType(ContentType.JSON);
-
-        // Only add body if it's not null
-        if (body != null) {
-            request.body(body);
-        }
-
-        return request.when().delete(path);
+    public Response delete(String path, String token, Object body, Map<String, Object> headers) {
+        return sendRequest("DELETE", path, token, body, headers);
     }
 
     /**
-     * Performs a DELETE request to the specified path with OAuth2 authentication and optional headers.
-     *
-     * @param path    The API endpoint path.
-     * @param token   The OAuth2 token for authentication.
-     * @param headers Optional headers to include in the request.
-     * @return The API response.
-     */
-    public Response delete(String path, String token, Map<String, Object> headers) {
-        return delete(path, token, null, headers);
-    }
-
-    /**
-     * Performs a DELETE request to the specified path with OAuth2 authentication and no headers.
+     * Performs a DELETE request to the specified path with optional OAuth2 authentication.
      *
      * @param path  The API endpoint path.
-     * @param token The OAuth2 token for authentication.
+     * @param token The OAuth2 token for authentication (can be null).
      * @return The API response.
      */
     public Response delete(String path, String token) {
         return delete(path, token, null, null);
-    }
-
-    /**
-     * Performs a POST request to the specified path with OAuth2 authentication, a request body, and optional headers.
-     *
-     * @param path    The API endpoint path.
-     * @param token   The OAuth2 token for authentication.
-     * @param body    The request body to send.
-     * @param headers Optional headers to include in the request.
-     * @return The API response.
-     */
-    public Response search(String path, String token, String body, Map<String, Object> headers) {
-        return given()
-                .relaxedHTTPSValidation()
-                .auth().oauth2(token)
-                .headers((headers == null) ? Map.of() : headers)
-                .contentType(ContentType.JSON)
-                .body(body)
-                .when().post(path);
-    }
-
-    /**
-     * Performs a POST request to the specified path with OAuth2 authentication, a request body, and no headers.
-     *
-     * @param path  The API endpoint path.
-     * @param token The OAuth2 token for authentication.
-     * @param body  The request body to send.
-     * @return The API response.
-     */
-    public Response search(String path, String token, String body) {
-        return search(path, token, body, null);
-    }
-
-    /**
-     * Performs a POST request to the specified path with OAuth2 authentication and a request body.
-     *
-     * @param path The API endpoint path.
-     * @param body The request body to send.
-     * @return The API response.
-     */
-    public Response login(String path, Object body) {
-        return given().relaxedHTTPSValidation()
-                .contentType(ContentType.JSON)
-                .body(body)
-                .when()
-                .post(path);
     }
 }

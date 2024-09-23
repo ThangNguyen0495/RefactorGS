@@ -238,7 +238,7 @@ public class APICreateFlashSale {
 
         // Ensure wait time is positive; if it's negative, the flash sale has already started
         if (waitTimeMillis > 0) {
-           LogManager.getLogger().info("Waiting for flash sale to start. Wait time: {} milliseconds.", waitTimeMillis);
+            LogManager.getLogger().info("Waiting for flash sale to start. Wait time: {} milliseconds.", String.format("%,d", waitTimeMillis));
             try {
                 Thread.sleep(waitTimeMillis); // Pause execution
             } catch (InterruptedException e) {

@@ -86,7 +86,7 @@ public class APISellerLogin {
      * @return A {@link LoginInformation} object with the seller's details.
      */
     private LoginInformation authenticateSeller(Credentials credentials) {
-        return new APIUtils().login("/api/authenticate/store/email/gosell", credentials)
+        return new APIUtils().post("/api/authenticate/store/email/gosell", null, credentials)
                 .then()
                 .statusCode(200)
                 .extract()

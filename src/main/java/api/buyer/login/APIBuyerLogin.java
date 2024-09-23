@@ -16,11 +16,8 @@ public class APIBuyerLogin extends APISellerLogin {
      */
     public LoginInformation getBuyerInformation(Credentials credentials) {
         // Perform buyer login using the API and return the login information
-        return new APIUtils()
-                .login("/api/authenticate/mobile", credentials)
-                .then()
-                .statusCode(200)
-                .extract()
-                .as(LoginInformation.class);
+        return new APIUtils().post("/api/authenticate/mobile", null, credentials)
+                .then().statusCode(200)
+                .extract().as(LoginInformation.class);
     }
 }

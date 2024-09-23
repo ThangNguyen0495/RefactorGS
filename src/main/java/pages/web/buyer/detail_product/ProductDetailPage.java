@@ -172,13 +172,13 @@ public class ProductDetailPage {
         if (!(new APIGetPreferences(credentials).getStoreListingWebInformation().isEnabledProduct() && productInfo.isEnabledListing())) {
             if (expectedListingPrice != expectedSellingPrice) {
                 long actualListingPrice = Long.parseLong(webUtils.getText(loc_lblListingPrice).replaceAll("\\D+", ""));
-                Assert.assertEquals(actualListingPrice, expectedListingPrice, "%s Listing price should be %s, but found %s.".formatted(branchInfo, expectedListingPrice, actualListingPrice));
+                Assert.assertEquals(actualListingPrice, expectedListingPrice, "%s Listing price should be %,d, but found %,d.".formatted(branchInfo, expectedListingPrice, actualListingPrice));
             } else {
                 logger.info("No discount product (listing price = selling price)");
             }
 
             long actualSellingPrice = Long.parseLong(webUtils.getText(loc_lblSellingPrice).replaceAll("\\D+", ""));
-            Assert.assertTrue(Math.abs(actualSellingPrice - expectedSellingPrice) <= 1, "%s Selling price should be approximately %d ±1, but found %d.".formatted(branchInfo, expectedSellingPrice, actualSellingPrice));
+            Assert.assertTrue(Math.abs(actualSellingPrice - expectedSellingPrice) <= 1, "%s Selling price should be approximately %,d ±1, but found %,d.".formatted(branchInfo, expectedSellingPrice, actualSellingPrice));
             logger.info("{} Checked product prices and store currency.", branchInfo);
         } else {
             logger.info("{} Website listing is enabled, so listing/selling price is hidden.", branchInfo);
@@ -472,7 +472,7 @@ public class ProductDetailPage {
      * @return the wholesale information, or null if no wholesale information is available
      */
     private WholesaleInformation fetchWholesaleInfo(int itemId, int customerId, int variationIndex) {
-        return new APIGetWholesaleInformation(credentials).getWholesaleInformation(itemId, customerId, variationIndex);
+        return new APIGetWholesaleInformation(credentials).getWholesaleInformation(itemId, customerId, fetchModelId(variationIndex));
     }
 
     /**
@@ -483,7 +483,7 @@ public class ProductDetailPage {
      * @return the flash sale information, or null if no flash sale is active
      */
     private FlashSaleInformation fetchFlashSaleInfo(int itemId, int variationIndex) {
-        return new APIGetFlashSaleInformation(credentials).getFlashSaleInformation(itemId, variationIndex);
+        return new APIGetFlashSaleInformation(credentials).getFlashSaleInformation(itemId, fetchModelId(variationIndex));
     }
 
     /**
@@ -519,7 +519,7 @@ public class ProductDetailPage {
      * @return true if a flash sale is active and not scheduled, false otherwise
      */
     private boolean isFlashSaleActive(FlashSaleInformation flashSaleInfo) {
-        return flashSaleInfo != null && !"SCHEDULED".equals(flashSaleInfo.getStatus());
+        return flashSaleInfo != null && "IN_PROGRESS".equals(flashSaleInfo.getStatus());
     }
 
 
@@ -793,7 +793,7 @@ public class ProductDetailPage {
      * @param branchId The identifier for the branch whose stock is being checked.
      * @return true if the branch is visible and has stock, false otherwise.
      */
-    private boolean isBranchVisibleWithStock(List<BranchInformation> branchInfos, int branchIndex, ProductInformation productInfo, int modelId, int branchId) {
+    private boolean isBranchVisibleWithStock(List<BranchInformation> branchInfos, int branchIndex, ProductInformation productInfo, Integer modelId, int branchId) {
         // Check if the branch is shown on the storefront
         boolean isShownOnStorefront = isBranchShownOnStorefront(branchInfos, branchIndex);
 

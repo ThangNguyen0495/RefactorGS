@@ -2,6 +2,7 @@ package api.seller.setting;
 
 import api.seller.login.APISellerLogin;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.restassured.path.json.exception.JsonPathException;
 import lombok.Data;
 import utility.APIUtils;
 
@@ -58,13 +59,27 @@ public class APIGetBranchList {
      * Retrieves details about the branches such as ID, name, address, etc.
      *
      * @return A list of BranchInformation objects containing details about the store's branches.
+     * @throws RuntimeException if the operation fails after 5 retries.
      */
     public List<BranchInformation> getBranchInformation() {
-        return new APIUtils().get("/storeservice/api/store-branch/full?storeId=%s&page=0&size=100".formatted(loginInfo.getStore().getId()), loginInfo.getAccessToken())
-                .then().statusCode(200)
-                .extract().jsonPath()
-                .getList(".", BranchInformation.class);
+        int maxRetries = 5;
+
+        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                // Attempt to fetch the branch information
+                return new APIUtils().get("/storeservice/api/store-branch/full?storeId=%s&page=0&size=100".formatted(loginInfo.getStore().getId()), loginInfo.getAccessToken())
+                        .then().statusCode(200)
+                        .extract().jsonPath()
+                        .getList(".", BranchInformation.class);
+            } catch (JsonPathException e) {
+                // Optionally log the retry attempt
+                System.out.println("Retrying to fetch branch information, attempt " + attempt);
+            }
+        }
+
+        throw new RuntimeException("Failed to fetch branch information after " + maxRetries + " attempts.");
     }
+
 
     /**
      * Extracts branch IDs from a list of BranchInformation objects.
