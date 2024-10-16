@@ -8,8 +8,6 @@ import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 import utility.WebUtils;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -17,15 +15,10 @@ import java.util.stream.IntStream;
 public class EditTranslationPopup {
     private final WebUtils webUtils;
     private final Logger logger = LogManager.getLogger();
-    private final String translationLangCode;
-    private String translationLangName;
-    private final String defaultLangCode;
+    private String translationLangCode;
 
-    public EditTranslationPopup(WebDriver driver, String translationLangCode, String translationLangName, String defaultLangCode) {
+    public EditTranslationPopup(WebDriver driver) {
         this.webUtils = new WebUtils(driver);
-        this.defaultLangCode = defaultLangCode;
-        this.translationLangCode = translationLangCode;
-        this.translationLangName = translationLangName;
     }
 
     private final By loc_dlgEditTranslation = By.cssSelector(".modal.fade.show");
@@ -44,17 +37,37 @@ public class EditTranslationPopup {
     private final By loc_dlgEditTranslation_txtSEOKeywords = By.cssSelector(".modal-body #seoKeywords");
     private final By loc_dlgEditTranslation_txtSEOUrl = By.cssSelector(".modal-body #seoUrl");
     private final By loc_dlgEditTranslation_btnSave = By.cssSelector(".modal-footer .gs-button__green");
+    private final By loc_dlgEditTranslation_btnClose = By.cssSelector(".product-translate .close");
     private final By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast--success");
 
     /**
      * Adds translation details for a product.
      * <p>
-     * Opens the edit translation popup, inputs translated product details, including name, description, SEO fields,
-     * and variation details (if any), and saves the translation. The process is logged for tracking.
+     * Opens the edit translation popup and inputs translated product details, including name, description, SEO fields,
+     * and variation details (if the product has variations), and saves the translation. The language conversion is handled
+     * when translating to English from Vietnamese. The process is logged for tracking purposes.
      * </p>
-     * @param productInfo   The product information to be translated.
+     * <p>
+     * Steps include:
+     * <ul>
+     *   <li>Verifying the edit translation popup is available.</li>
+     *   <li>Selecting the translation language.</li>
+     *   <li>Handling language name conversion (e.g., "en" to "Tiếng Anh" if the current language is Vietnamese).</li>
+     *   <li>Inputting translated product details and SEO fields.</li>
+     *   <li>If the product has variations, inputting variation details.</li>
+     *   <li>Saving the translation.</li>
+     * </ul>
+     * </p>
+     *
+     * @param productInfo         The product information to be translated, including general details and variations (if any).
+     * @param translationLangCode The language code for the translation (e.g., "en" for English).
+     * @param translationLangName The display name of the language (e.g., "English").
+     * @param defaultLangCode     The default language code of the product.
+     * @return The current EditTranslationPopup instance.
      */
-    public void addTranslation(APIGetProductDetail.ProductInformation productInfo) {
+    public EditTranslationPopup addTranslation(APIGetProductDetail.ProductInformation productInfo, String translationLangCode, String translationLangName, String defaultLangCode) {
+        this.translationLangCode = translationLangCode;
+
         // Ensure the edit translation popup is available
         Assert.assertFalse(webUtils.getListElement(loc_dlgEditTranslation).isEmpty(),
                 "Cannot open edit translation popup."
@@ -79,10 +92,12 @@ public class EditTranslationPopup {
         }
 
         // Input SEO fields
-        inputSEOFields(translationLangCode);
+        inputSEOFields(productInfo, translationLangCode);
 
         // Save the changes
         saveTranslation();
+
+        return this;
     }
 
     /**
@@ -100,19 +115,15 @@ public class EditTranslationPopup {
     /**
      * Inputs translated product details.
      *
-     * @param translationLangCode     The language code for the translation.
-     * @param productInfo  The product information to be translated.
+     * @param translationLangCode The language code for the translation.
+     * @param productInfo         The product information to be translated.
      */
     private void inputProductDetails(String translationLangCode, APIGetProductDetail.ProductInformation productInfo) {
-        String name = "[%s] %s%s".formatted(
-                translationLangCode,
-                productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER") ? "Auto - IMEI - without variation - " : "Auto - Normal - without variation - ",
-                LocalDateTime.now().toString().substring(0, 19)
-        );
+        String name = APIGetProductDetail.getMainProductName(productInfo, translationLangCode);
         webUtils.sendKeys(loc_dlgEditTranslation_txtProductName, name);
         logger.info("Input translation for product name: {}", name);
 
-        String description = "[%s] product description".formatted(translationLangCode);
+        String description = APIGetProductDetail.getMainProductDescription(productInfo, translationLangCode);
         webUtils.sendKeys(loc_dlgEditTranslation_txtProductDescription, description);
         logger.info("Input translation for product description: {}", description);
     }
@@ -120,25 +131,37 @@ public class EditTranslationPopup {
     /**
      * Inputs variation details for the product.
      *
-     * @param productInfo The product information to be translated.
-     * @param translationLangCode    The language code for the translation.
+     * @param productInfo         The product information to be translated.
+     * @param translationLangCode The language code for the translation.
      */
     private void inputVariationDetails(APIGetProductDetail.ProductInformation productInfo, String translationLangCode) {
-        List<String> variationName = Arrays.stream(APIGetProductDetail.getVariationGroupName(productInfo, defaultLangCode)
+        List<String> variationName = Arrays.stream(APIGetProductDetail.getVariationName(productInfo, translationLangCode)
                         .split("\\|"))
-                .map(varName -> varName.replace(defaultLangCode, translationLangCode))
                 .toList();
 
-        List<String> variationValue = APIGetProductDetail.getVariationValues(productInfo, defaultLangCode).stream()
-                .flatMap(varValue -> Arrays.stream(varValue.replace(defaultLangCode, translationLangCode).split("\\|")))
-                .distinct()
-                .toList();
+        List<String> variationValue = Arrays.stream(APIGetProductDetail.getVariationValues(productInfo, translationLangCode).stream()
+                .flatMap(varValue -> Arrays.stream(varValue.split("\\|")))
+                .distinct().toArray(String[]::new)).sorted().toList();
 
+        // Log variation names before sending keys
+        logger.debug("Variation names: {}", variationName);
+
+        // Input variation names with debug logs
         IntStream.range(0, variationName.size())
-                .forEachOrdered(varIndex -> webUtils.sendKeys(loc_dlgEditTranslation_txtVariationName, varIndex, variationName.get(varIndex)));
+                .forEachOrdered(variationNameIndex -> {
+                    logger.debug("Sending variation name: {}", variationName.get(variationNameIndex));
+                    webUtils.sendKeys(loc_dlgEditTranslation_txtVariationName, variationNameIndex, variationName.get(variationNameIndex));
+                });
 
+        // Log variation values before sending keys
+        logger.debug("Variation values: {}", variationValue);
+
+        // Input variation values with debug logs
         IntStream.range(0, variationValue.size())
-                .forEachOrdered(varIndex -> webUtils.sendKeys(loc_dlgEditTranslation_txtVariationValue, varIndex, variationValue.get(varIndex)));
+                .forEachOrdered(variationValueIndex -> {
+                    logger.debug("Sending variation value: {}", variationValue.get(variationValueIndex));
+                    webUtils.sendKeys(loc_dlgEditTranslation_txtVariationValue, variationValueIndex, variationValue.get(variationValueIndex));
+                });
     }
 
     /**
@@ -146,20 +169,20 @@ public class EditTranslationPopup {
      *
      * @param translationLangCode The language code for the translation.
      */
-    private void inputSEOFields(String translationLangCode) {
-        String title = "[%s] Auto - SEO Title - %s".formatted(translationLangCode, Instant.now().toEpochMilli());
+    private void inputSEOFields(APIGetProductDetail.ProductInformation productInfo, String translationLangCode) {
+        String title = APIGetProductDetail.retrieveSEOTitle(productInfo, translationLangCode);
         webUtils.sendKeys(loc_dlgEditTranslation_txtSEOTitle, title);
         logger.info("Input translation for SEO title: {}", title);
 
-        String seoDescription = "[%s] Auto - SEO Description - %s".formatted(translationLangCode, Instant.now().toEpochMilli());
+        String seoDescription = APIGetProductDetail.retrieveSEODescription(productInfo, translationLangCode);
         webUtils.sendKeys(loc_dlgEditTranslation_txtSEODescription, seoDescription);
         logger.info("Input translation for SEO description: {}", seoDescription);
 
-        String keywords = "[%s] Auto - SEO Keyword - %s".formatted(translationLangCode, Instant.now().toEpochMilli());
+        String keywords = APIGetProductDetail.retrieveSEOKeywords(productInfo, translationLangCode);
         webUtils.sendKeys(loc_dlgEditTranslation_txtSEOKeywords, keywords);
         logger.info("Input translation for SEO keywords: {}", keywords);
 
-        String url = "%s%s".formatted(translationLangCode, Instant.now().toEpochMilli());
+        String url = APIGetProductDetail.retrieveSEOUrl(productInfo, translationLangCode);
         webUtils.sendKeys(loc_dlgEditTranslation_txtSEOUrl, url);
         logger.info("Input translation for SEO url: {}", url);
     }
@@ -174,4 +197,23 @@ public class EditTranslationPopup {
                 "Cannot add new translation for '%s' language.".formatted(translationLangCode)
         );
     }
+
+    /**
+     * Closes the translation popup by clicking the close button.
+     * <p>
+     * This method logs the action and asserts that the translation popup is no longer open.
+     *
+     * @throws AssertionError if the translation popup cannot be closed
+     */
+    public void closeTranslationPopup() {
+        webUtils.click(loc_dlgEditTranslation_btnClose);
+        logger.info("Close translation popup");
+        try {
+            Thread.sleep(1000); // Wait 1 second after click to allow for status change
+        } catch (InterruptedException e) {
+            // Handle the interrupted exception silently
+            Thread.currentThread().interrupt();
+        }
+    }
+
 }

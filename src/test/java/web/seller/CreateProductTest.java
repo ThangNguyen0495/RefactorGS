@@ -50,7 +50,7 @@ public class CreateProductTest extends DashboardBaseTest {
                 setterKey.equals("managedByLot"),
                 setterKey.equals("hasAttribution"),
                 setterKey.equals("randomPlatforms"),
-                setterKey.equals("inStock")
+                setterKey.equals("outOfStock")
         };
 
         return new Object[]{
@@ -69,42 +69,42 @@ public class CreateProductTest extends DashboardBaseTest {
     public Object[][] productTestData() {
         return new Object[][]{
                 // G1: Without variation, manage inventory by Product
-                generateTestObject(false, false, "noDiscount", "Create product without variation, managed by Product and no discount"),
-                generateTestObject(false, false, "noCost", "Create product without variation, managed by Product and no cost"),
-                generateTestObject(false, false, "hasDimension", "Create product without variation, managed by Product and with dimension"),
-                generateTestObject(false, false, "hasSEO", "Create product without variation, managed by Product and with SEO"),
-                generateTestObject(false, false, "managedByLot", "Create product without variation, managed by Product and managed by lot"),
-                generateTestObject(false, false, "hasAttribution", "Create product without variation, managed by Product and with attribution"),
-                generateTestObject(false, false, "randomPlatforms", "Create product without variation, managed by Product and randomized platforms"),
-                generateTestObject(false, false, "inStock", "Create product without variation, managed by Product and out of stock"),
+                generateTestObject(false, false, "noDiscount", "G1_01: Create product without variation, managed by Product and no discount"),
+                generateTestObject(false, false, "noCost", "G1_02: Create product without variation, managed by Product and no cost"),
+                generateTestObject(false, false, "hasDimension", "G1_03: Create product without variation, managed by Product and with dimension"),
+                generateTestObject(false, false, "hasSEO", "G1_04: Create product without variation, managed by Product and with SEO"),
+                generateTestObject(false, false, "managedByLot", "G1_05: Create product without variation, managed by Product and managed by lot"),
+                generateTestObject(false, false, "hasAttribution", "G1_06: Create product without variation, managed by Product and with attribution"),
+                generateTestObject(false, false, "randomPlatforms", "G1_07: Create product without variation, managed by Product and randomized platforms"),
+                generateTestObject(false, false, "outOfStock", "G1_08: Create product without variation, managed by Product and out of stock"),
 
                 // G2: Without variation, manage inventory by IMEI/Serial number
-                generateTestObject(false, true, "noDiscount", "Create product without variation, managed by IMEI and no discount"),
-                generateTestObject(false, true, "noCost", "Create product without variation, managed by IMEI and no cost"),
-                generateTestObject(false, true, "hasDimension", "Create product without variation, managed by IMEI and with dimension"),
-                generateTestObject(false, true, "hasSEO", "Create product without variation, managed by IMEI and with SEO"),
-                generateTestObject(false, true, "hasAttribution", "Create product without variation, managed by IMEI and with attribution"),
-                generateTestObject(false, true, "randomPlatforms", "Create product without variation, managed by IMEI and randomized platforms"),
-                generateTestObject(false, true, "inStock", "Create product without variation, managed by IMEI and out of stock"),
+                generateTestObject(false, true, "noDiscount", "G2_01: Create product without variation, managed by IMEI and no discount"),
+                generateTestObject(false, true, "noCost", "G2_02: Create product without variation, managed by IMEI and no cost"),
+                generateTestObject(false, true, "hasDimension", "G2_03: Create product without variation, managed by IMEI and with dimension"),
+                generateTestObject(false, true, "hasSEO", "G2_04: Create product without variation, managed by IMEI and with SEO"),
+                generateTestObject(false, true, "hasAttribution", "G2_05: Create product without variation, managed by IMEI and with attribution"),
+                generateTestObject(false, true, "randomPlatforms", "G2_06: Create product without variation, managed by IMEI and randomized platforms"),
+                generateTestObject(false, true, "outOfStock", "G2_07: Create product without variation, managed by IMEI and out of stock"),
 
                 // G3: With variation, manage inventory by Product
-                generateTestObject(true, false, "noDiscount", "Create product with variation, managed by Product and no discount"),
-                generateTestObject(true, false, "noCost", "Create product with variation, managed by Product and no cost"),
-                generateTestObject(true, false, "hasDimension", "Create product with variation, managed by Product and with dimension"),
-                generateTestObject(true, false, "hasSEO", "Create product with variation, managed by Product and with SEO"),
-                generateTestObject(true, false, "managedByLot", "Create product with variation, managed by Product and managed by lot"),
-                generateTestObject(true, false, "hasAttribution", "Create product with variation, managed by Product and with attribution"),
-                generateTestObject(true, false, "randomPlatforms", "Create product with variation, managed by Product and randomized platforms"),
-                generateTestObject(true, false, "inStock", "Create product with variation, managed by Product and out of stock"),
+                generateTestObject(true, false, "noDiscount", "G3_01: Create product with variation, managed by Product and no discount"),
+                generateTestObject(true, false, "noCost", "G3_02: Create product with variation, managed by Product and no cost"),
+                generateTestObject(true, false, "hasDimension", "G3_03: Create product with variation, managed by Product and with dimension"),
+                generateTestObject(true, false, "hasSEO", "G3_04: Create product with variation, managed by Product and with SEO"),
+                generateTestObject(true, false, "managedByLot", "G3_05: Create product with variation, managed by Product and managed by lot"),
+                generateTestObject(true, false, "hasAttribution", "G3_06: Create product with variation, managed by Product and with attribution"),
+                generateTestObject(true, false, "randomPlatforms", "G3_07: Create product with variation, managed by Product and randomized platforms"),
+                generateTestObject(true, false, "outOfStock", "G3_08: Create product with variation, managed by Product and out of stock"),
 
                 // G4: With variation, manage inventory by IMEI/Serial number
-                generateTestObject(true, true, "noDiscount", "Create product with variation, managed by IMEI and no discount"),
-                generateTestObject(true, true, "noCost", "Create product with variation, managed by IMEI and no cost"),
-                generateTestObject(true, true, "hasDimension", "Create product with variation, managed by IMEI and with dimension"),
-                generateTestObject(true, true, "hasSEO", "Create product with variation, managed by IMEI and with SEO"),
-                generateTestObject(true, true, "hasAttribution", "Create product with variation, managed by IMEI and with attribution"),
-                generateTestObject(true, true, "randomPlatforms", "Create product with variation, managed by IMEI and randomized platforms"),
-                generateTestObject(true, true, "inStock", "Create product with variation, managed by IMEI and out of stock"),
+                generateTestObject(true, true, "noDiscount", "G4_01: Create product with variation, managed by IMEI and no discount"),
+                generateTestObject(true, true, "noCost", "G4_02: Create product with variation, managed by IMEI and no cost"),
+                generateTestObject(true, true, "hasDimension", "G4_03: Create product with variation, managed by IMEI and with dimension"),
+                generateTestObject(true, true, "hasSEO", "G4_04: Create product with variation, managed by IMEI and with SEO"),
+                generateTestObject(true, true, "hasAttribution", "G4_05: Create product with variation, managed by IMEI and with attribution"),
+                generateTestObject(true, true, "randomPlatforms", "G4_06: Create product with variation, managed by IMEI and randomized platforms"),
+                generateTestObject(true, true, "outOfStock", "G4_07: Create product with variation, managed by IMEI and out of stock")
         };
     }
 
@@ -121,15 +121,14 @@ public class CreateProductTest extends DashboardBaseTest {
      * @param managedByLot   Indicates if inventory is managed by lot date.
      * @param hasAttribution Indicates if attributions should be included.
      * @param randomPlatforms Indicates if platforms should be randomized.
-     * @param inStock        Indicates if the product is in stock.
+     * @param outOfStock        Indicates if the product is out of stock.
      * @param testName       Descriptive name for the test.
-     * @throws Exception If any error occurs during product creation.
      */
     @Test(dataProvider = "productTestData",
             description = "Create product with varying attributes")
     void createProductTest(boolean isVariation, boolean isManagedByIMEI, boolean noDiscount,
                            boolean noCostPrice, boolean hasDimension, boolean hasSEO, boolean managedByLot,
-                           boolean hasAttribution, boolean randomPlatforms, boolean inStock, String testName) throws Exception {
+                           boolean hasAttribution, boolean randomPlatforms, boolean outOfStock, String testName) {
 
         LogManager.getLogger().info("Running test: {}", testName);
 
@@ -151,26 +150,11 @@ public class CreateProductTest extends DashboardBaseTest {
 
         // Generate stock array based on inStock flag
         int[] stock = new int[RandomUtils.nextInt(10) + 1]; // Random stock size (1 to 10)
-        Arrays.fill(stock, inStock ? RandomUtils.nextInt(10) : 0); // Fill with random stock or 0 if out of stock
+        Arrays.fill(stock, outOfStock ? 0 : RandomUtils.nextInt(10)); // Fill with random stock or 0 if out of stock
 
         // Create product based on whether it has variations or not
-        if (isVariation) {
-            createVariationProduct(isManagedByIMEI, stock);
-        } else {
-            createWithoutVariationProduct(isManagedByIMEI, stock);
-        }
-    }
+        createProduct(isVariation, isManagedByIMEI, stock);
 
-    /**
-     * Helper method to create a product without variations.
-     *
-     * @param isIMEI Indicates if the inventory is managed by IMEI/Serial number.
-     * @param branchStock The stock levels for each branch. Stock values are matched sequentially to branch IDs.
-     *                    Branches without provided stock will default to 0.
-     */
-    private void createWithoutVariationProduct(boolean isIMEI, int... branchStock) {
-        productPage.navigateToCreateProductPage()
-                .createWithoutVariationProduct(isIMEI, branchStock);
     }
 
     /**
@@ -179,10 +163,10 @@ public class CreateProductTest extends DashboardBaseTest {
      * @param isIMEI Indicates if the inventory is managed by IMEI/Serial number.
      * @param branchStock The stock levels for each branch. Stock values are matched sequentially to branch IDs.
      *                    Branches without provided stock will default to 0.
-     * @throws Exception If any error occurs during product creation.
      */
-    private void createVariationProduct(boolean isIMEI, int... branchStock) throws Exception {
+    private void createProduct(boolean hasModel, boolean isIMEI, int... branchStock) {
         productPage.navigateToCreateProductPage()
-                .createVariationProduct(isIMEI, branchStock);
+                .createProduct(hasModel, isIMEI, branchStock)
+                .verifyProductInformation();
     }
 }

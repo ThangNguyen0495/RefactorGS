@@ -1,25 +1,15 @@
 package pages.web.seller.product.all_products;
 
-import api.seller.login.APISellerLogin;
 import api.seller.product.APIGetProductDetail;
-import api.seller.setting.APIGetStoreDefaultLanguage;
-import api.seller.setting.APIGetStoreLanguage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.testng.Assert;
 import utility.PropertiesUtils;
 import utility.WebUtils;
 
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.IntStream;
-
-import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
 
 /**
  * Page Object Model class for managing the Variation Detail page.
@@ -47,19 +37,15 @@ public class VariationDetailPage {
     private final String variationValue;
 
     /**
-     * The default language code for the seller's store.
+     * The unique identifier for the product model associated with this variation.
      */
-    private final String defaultLanguage;
+    private final int modelId;
 
     /**
      * Logger instance for logging actions and information.
      */
     private final Logger logger = LogManager.getLogger();
 
-    /**
-     * List of language information for the store, used to handle translations.
-     */
-    private final List<APIGetStoreLanguage.LanguageInformation> languageInfoList;
 
     /**
      * Product information associated with the variation.
@@ -72,16 +58,14 @@ public class VariationDetailPage {
      * @param driver      The WebDriver instance used for browser interactions.
      * @param varIndex    The index of the variation to be managed.
      * @param productInfo The product information associated with the variation.
-     * @param credentials The credentials for API login.
      */
-    public VariationDetailPage(WebDriver driver, int varIndex, APIGetProductDetail.ProductInformation productInfo, APISellerLogin.Credentials credentials) {
+    public VariationDetailPage(WebDriver driver, int varIndex, APIGetProductDetail.ProductInformation productInfo) {
         this.driver = driver;
         this.varIndex = varIndex;
         this.productInfo = productInfo;
         this.webUtils = new WebUtils(driver);
-        this.defaultLanguage = new APIGetStoreDefaultLanguage(credentials).getDefaultLanguage();
-        this.languageInfoList = new APIGetStoreLanguage(credentials).getStoreLanguageInformation();
-        this.variationValue = APIGetProductDetail.getVariationValue(productInfo, defaultLanguage, varIndex);
+        this.variationValue = productInfo.getModels().get(varIndex).getName();
+        this.modelId = productInfo.getModels().get(varIndex).getId();
     }
 
     // Locators
@@ -111,16 +95,19 @@ public class VariationDetailPage {
     /**
      * Navigates to the Variation Detail page for the current product variation.
      */
-    private void navigateToVariationDetailPage() {
+    public VariationDetailPage navigateToVariationDetailPage() {
         String url = "%s/product/%s/variation-detail/%s/edit".formatted(PropertiesUtils.getDomain(), productInfo.getId(), APIGetProductDetail.getVariationModelId(productInfo, varIndex));
         driver.get(url);
+        logger.debug("Navigating to the variation detail page for variation: {}.", variationValue);
+
+        return this;
     }
 
     /**
      * Updates the product version name.
      */
-    private void updateVariationProductName() {
-        String name = "[Update][%s][%s] product version name".formatted(defaultLanguage, variationValue);
+    private void updateVariationProductName(String defaultLanguage) {
+        String name = APIGetProductDetail.getVersionName(productInfo, modelId, defaultLanguage);
         webUtils.click(loc_txtProductVersionName);
         webUtils.sendKeys(loc_txtProductVersionName, name);
         logger.info("[{}] Updated product version name to: {}", variationValue, name);
@@ -129,25 +116,27 @@ public class VariationDetailPage {
     /**
      * Updates the product description.
      */
-    private void updateVariationProductDescription() {
-        boolean reuseDescription = nextBoolean();
-        if (webUtils.isCheckedJS(loc_chkReuse) != reuseDescription) {
-            webUtils.clickJS(loc_chkReuse);
-        }
+    private void updateVariationProductDescription(String defaultLanguage) {
+        // Uncheck reuse parent description
+        webUtils.uncheckCheckbox(loc_chkReuse);
 
-        if (!reuseDescription) {
-            String description = "[Update][%s][%s] Product description".formatted(defaultLanguage, variationValue);
-            webUtils.sendKeys(loc_rtfDescription, description);
-            logger.info("[{}] Updated product description to: {}.", variationValue, description);
-        }
+        // Input new version description
+        String description = APIGetProductDetail.getVersionDescription(productInfo, modelId, defaultLanguage);
+        webUtils.sendKeys(loc_rtfDescription, description);
+        logger.info("[{}] Updated product description to: {}.", variationValue, description);
     }
 
     /**
-     * Saves the changes made to the product version name and description.
+     * Saves the changes made to the product variation information (name, description, and other details).
      */
-    private void completeUpdateProductVersionNameAndDescription() {
+    private void saveChange() {
+        logger.debug("Saving changes for variation: {}.", variationValue);
+
+        // Click the save button to confirm changes
         webUtils.click(loc_btnSave);
-        logger.info("[{}] Update successfully.", variationValue);
+
+        // Log the successful save of the variation changes
+        logger.info("[{}] Variation information changes saved successfully.", variationValue);
     }
 
     /**
@@ -158,96 +147,153 @@ public class VariationDetailPage {
      */
     private void updateVariationTranslation(String languageCode, String languageName) {
         String variation = APIGetProductDetail.getVariationValue(productInfo, languageCode, varIndex);
-        if (!webUtils.getListElement(loc_dlgEditTranslation).isEmpty()) {
-            if (languageCode.equals("en") && webUtils.getLocalStorageValue("langKey").equals("vi")) {
-                languageName = "Tiếng Anh";
-            }
 
-            if (!webUtils.getText(loc_dlgEditTranslation_selectedLanguage).equals(languageName)) {
-                webUtils.click(loc_dlgEditTranslation_selectedLanguage);
-                webUtils.click(loc_dlgEditTranslation_languageInDropdown(languageName));
-            }
-            logger.info("[{}] Selected language for translation: {}.", variation, languageName);
+        logger.info("[{}] Updating translation for language: {} ({}).", variation, languageName, languageCode);
 
-            String name = "[Update][%s][%s] Product version name".formatted(languageCode, variation);
-            webUtils.sendKeys(loc_dlgEditTranslation_variationName, name);
-            logger.info("[{}] Edited translation for product version name: {}.", variation, name);
-
-            String description = "[Update][%s][%s] Product description".formatted(languageCode, variation);
-            webUtils.sendKeys(loc_dlgEditTranslation_variationDescription, description);
-            logger.info("[{}] Edited translation for product description: {}.", variation, description);
-
-            webUtils.click(loc_dlgEditTranslation_btnSave);
-            logger.info("[{}] Translation updated successfully.", variation);
+        // Handle special case for English when the current language is Vietnamese
+        if (languageCode.equals("en") && webUtils.getLocalStorageValue("langKey").equals("vi")) {
+            languageName = "Tiếng Anh";
+            logger.debug("[{}] Adjusted language name to Vietnamese: {}.", variation, languageName);
         }
+
+        // If the current language in the dropdown is not the target language, switch it
+        if (!webUtils.getText(loc_dlgEditTranslation_selectedLanguage).equals(languageName)) {
+            logger.debug("[{}] Changing selected language from {} to {}.", variation,
+                    webUtils.getText(loc_dlgEditTranslation_selectedLanguage), languageName);
+            webUtils.click(loc_dlgEditTranslation_selectedLanguage);
+            webUtils.click(loc_dlgEditTranslation_languageInDropdown(languageName));
+        }
+
+        logger.info("[{}] Selected language for translation: {}.", variation, languageName);
+
+        // Fetch and set the product version name
+        String name = APIGetProductDetail.getVersionName(productInfo, modelId, languageCode);
+        webUtils.sendKeys(loc_dlgEditTranslation_variationName, name);
+        logger.info("[{}] Edited translation for product version name: {}.", variation, name);
+
+        // Fetch and set the product description
+        String description = APIGetProductDetail.getVersionDescription(productInfo, modelId, languageCode);
+        webUtils.sendKeys(loc_dlgEditTranslation_variationDescription, description);
+        logger.info("[{}] Edited translation for product description: {}.", variation, description);
+
+        // Save the updated translation
+        webUtils.click(loc_dlgEditTranslation_btnSave);
+        logger.info("[{}] Translation updated successfully.", variation);
     }
 
     /**
      * Updates the product version name, description, and translations in all languages.
      */
-    public void updateVariationProductNameAndDescription() {
-        navigateToVariationDetailPage();
-        updateVariationProductName();
-        updateVariationProductDescription();
+    public void updateVariationProductNameAndDescription(List<String> untranslatedLanguageCodes, List<String> untranslatedLanguageNames, String defaultLanguage) {
+        logger.info("Starting update of variation product name and description.");
 
-        List<String> langCodeList = new ArrayList<>(APIGetStoreLanguage.getAllStoreLanguageCodes(languageInfoList));
-        List<String> langNameList = new ArrayList<>(APIGetStoreLanguage.getAllStoreLanguageNames(languageInfoList));
-        langCodeList.remove(defaultLanguage);
+        // Update the variation product name and description
+        logger.info("Updating product name and description for the default language: {}.", defaultLanguage);
+        updateVariationProductName(defaultLanguage);
+        updateVariationProductDescription(defaultLanguage);
 
-        webUtils.click(loc_btnEditTranslation);
-        Assert.assertFalse(webUtils.getListElement(loc_dlgEditTranslation).isEmpty(), "Cannot open edit translation popup.");
+        // Complete the process of updating the product's version name and description
+        logger.debug("Completing update for product version name and description.");
+        saveChange();
 
-        langCodeList.forEach(languageCode -> updateVariationTranslation(languageCode, langNameList.get(langCodeList.indexOf(languageCode))));
+        // Open the translation editing dialog
+        logger.debug("Opening the translation editing dialog.");
+        WebUtils.retryUntil(5, 1000,
+                "Cannot open variation translation popup after 5 retries",
+                () -> !webUtils.getListElement(loc_dlgEditTranslation).isEmpty(),
+                () -> {
+                    webUtils.click(loc_btnEditTranslation);
+                    return null;
+                }
+        );
 
-        completeUpdateProductVersionNameAndDescription();
+        // For each remaining language, update the translation for the variation
+        untranslatedLanguageCodes.forEach(languageCode -> {
+            String languageName = untranslatedLanguageNames.get(untranslatedLanguageCodes.indexOf(languageCode));
+            logger.info("Updating translation for language code: {}, language name: {}.", languageCode, languageName);
+            updateVariationTranslation(languageCode, languageName);
+        });
+
+        logger.info("Completed update of variation product name and description, including translations.");
     }
 
     /**
      * Changes the status of the variation.
-     *
-     * @param status The new status to set (e.g., "ACTIVE", "DEACTIVATED").
      */
-    public void changeVariationStatus(String status) {
-        navigateToVariationDetailPage();
-        if (APIGetProductDetail.getVariationStatus(productInfo, varIndex).equals(status)) {
-            webUtils.clickJS(loc_btnDeactivate);
-        }
-        logger.info("[{}] Status updated to: {}.", variationValue, status);
+    public void changeVariationStatus() {
+        logger.info("Starting status change for variation: {}.", variationValue);
+
+        // Change variation status
+        logger.debug("Clicking the button to change variation status.");
+        webUtils.clickJS(loc_btnDeactivate);
+
+        // Log status change
+        String newStatus = productInfo.getModels().get(varIndex).getStatus();
+        logger.info("Status for variation [{}] updated to: {}.", variationValue, newStatus);
+
+        logger.info("Completed status change for variation: {}.", variationValue);
     }
 
     /**
      * Updates the attributions for the product variation.
      */
-    public void updateAttribution() {
-        navigateToVariationDetailPage();
+    public void updateVariationAttribution() {
+        logger.info("[{}] Starting update of variation attribution.", variationValue);
 
-        boolean isUseParentAttribution = nextBoolean();
-        if (isUseParentAttribution) {
-            webUtils.checkCheckbox(loc_chkReUseParentAttribution);
-        } else {
-            webUtils.uncheckCheckbox(loc_chkReUseParentAttribution);
-        }
+        // Uncheck the "Reuse Parent Attribution" checkbox to allow for custom attributions
+        logger.debug("[{}] Unchecking 'Reuse Parent Attribution' checkbox.", variationValue);
+        webUtils.uncheckCheckbox(loc_chkReUseParentAttribution);
 
-        if (!isUseParentAttribution) {
-            // Remove old attributions
-            if (!webUtils.getListElement(loc_icnDeleteAttribution).isEmpty()) {
-                int bound = webUtils.getListElement(loc_icnDeleteAttribution).size();
-                IntStream.range(0, bound).forEach(index -> webUtils.clickJS(loc_icnDeleteAttribution, bound - index - 1));
-            }
+        // Remove any existing attributions before adding new ones
+        if (!productInfo.getItemAttributes().isEmpty()) {
+            int bound = webUtils.getListElement(loc_icnDeleteAttribution).size();
+            logger.debug("[{}] Found {} existing attributions to delete.", variationValue, bound);
 
-            int numOfAttribute = nextInt(10);
-            IntStream.range(0, numOfAttribute).forEachOrdered(ignored -> webUtils.clickJS(loc_lnkAddAttribution));
-
-            long epoch = Instant.now().toEpochMilli();
-            IntStream.range(0, numOfAttribute).forEach(attIndex -> {
-                webUtils.sendKeys(loc_txtAttributionName, attIndex, "name_%s_%s".formatted(attIndex, epoch));
-                webUtils.sendKeys(loc_txtAttributionValue, attIndex, "value_%s_%s".formatted(attIndex, epoch));
-                if (!Objects.equals(webUtils.isCheckedJS(loc_chkDisplayAttribution, attIndex), nextBoolean())) {
-                    webUtils.clickJS(loc_chkDisplayAttribution, attIndex);
-                }
+            // Iterate through the existing attributions in reverse order and delete them
+            IntStream.range(0, bound).forEach(index -> {
+                logger.debug("[{}] Deleting attribution at index {}.", variationValue, bound - index - 1);
+                webUtils.clickJS(loc_icnDeleteAttribution, bound - index - 1);
             });
-
-            webUtils.click(loc_btnSave);
+        } else {
+            logger.debug("[{}] No existing attributions found.", variationValue);
         }
+
+        // Retrieve model attributes for the specified variation index
+        var modelAttribute = productInfo.getModels().get(varIndex).getModelAttributes();
+        logger.debug("[{}] Retrieved {} model attributes.", variationValue, modelAttribute.size());
+
+        // For each model attribute, click to add a new attribution entry
+        IntStream.range(0, modelAttribute.size()).forEachOrdered(ignored -> {
+            logger.debug("[{}] Adding new attribution entry.", variationValue);
+            webUtils.clickJS(loc_lnkAddAttribution);
+        });
+
+        // Populate the attribution fields with names, values, and display settings
+        IntStream.range(0, modelAttribute.size()).forEach(attIndex -> {
+            logger.debug("[{}] Updating attribution field for attribute index {}.", variationValue, attIndex);
+
+            // Send the attribute name to the corresponding input field
+            logger.debug("[{}] Setting attribution name: {}.", variationValue, modelAttribute.get(attIndex).getAttributeName());
+            webUtils.sendKeys(loc_txtAttributionName, attIndex, modelAttribute.get(attIndex).getAttributeName());
+
+            // Send the attribute value to the corresponding input field
+            logger.debug("[{}] Setting attribution value: {}.", variationValue, modelAttribute.get(attIndex).getAttributeValue());
+            webUtils.sendKeys(loc_txtAttributionValue, attIndex, modelAttribute.get(attIndex).getAttributeValue());
+
+            // Check if the display setting matches the model attribute and update it accordingly
+            boolean isDisplay = modelAttribute.get(attIndex).getIsDisplay();
+            if (isDisplay) {
+                webUtils.checkCheckbox(loc_chkDisplayAttribution, attIndex);
+            } else {
+                webUtils.uncheckCheckbox(loc_chkDisplayAttribution, attIndex);
+            }
+            logger.debug("[{}] Updated display setting for attribute index {}: {}.", variationValue, attIndex, isDisplay);
+        });
+
+        // Save attribution changes
+        logger.debug("[{}] Saving attribution changes.", variationValue);
+        saveChange();
+
+        logger.info("[{}] Completed updating variation attribution.", variationValue);
     }
 }

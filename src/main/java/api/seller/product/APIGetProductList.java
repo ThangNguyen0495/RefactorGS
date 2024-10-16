@@ -12,6 +12,7 @@ import utility.APIUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.IntStream;
 
 /**
@@ -130,18 +131,20 @@ public class APIGetProductList {
      * Searches for a product ID by its name.
      * <p>
      * This method retrieves all product information and searches for a product with the exact matching name.
-     * It returns the product's ID if found, or 0 if the product is not found.
+     * It returns the product's ID if found, or throws an exception if the product is not found.
      *
      * @param name The name of the product to search for.
-     * @return The product ID if found, or {@code 0} if the product is not found.
+     * @return The product ID if found.
+     * @throws NoSuchElementException if no product with the given name is found.
      */
     public int searchProductIdByName(String name) {
         return getAllProductInformation(name).parallelStream()
                 .filter(product -> product.getName().equals(name))
                 .findAny()
                 .map(Product::getId)
-                .orElse(0);
+                .orElseThrow(() -> new NoSuchElementException("Product with name '" + name + "' not found"));
     }
+
     /**
      * Retrieves the remaining stock quantity for a product by its ID.
      * <p>

@@ -28,6 +28,7 @@ public class APIGetTransferDetail {
      * Represents detailed transfer information.
      */
     @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class TransferInformation {
 
         private int id;

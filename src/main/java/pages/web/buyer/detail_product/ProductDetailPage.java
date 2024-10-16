@@ -264,7 +264,7 @@ public class ProductDetailPage {
      */
     private void validateVariationNames(String language) {
         // Retrieve the variation name list from the dashboard
-        List<String> expectedVariationNames = Arrays.stream(APIGetProductDetail.getVariationGroupName(productInfo, language).split("\\|")).toList();
+        List<String> expectedVariationNames = Arrays.stream(APIGetProductDetail.getVariationName(productInfo, language).split("\\|")).toList();
         List<WebElement> variationElements = webUtils.getListElement(loc_lblVariationName);
         List<String> actualVariationNames = variationElements.stream().map(WebElement::getText).toList();
 
@@ -905,10 +905,6 @@ public class ProductDetailPage {
 
         // SKIP SEO URL ISSUE FOR TEST
         this.langKey = webUtils.getCookieValue("langKey");
-        String currentURL = driver.getCurrentUrl();
-        if (currentURL.contains("/%s/".formatted(langKey))) {
-            driver.get(currentURL.replace("/%s/".formatted(langKey), "/"));
-        }
 
         logger.info("Navigate to Product detail page by URL, id: {}", productId);
 

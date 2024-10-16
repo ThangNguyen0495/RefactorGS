@@ -53,6 +53,7 @@ public class DashboardLoginPage {
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('userId', %s)".formatted(loginInfo.getId()));
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeOwnerId', %s)".formatted(loginInfo.getId()));
         ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeFull', 'storeFull')");
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('langKey', '%s')".formatted(loginInfo.getLangKey()));
 
         logger.info("Set local storage successfully");
 

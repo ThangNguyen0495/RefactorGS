@@ -75,11 +75,11 @@ public class APICreateFlashSale {
                 APIGetProductDetail.getVariationModelId(productInfo, varIndex) : null;
 
         // Get stock levels for branches
-        List<Integer> branchStocks = APIGetProductDetail.getBranchStocks(productInfo, modelId);
+        int maximumModelStock = APIGetProductDetail.getMaximumBranchStockForModel(productInfo, modelId);
 
         // Check if there is available stock to create a flash sale item
-        if (Collections.max(branchStocks) > 0) {
-            int stock = nextInt(Collections.max(branchStocks)) + 1; // Random stock level
+        if (maximumModelStock > 0) {
+            int stock = nextInt(maximumModelStock) + 1; // Random stock level
             int purchaseLimit = nextInt(stock) + 1; // Random purchase limit
             long price = nextLong(productInfo.isHasModel() ?
                     APIGetProductDetail.getVariationSellingPrice(productInfo, varIndex) :

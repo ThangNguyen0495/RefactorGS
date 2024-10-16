@@ -10,16 +10,16 @@ import java.util.List;
 /**
  * Handles interactions with the conversion units API.
  */
-public class APIGetConversionUnitList {
+public class APIGetConversionUnits {
 
     private final APISellerLogin.LoginInformation loginInfo;
 
     /**
-     * Constructs an instance of APIGetConversionUnitList with the provided login credentials.
+     * Constructs an instance of APIGetConversionUnits with the provided login credentials.
      *
      * @param credentials The login credentials for accessing the API.
      */
-    public APIGetConversionUnitList(APISellerLogin.Credentials credentials) {
+    public APIGetConversionUnits(APISellerLogin.Credentials credentials) {
         this.loginInfo = new APISellerLogin().getSellerInformation(credentials);
     }
 

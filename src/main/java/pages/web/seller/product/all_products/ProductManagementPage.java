@@ -20,6 +20,7 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static utility.helper.ProductHelper.MAX_PRICE;
 
 public class ProductManagementPage {
     // Instance variables for API services
@@ -30,7 +31,6 @@ public class ProductManagementPage {
     private APIGetProductList apiGetProductList;
     private APIGetInventoryHistory apiGetInventoryHistory;
     private APIGetStockAlert apiGetStockAlert;
-    private static final long MAX_PRICE = 99999999999L;
 
     /**
      * Constructs a ProductManagementPage instance with the given WebDriver.

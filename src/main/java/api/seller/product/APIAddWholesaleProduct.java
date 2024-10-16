@@ -9,7 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import utility.APIUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -60,8 +59,8 @@ public class APIAddWholesaleProduct {
 
         for (int variationIndex = 0; variationIndex < numberOfVariations; variationIndex++) {
             int minQuantity = productInfo.isHasModel()
-                    ? calculateMinQuantity(APIGetProductDetail.getBranchStocks(productInfo, APIGetProductDetail.getVariationModelId(productInfo, variationIndex)))
-                    : calculateMinQuantity(APIGetProductDetail.getBranchStocks(productInfo, null));
+                    ? calculateMinQuantity(APIGetProductDetail.getMinimumBranchStockForModel(productInfo, APIGetProductDetail.getVariationModelId(productInfo, variationIndex)))
+                    : calculateMinQuantity(APIGetProductDetail.getMinimumBranchStockForModel(productInfo, null));
 
             long price = productInfo.isHasModel()
                     ? calculatePrice(APIGetProductDetail.getVariationSellingPrice(productInfo, variationIndex))
@@ -78,13 +77,13 @@ public class APIAddWholesaleProduct {
     }
 
     /**
-     * Calculates the minimum quantity based on branch stock.
+     * Calculates the minimum quantity based on the minimum stock available for a model.
      *
-     * @param branchStock A list of branch stocks.
-     * @return The calculated minimum quantity.
+     * @param minModelStock The minimum stock available for a model. If the value is less than 1, it defaults to 1.
+     * @return The calculated minimum quantity, which is a random value between 1 and the minimum model stock (inclusive).
      */
-    private int calculateMinQuantity(List<Integer> branchStock) {
-        return RandomUtils.nextInt(Math.max(Collections.max(branchStock), 1)) + 1;
+    private int calculateMinQuantity(int minModelStock) {
+        return RandomUtils.nextInt(Math.max(minModelStock, 1)) + 1;
     }
 
     /**

@@ -165,7 +165,7 @@ public class APICreateProductDiscountCampaign {
 
         // Find the minimum stock across all model variations or non-model product
         int minStock = variationModelList.stream()
-                .map(modelId -> Collections.min(APIGetProductDetail.getBranchStocks(productInfo, modelId)))
+                .map(modelId -> APIGetProductDetail.getMinimumBranchStockForModel(productInfo, modelId))
                 .min(Integer::compare)
                 .orElse(0);
 

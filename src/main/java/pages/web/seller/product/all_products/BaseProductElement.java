@@ -7,7 +7,7 @@ public class BaseProductElement {
     protected final By loc_txtProductName = By.cssSelector("input#productName");
     protected final By loc_txaProductDescription = By.cssSelector("div.fr-wrapper > div");
     protected final By loc_icnRemoveImages = By.cssSelector(".image-widget__btn-remove");
-    protected final By imgUploads = By.cssSelector(".image-drop-zone input");
+    protected final By imgUploads = By.xpath("//input[@type = 'file']");
     protected final By loc_ddvSelectedVAT = By.cssSelector(".form-group .uik-select__valueWrapper");
     protected final By loc_ddvNoVAT = By.xpath("//*[@class = 'uik-select__optionContent']/div[text()='Không áp dụng thuế'] | //*[@class = 'uik-select__optionContent']/div[text()='Tax does not apply']");
 
@@ -20,6 +20,7 @@ public class BaseProductElement {
     protected final By loc_ddlManageInventory = By.cssSelector("#manageInventory");
     protected final By loc_ddvManageInventoryByIMEI = By.cssSelector("[value=\"IMEI_SERIAL_NUMBER\"]");
     protected final By loc_chkManageStockByLotDate = By.xpath("//*[@id='lotAvailable']//parent::div//preceding-sibling::label/input");
+    protected final By loc_chkExcludeExpiredQuality = By.cssSelector(".box-expired-quality-product-detail label>input");
     protected final By loc_txtPriority = By.cssSelector("[name = productPriority]");
     protected final By loc_txtWeight = By.cssSelector("[for ='productWeight'] +* input");
     protected final By loc_txtLength = By.cssSelector("[for ='productLength'] +* input");
@@ -35,27 +36,35 @@ public class BaseProductElement {
     protected final By loc_dlgConfirmDelete_btnOK = By.cssSelector(".modal-footer .gs-button__green");
     protected final By loc_dlgSuccessNotification = By.cssSelector(".modal-success");
     protected final By loc_dlgNotification_btnClose = By.cssSelector("[data-testid='closeBtn']");
-    protected final By loc_btnAddAttribution = By.cssSelector("div:nth-child(8) > div.gs-widget__header .gs-fake-link");
-    protected final By loc_icnDeleteAttribution = By.cssSelector("div:nth-child(8) > div.gs-widget__content-wrapper button");
+    protected final By loc_btnAddAttribution = By.xpath("//span[text() = 'Add attribution' or text() = 'Thêm thuộc tính']");
+    protected final By loc_icnDeleteAttribution = By.xpath("//tr[@class=\"attribute-item-row\"]//img");
     protected final By loc_txtAttributionName = By.cssSelector("[name *= 'input-attribute-name']");
     protected final By loc_txtAttributionValue = By.cssSelector("[id*= 'input-attribute-value']");
-    protected final By loc_chkDisplayAttribute = By.cssSelector("div:nth-child(8) > div.gs-widget__content-wrapper .uik-checkbox__checkbox");
+    protected final By loc_chkDisplayAttribute = By.xpath("//tr[@class=\"attribute-item-row\"]//input[@type=\"checkbox\"]");
     protected final By loc_txtSEOTitle = By.cssSelector("input#seoTitle");
     protected final By loc_txtSEODescription = By.cssSelector("input#seoDescription");
     protected final By loc_txtSEOKeywords = By.cssSelector("input#seoKeywords");
     protected final By loc_txtSEOUrl = By.cssSelector("input#seoUrl");
-    protected final By loc_txtWithoutVariationListingPrice = By.xpath("//label[@for='productDiscountPrice']//parent::div//preceding-sibling::div//label//following-sibling::div//input");
+    protected final By loc_txtWithoutVariationListingPrice = By.xpath("(//*[@for ='productPrice'])[1]/following-sibling::div//input");
     protected final By loc_txtWithoutVariationSellingPrice = By.cssSelector("[for = 'productDiscountPrice'] +* input");
-    protected final By loc_txtWithoutVariationCostPrice = By.xpath("//label[@for='productDiscountPrice']//parent::div//following-sibling::div//label[@for = 'productPrice'] //following-sibling::div//input");
+    protected final By loc_txtWithoutVariationCostPrice = By.xpath("(//*[@for ='productPrice'])[2]/following-sibling::div//input");
     protected final By loc_chkDisplayIfOutOfStock = By.xpath("//*[@name='showOutOfStock']/parent::div/preceding-sibling::label[2]/input");
     protected final By loc_chkHideRemainingStock = By.xpath("//*[@name='isHideStock']/parent::div/preceding-sibling::label[2]/input");
-    protected final By loc_txtWithoutVariationBranchStock = By.cssSelector(".branch-list-stock__wrapper__row  input");
+
+    protected final By loc_txtWithoutVariationBranchStock(String branchName) {
+        return By.xpath("//div[div[text() = '%s']]//input".formatted(branchName));
+    }
+
     protected final By loc_dlgAddIMEISelectedBranch = By.cssSelector(".modal-body .uik-select__valueWrapper");
     protected final By loc_dlgAddIMEI_chkSelectAllBranches = By.cssSelector(".managed-inventory-modal .uik-menuDrop__list > button:nth-child(1)  input");
     protected final By loc_dlgAddIMEI_icnDeleteIMEI = By.cssSelector(".code .fa-times");
-    protected final By loc_dlgAddIMEI_txtAddIMEI = By.cssSelector(".input-code input");
+
+    protected final By loc_dlgAddIMEI_txtAddIMEI(String branchName) {
+        return By.xpath("//td[count(//th[text()='%s']/preceding-sibling::th)+1]//input[@name='serial']".formatted(branchName));
+    }
+
     protected final By loc_dlgAddIMEI_btnSave = By.cssSelector(".modal-footer > .gs-button__green");
-    protected final By loc_btnAddVariation = By.cssSelector("div:nth-child(4) > div.gs-widget__header > span");
+    protected final By loc_btnAddVariation = By.xpath("//span[text() = 'Thêm nhóm' or text() = 'Add variation']");
     protected final By loc_txtVariationName = By.cssSelector("div.first-item > div > div > input");
     protected final By loc_txtVariationValue = By.cssSelector(".second-item .box-input input");
     protected final By loc_tblVariation_chkSelectAll = By.cssSelector(".product-form-variation-selector__table  th:nth-child(1) input");
@@ -69,7 +78,9 @@ public class BaseProductElement {
     protected final By loc_tblVariation_ddvActions = By.cssSelector(".uik-menuDrop__list > button");
     protected final By loc_tblVariation_txtStock = By.xpath("//*[contains(@name, 'stock')]|//td[div/input[contains(@name, 'barcode')]]/preceding::td[3]/span");
     protected final By loc_tblVariation_txtSKU = By.xpath("//*[contains(@name,'sku')]|//td[div/input[contains(@name, 'barcode')]]/preceding::td[1]/span");
-    protected final By loc_dlgUpdateSKU_txtInputSKU = By.cssSelector(".justify-content-center input");
+
+    protected final By loc_dlgUpdateSKU_txtInputSKU(String branchName) { return By.xpath("//td[text() = '%s']/following-sibling::td//input | //tbody/tr//td[count(//*[text() = '%s']/preceding-sibling::th) + 1]/div/input".formatted(branchName, branchName));}
+
     protected final By loc_tblVariation_imgUploads = By.cssSelector("td > img");
     protected final By loc_dlgUploadsImage_btnUploads = By.cssSelector(".modal-content [type = file]");
     protected final By loc_dlgUpdatePrice_txtListingPrice = By.xpath("//*[contains(@class, 'product-variation-price-editor-modal__table')]//*[contains(@name, 'orgPrice')]//parent::div//parent::div//preceding-sibling::input");

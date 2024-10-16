@@ -3,14 +3,13 @@ package api.seller.product;
 import api.seller.login.APISellerLogin;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.restassured.response.Response;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import utility.APIUtils;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static api.seller.product.APIGetProductDetail.ProductInformation.MainLanguage;
 
@@ -42,13 +41,14 @@ public class APIGetProductDetail {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ProductInformation {
         private String lastModifiedDate;
-        private int id;
+        private Integer id;
         private String name;
         private String currency;
         private String description;
         private long orgPrice;
         private int discount;
         private long newPrice;
+        private int priority;
         private ShippingInfo shippingInfo;
         private boolean deleted;
         private List<Model> models;
@@ -59,7 +59,7 @@ public class APIGetProductDetail {
         private String seoKeywords;
         private String barcode;
         private String seoUrl;
-        private List<BranchStock> branches;
+        private List<Branch> branches;
         private List<MainLanguage> languages;
         private List<ItemAttribute> itemAttributes;
         private int taxId;
@@ -79,6 +79,8 @@ public class APIGetProductDetail {
         private boolean expiredQuality;
 
         @Data
+        @AllArgsConstructor
+        @NoArgsConstructor
         @JsonIgnoreProperties(ignoreUnknown = true)
         public static class ShippingInfo {
             private int weight;
@@ -103,12 +105,14 @@ public class APIGetProductDetail {
             private boolean useProductDescription;
             private boolean reuseAttributes;
             private String status;
-            private List<BranchStock> branches;
+            private List<Branch> branches;
             private List<VersionLanguage> languages;
             private List<ItemAttribute> modelAttributes;
             private long costPrice;
 
             @Data
+            @AllArgsConstructor
+            @NoArgsConstructor
             @JsonIgnoreProperties(ignoreUnknown = true)
             public static class VersionLanguage {
                 private String language;
@@ -120,14 +124,20 @@ public class APIGetProductDetail {
         }
 
         @Data
+        @AllArgsConstructor
+        @NoArgsConstructor
         @JsonIgnoreProperties(ignoreUnknown = true)
-        public static class BranchStock {
+        public static class Branch {
             private int branchId;
             private int totalItem;
             private int soldItem;
+            private String sku;
+            private String branchStatus;
         }
 
         @Data
+        @AllArgsConstructor
+        @NoArgsConstructor
         @JsonIgnoreProperties(ignoreUnknown = true)
         public static class MainLanguage {
             private String language;
@@ -140,11 +150,13 @@ public class APIGetProductDetail {
         }
 
         @Data
+        @AllArgsConstructor
+        @NoArgsConstructor
         @JsonIgnoreProperties(ignoreUnknown = true)
         public static class ItemAttribute {
             private String attributeName;
             private String attributeValue;
-            private boolean isDisplay;
+            private Boolean isDisplay;
         }
     }
 
@@ -222,7 +234,7 @@ public class APIGetProductDetail {
      * @return The variation group name in the specified language. If the language is not found,
      * an empty string is returned.
      */
-    public static String getVariationGroupName(ProductInformation productInformation, String language) {
+    public static String getVariationName(ProductInformation productInformation, String language) {
         return productInformation.getModels().getFirst().getLanguages().stream()
                 .filter(modelLanguage -> modelLanguage.getLanguage().equals(language))
                 .map(ProductInformation.Model.VersionLanguage::getLabel)
@@ -252,7 +264,7 @@ public class APIGetProductDetail {
      *                           descriptions, shipping details, attributes, and stock information.
      *                           It includes various nested classes to handle different aspects of the product,
      *                           such as models, categories, shipping info, and language-specific details.
-     * @param variationIndex           The index of the variation model for which to retrieve the listing price.
+     * @param variationIndex     The index of the variation model for which to retrieve the listing price.
      * @return The listing price for the specified variation model.
      */
     public static Long getVariationListingPrice(ProductInformation productInformation, int variationIndex) {
@@ -281,7 +293,7 @@ public class APIGetProductDetail {
      *                           descriptions, shipping details, attributes, and stock information.
      *                           It includes various nested classes to handle different aspects of the product,
      *                           such as models, categories, shipping info, and language-specific details.
-     * @param variationIndex           The index of the variation model for which to retrieve the selling price.
+     * @param variationIndex     The index of the variation model for which to retrieve the selling price.
      * @return The selling price for the specified variation model.
      */
     public static Long getVariationSellingPrice(ProductInformation productInformation, int variationIndex) {
@@ -310,7 +322,7 @@ public class APIGetProductDetail {
      *                           descriptions, shipping details, attributes, and stock information.
      *                           It includes various nested classes to handle different aspects of the product,
      *                           such as models, categories, shipping info, and language-specific details.
-     * @param variationIndex           The index of the variation model for which to retrieve the cost price.
+     * @param variationIndex     The index of the variation model for which to retrieve the cost price.
      * @return The cost price for the specified variation model.
      */
     public static Long getVariationCostPrice(ProductInformation productInformation, int variationIndex) {
@@ -325,9 +337,15 @@ public class APIGetProductDetail {
      *                           descriptions, shipping details, attributes, and stock information.
      *                           It includes various nested classes to handle different aspects of the product,
      *                           such as models, categories, shipping info, and language-specific details.
-     * @return A list of variation model IDs. If the product has no variations, a list containing a single {@code null} is returned.
+     * @return A list of variation model IDs. If the product has no variations, returns an empty list.
      */
     public static List<Integer> getVariationModelList(ProductInformation productInformation) {
+        // If the product has no models, return an empty list indicating no variation
+        if (productInformation.getModels() == null || productInformation.getModels().isEmpty()) {
+            return List.of();
+        }
+
+        // Map each model to its ID and return the list of IDs
         return productInformation.getModels().stream()
                 .map(ProductInformation.Model::getId)
                 .toList();
@@ -336,17 +354,22 @@ public class APIGetProductDetail {
     /**
      * Retrieves the variation model ID at the specified index.
      *
-     * @param productInformation Represents detailed information about a product, including its pricing,
+     * @param productInformation Contains comprehensive details about a product, including pricing,
      *                           descriptions, shipping details, attributes, and stock information.
-     *                           It includes various nested classes to handle different aspects of the product,
-     *                           such as models, categories, shipping info, and language-specific details.
+     *                           It also manages various aspects like models, categories, and language-specific details.
      * @param variationIndex     The index of the variation model to retrieve.
-     * @return The variation model ID at the specified index. If the index is out of bounds, -1 is returned.
+     * @return The variation model ID at the specified index, or null if the product has no variations.
+     * @throws IndexOutOfBoundsException If the variation index is outside the valid range of available variations.
      */
-    public static int getVariationModelId(ProductInformation productInformation, int variationIndex) {
+    public static Integer getVariationModelId(ProductInformation productInformation, int variationIndex) {
         List<Integer> modelIds = getVariationModelList(productInformation);
-        // Check if the variation index is within bounds and return the ID, otherwise return -1
-        return (variationIndex >= 0 && variationIndex < modelIds.size()) ? modelIds.get(variationIndex) : -1;
+
+        // If the index is within bounds, return the model ID, otherwise throw an exception
+        if (variationIndex >= 0 && variationIndex < modelIds.size()) {
+            return modelIds.get(variationIndex);
+        } else {
+            throw new IndexOutOfBoundsException("Variation index is out of bounds: " + variationIndex);
+        }
     }
 
     /**
@@ -395,27 +418,28 @@ public class APIGetProductDetail {
      * and the value is the stock quantity.
      */
     public static Map<Integer, Map<Integer, Integer>> getModelBranchStockMap(ProductInformation productInformation) {
-        Map<Integer, Map<Integer, Integer>> modelBranchStockMap = new HashMap<>();
-
-        // Check if the product has variations
-        if (productInformation.isHasModel()) {
-            // Iterate over each variation model
-            productInformation.getModels().forEach(model -> {
-                // Create a map to store branchId -> stock for each model
-                Map<Integer, Integer> branchStockMap = new HashMap<>();
-
-                // Populate branchId -> stock map for this model
-                model.getBranches().forEach(branchStock -> branchStockMap.put(branchStock.getBranchId(), branchStock.getTotalItem() - branchStock.getSoldItem()));
-
-                // Add modelId -> branchId -> stock map to the main map
-                modelBranchStockMap.put(model.getId(), branchStockMap);
-            });
-        } else {
+        // Check if the product doesn't have variations (no models)
+        if (!productInformation.isHasModel()) {
             // No variations; map stock by branch with null as the modelId key
             Map<Integer, Integer> branchStockMap = new HashMap<>();
-            productInformation.getBranches().forEach(branchStock -> branchStockMap.put(branchStock.getBranchId(), branchStock.getTotalItem() - branchStock.getSoldItem()));
-            modelBranchStockMap.put(null, branchStockMap);
+            productInformation.getBranches().forEach(branch -> branchStockMap.put(branch.getBranchId(), branch.getTotalItem() - branch.getSoldItem()));
+            return Collections.singletonMap(null, new TreeMap<>(branchStockMap));
         }
+
+        // Product has variations (models)
+        var modelBranchStockMap = new HashMap<Integer, Map<Integer, Integer>>();
+
+        // Iterate over each variation model
+        productInformation.getModels().forEach(model -> {
+            // Create a map to store branchId -> stock for each model
+            Map<Integer, Integer> branchStockMap = new HashMap<>();
+
+            // Populate branchId -> stock map for this model
+            model.getBranches().forEach(branch -> branchStockMap.put(branch.getBranchId(), branch.getTotalItem() - branch.getSoldItem()));
+
+            // Add modelId -> branchId -> stock map to the main map
+            modelBranchStockMap.put(model.getId(), new TreeMap<>(branchStockMap));
+        });
 
         return modelBranchStockMap;
     }
@@ -476,85 +500,58 @@ public class APIGetProductDetail {
     }
 
     /**
-     * Creates a map of stock quantities for each model variation, indexed by variation model ID.
+     * Retrieves the maximum available stock for a specific model variation across all branches.
      * <p>
-     * This method calculates available stock quantities for each variation model by considering
-     * the total items and sold items across branches. If the product does not have variations,
-     * it associates stock quantities with a null key.
+     * This method looks up the stock quantities for a product variation (identified by its model ID)
+     * across all branches and returns the maximum stock available. If the product does not have variations,
+     * the stock for the default product model is retrieved.
      *
-     * @param productInformation Represents detailed information about a product, including pricing,
-     *                           descriptions, shipping details, attributes, and stock information.
-     *                           It contains various nested classes to manage different aspects of the product.
-     * @return A map where the key is the variation model ID and the value is a list of stock quantities per branch.
+     * @param productInfo The product information, containing details about pricing, descriptions, attributes, and stock.
+     *                    It includes nested classes to manage various aspects of the product, including stock for branches.
+     * @param modelId     The ID of the model variation to retrieve stock for. If the product does not have variations,
+     *                    this should be null.
+     * @return The maximum available stock quantity for the specified model variation across all branches.
+     * @throws IllegalArgumentException If the model ID does not exist in the product information, or if stock data is missing.
      */
-    public static Map<Integer, List<Integer>> getStockMapByModel(ProductInformation productInformation) {
-        Map<Integer, List<Integer>> stockMap = new HashMap<>();
+    public static int getMaximumBranchStockForModel(ProductInformation productInfo, Integer modelId) {
+        // Retrieve stock map for the specified model variation
+        Map<Integer, Map<Integer, Integer>> modelStockMap = getModelBranchStockMap(productInfo);
 
-        // Check if the product has variations
-        if (productInformation.isHasModel()) {
-            productInformation.getModels().forEach(model -> {
-                List<Integer> variationStock = model.getBranches().stream()
-                        .map(branchStock -> branchStock.getTotalItem() - branchStock.getSoldItem())
-                        .toList();
-                stockMap.put(model.getId(), variationStock);
-            });
-        } else {
-            // No variations; map to null key
-            stockMap.put(null, productInformation.getBranches().stream()
-                    .map(branchStock -> branchStock.getTotalItem() - branchStock.getSoldItem())
-                    .toList());
-        }
-        return stockMap;
-    }
-
-    /**
-     * Retrieves a list of stock quantities for a specific variation model ID or for all main branches if the model ID is not provided.
-     * <p>
-     * The method fetches stock quantities from the product information. If a model ID is provided, it retrieves
-     * stock quantities associated with that model. If the model ID is {@code null}, it retrieves stock quantities
-     * from the main branches.
-     *
-     * @param productInformation Represents detailed information about a product, including pricing,
-     *                           descriptions, shipping details, attributes, and stock information.
-     * @param modelId            The variation model ID for which to retrieve stock quantities. If {@code null},
-     *                           the method retrieves stock quantities from the main branches.
-     * @return A list of stock quantities per branch. If {@code modelId} is provided, the list contains stock quantities
-     *         for the branches associated with that model. If {@code modelId} is {@code null}, the list contains stock
-     *         quantities from the main branches, calculated as the total items minus sold items.
-     * @throws IllegalArgumentException if the modelId does not exist in the stock map.
-     */
-    public static List<Integer> getBranchStocks(ProductInformation productInformation, Integer modelId) {
-        Map<Integer, List<Integer>> stockQuantityMap = getStockMapByModel(productInformation);
-
-        // Retrieve stock quantities for the specific model or main branches
-        List<Integer> branchStocks = stockQuantityMap.get(modelId);
-
-        // Check if the modelId exists in the stock map
-        if (branchStocks == null) {
-            throw new IllegalArgumentException("The specified modelId does not exist in the stock map.");
+        // Ensure the model exists in the stock map
+        if (!modelStockMap.containsKey(modelId)) {
+            throw new IllegalArgumentException("Model ID " + modelId + " not found in product information.");
         }
 
-        return branchStocks;
+        // Retrieve stock for all branches for the specified model
+        Map<Integer, Integer> branchStockMap = modelStockMap.get(modelId);
+
+        if (branchStockMap == null || branchStockMap.isEmpty()) {
+            throw new IllegalArgumentException("No stock information available for model ID " + modelId);
+        }
+
+        // Return the maximum stock available across all branches
+        return Collections.max(branchStockMap.values());
     }
 
 
     /**
-     * Calculates the total stock quantity for all models and branches in the given product information.
+     * Calculates the total stock quantity across all models and branches in the given product information.
      * <p>
-     * This method first retrieves a map of model IDs to their stock quantities per branch using
-     * {@link #getStockMapByModel(ProductInformation)}. It then sums all the stock quantities
-     * for each branch across all models.
+     * This method retrieves a map where the key is the model ID, and the value is another map of branch IDs to stock quantities.
+     * The stock map is generated by calling {@link #getModelBranchStockMap(ProductInformation)}.
+     * It then sums the stock quantities for each branch across all models.
+     * </p>
      *
      * @param productInformation The {@code ProductInformation} object containing the stock details for the product's models and branches.
      * @return The total stock quantity across all models and branches.
      */
     public static int getTotalStockQuantity(ProductInformation productInformation) {
         // Generate the stock map
-        Map<Integer, List<Integer>> stockMap = getStockMapByModel(productInformation);
+        Map<Integer, Map<Integer, Integer>> stockMap = getModelBranchStockMap(productInformation);
 
         // Sum all stock quantities in the map
         return stockMap.values().stream()
-                .flatMap(List::stream)
+                .flatMap(branchMap -> branchMap.values().stream())
                 .mapToInt(Integer::intValue)
                 .sum();
     }
@@ -563,21 +560,23 @@ public class APIGetProductDetail {
      * Checks if the product is in stock based on the stock quantities for its models across all branches.
      * <p>
      * This method retrieves a map of model IDs to their stock quantities per branch using
-     * {@link #getStockMapByModel(ProductInformation)} and checks if the maximum stock quantity
+     * {@link #getModelBranchStockMap(ProductInformation)} and checks if the stock quantity
      * for any branch is greater than 0.
+     * </p>
      *
      * @param productInformation The {@code ProductInformation} object containing stock details for the product's models and branches.
      * @return {@code true} if any branch has stock greater than 0, otherwise {@code false}.
      */
     public static boolean isProductInStock(ProductInformation productInformation) {
         // Generate the stock map
-        Map<Integer, List<Integer>> stockMap = getStockMapByModel(productInformation);
+        Map<Integer, Map<Integer, Integer>> stockMap = getModelBranchStockMap(productInformation);
 
         // Check if any branch has stock greater than 0
         return stockMap.values().stream()
-                .flatMap(List::stream)
+                .flatMap(branchMap -> branchMap.values().stream())
                 .anyMatch(stock -> stock > 0);
     }
+
 
     /**
      * Retrieves the version name for a specific variation model ID and language. If a version-specific name
@@ -688,9 +687,9 @@ public class APIGetProductDetail {
         // Get attribute configs
         return productInformation.isHasModel()
                 ? productInformation.getModels().get(variationIndex).getModelAttributes().stream()
-                .map(ProductInformation.ItemAttribute::isDisplay).toList()
+                .map(ProductInformation.ItemAttribute::getIsDisplay).toList()
                 : productInformation.getItemAttributes().stream()
-                .map(ProductInformation.ItemAttribute::isDisplay).toList();
+                .map(ProductInformation.ItemAttribute::getIsDisplay).toList();
     }
 
     /**
@@ -708,9 +707,9 @@ public class APIGetProductDetail {
     public static List<String> getAttributeNames(ProductInformation productInformation, int variationIndex) {
         return productInformation.isHasModel()
                 ? productInformation.getModels().get(variationIndex).getModelAttributes().stream()
-                .map(ProductInformation.ItemAttribute::getAttributeName).toList()
+                    .map(ProductInformation.ItemAttribute::getAttributeName).toList()
                 : productInformation.getItemAttributes().stream()
-                .map(ProductInformation.ItemAttribute::getAttributeName).toList();
+                    .map(ProductInformation.ItemAttribute::getAttributeName).toList();
     }
 
     /**
@@ -728,9 +727,153 @@ public class APIGetProductDetail {
     public static List<String> getAttributeValues(ProductInformation productInformation, int variationIndex) {
         return productInformation.isHasModel()
                 ? productInformation.getModels().get(variationIndex).getModelAttributes().stream()
-                .map(ProductInformation.ItemAttribute::getAttributeValue).toList()
+                    .map(ProductInformation.ItemAttribute::getAttributeValue).toList()
                 : productInformation.getItemAttributes().stream()
-                .map(ProductInformation.ItemAttribute::getAttributeValue).toList();
+                    .map(ProductInformation.ItemAttribute::getAttributeValue).toList();
     }
 
+
+    /**
+     * Retrieves the SEO title for a specific language from the product information.
+     *
+     * @param productInfo The product information containing language-specific data.
+     * @param language    The language code for which the SEO title is required.
+     * @return The SEO title for the specified language, or an empty string if not found.
+     */
+    public static String retrieveSEOTitle(ProductInformation productInfo, String language) {
+        return productInfo.getLanguages().stream()
+                .filter(mainLanguage -> mainLanguage.getLanguage().equals(language))
+                .findFirst()
+                .map(MainLanguage::getSeoTitle)
+                .orElse(""); // Return an empty string if the SEO title is not found
+    }
+
+    /**
+     * Retrieves the SEO description for a specific language from the product information.
+     *
+     * @param productInfo The product information containing language-specific data.
+     * @param language    The language code for which the SEO description is required.
+     * @return The SEO description for the specified language, or an empty string if not found.
+     */
+    public static String retrieveSEODescription(ProductInformation productInfo, String language) {
+        return productInfo.getLanguages().stream()
+                .filter(mainLanguage -> mainLanguage.getLanguage().equals(language))
+                .findFirst()
+                .map(MainLanguage::getSeoDescription)
+                .orElse(""); // Return an empty string if the SEO description is not found
+    }
+
+    /**
+     * Retrieves the SEO keywords for a specific language from the product information.
+     *
+     * @param productInfo The product information containing language-specific data.
+     * @param language    The language code for which the SEO keywords are required.
+     * @return The SEO keywords for the specified language, or an empty string if not found.
+     */
+    public static String retrieveSEOKeywords(ProductInformation productInfo, String language) {
+        return productInfo.getLanguages().stream()
+                .filter(mainLanguage -> mainLanguage.getLanguage().equals(language))
+                .findFirst()
+                .map(MainLanguage::getSeoKeywords)
+                .orElse(""); // Return an empty string if the SEO keywords are not found
+    }
+
+    /**
+     * Retrieves the SEO URL for a specific language from the product information.
+     *
+     * @param productInfo The product information containing language-specific data.
+     * @param language    The language code for which the SEO URL is required.
+     * @return The SEO URL for the specified language, or an empty string if not found.
+     */
+    public static String retrieveSEOUrl(ProductInformation productInfo, String language) {
+        return productInfo.getLanguages().stream()
+                .filter(mainLanguage -> mainLanguage.getLanguage().equals(language))
+                .findFirst()
+                .map(MainLanguage::getSeoUrl)
+                .orElse(""); // Return an empty string if the SEO URL is not found
+    }
+
+    /**
+     * Creates a map of product SKU (Stock Keeping Unit) codes indexed by model ID, with each model
+     * containing a map of branch IDs and their corresponding SKU.
+     * <p>
+     * This method generates SKU mappings for each variation model and associates the SKU with the
+     * relevant branch. If the product does not have variations, it uses a null key for the model
+     * and associates SKU codes directly with branches.
+     * </p>
+     *
+     * @param productInformation Contains detailed information about a product, including pricing,
+     *                           descriptions, shipping details, attributes, and stock information.
+     *                           This includes data about both product variations (models) and branches.
+     * @return A map where the key is the model ID and the value is another map, where the key is the branch ID
+     * and the value is the SKU code associated with that branch. If there are no models, the model ID is null.
+     */
+    public static Map<Integer, Map<Integer, String>> getModelBranchSKUMap(ProductInformation productInformation) {
+        // Check if the product doesn't have variations (no models)
+        if (!productInformation.isHasModel()) {
+            // No variations; map SKUs by branch using null as the modelId key
+            Map<Integer, String> branchSKUMap = new HashMap<>();
+            // Populate branchId -> SKU map for the product without models
+            productInformation.getBranches().forEach(branch -> branchSKUMap.put(branch.getBranchId(), branch.getSku()));
+            return Collections.singletonMap(null, new TreeMap<>(branchSKUMap));
+        }
+
+        // Product has variations (models)
+        var modelBranchStockMap = new HashMap<Integer, Map<Integer, String>>();
+
+        // Iterate over each variation model
+        productInformation.getModels().forEach(model -> {
+            // Create a map to store branchId -> SKU for each model
+            Map<Integer, String> branchSKUMap = new HashMap<>();
+
+            // Populate branchId -> SKU map for this model
+            model.getBranches().forEach(branch -> branchSKUMap.put(branch.getBranchId(), branch.getSku()));
+
+            // Add modelId -> branchId -> SKU map to the main map
+            modelBranchStockMap.put(model.getId(), new TreeMap<>(branchSKUMap));
+        });
+
+        // Return the complete map of modelId -> branchId -> SKU mappings
+        return new TreeMap<>(modelBranchStockMap);
+    }
+
+    /**
+     * Retrieves the SKU code for a specific model ID and branch ID.
+     * <p>
+     * This method first generates the SKU map using the provided {@link ProductInformation} object.
+     * It then checks if the SKU map contains the specified model ID. If found, it retrieves the SKU
+     * associated with the given branch ID. If the model ID is null, it checks for the SKU associated
+     * with the case where there are no variations.
+     *
+     * @param productInformation The {@link ProductInformation} object containing product details,
+     *                           including branch and model information.
+     * @param modelId            The ID of the model for which the SKU is requested. It can be null
+     *                           if querying for products without variations.
+     * @param branchId           The ID of the branch for which the SKU is requested.
+     * @return The SKU code associated with the specified model ID and branch ID, or null if not found.
+     */
+    public static String getSKUForModelAndBranch(ProductInformation productInformation, Integer modelId, Integer branchId) {
+        // Generate the SKU map from the product information
+        Map<Integer, Map<Integer, String>> skuMap = getModelBranchSKUMap(productInformation);
+
+        // Check if the SKU map contains the specified model ID
+        if (skuMap.containsKey(modelId)) {
+            // Retrieve the map for the specified model ID
+            Map<Integer, String> branchSKUMap = skuMap.get(modelId);
+
+            // Return the SKU for the specified branch ID if it exists
+            return branchSKUMap.get(branchId);
+        }
+
+        // If the modelId is null, check for the map associated with no models
+        if (modelId == null) {
+            Map<Integer, String> branchSKUMap = skuMap.get(null);
+
+            // Return the SKU for the specified branch ID if it exists in the no-models map
+            return branchSKUMap != null ? branchSKUMap.get(branchId) : null;
+        }
+
+        // Return null if the model ID or branch ID is not found
+        return null;
+    }
 }

@@ -77,6 +77,7 @@ public class PropertiesUtils {
         String headlessProperty = getProperty("headless");
         return Boolean.parseBoolean(headlessProperty);
     }
+
     /**
      * Retrieves the seller credentials from the property file.
      *
@@ -110,7 +111,7 @@ public class PropertiesUtils {
      * Retrieves the Storefront URL from the configuration properties.
      *
      * @return The Storefront URL as a {@code String}.
-     *         This is typically used to access the Storefront endpoint.
+     * This is typically used to access the Storefront endpoint.
      */
     public static String getStoreURL() {
         return getProperty("storeURL");
@@ -125,4 +126,21 @@ public class PropertiesUtils {
         return Boolean.parseBoolean(getProperty("enableProxy"));
     }
 
+    /**
+     * Retrieves the seller bundle ID from the application properties.
+     *
+     * @return the seller bundle ID as a String.
+     */
+    public static String getSellerBundleId() {
+        return getProperty("goSELLERBundleId");
+    }
+
+    /**
+     * Retrieves the buyer bundle ID from the application properties.
+     *
+     * @return the buyer bundle ID as a String.
+     */
+    public static String getBuyerBundleId() {
+        return getProperty("goBUYERBundleId");
+    }
 }

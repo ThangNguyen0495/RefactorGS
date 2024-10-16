@@ -10,7 +10,8 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import utility.APIUtils;
-import utility.VariationUtils;
+import utility.helper.ProductHelper;
+import utility.helper.VariationHelper;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -26,7 +27,6 @@ import static org.apache.commons.lang.math.RandomUtils.nextInt;
 public class APICreateProduct {
     // API endpoint for creating a product
     private static final String CREATE_PRODUCT_PATH = "/itemservice/api/items?fromSource=DASHBOARD";
-    private static final long MAX_PRICE = 99999999999L;
 
     private final APISellerLogin.Credentials credentials;
     private APISellerLogin.LoginInformation loginInfo;
@@ -224,6 +224,7 @@ public class APICreateProduct {
      * @return Configured ProductPayload object.
      */
     private ProductPayload createPayloadWithoutVariation(boolean isManagedByIMEI, int... branchStock) {
+        fetchInformation();
         ProductPayload payload = initializeBasicInformation(isManagedByIMEI);
 
         // Set product name with a timestamp
@@ -233,7 +234,7 @@ public class APICreateProduct {
         payload.setName(productName);
 
         // Set pricing values
-        payload.setOrgPrice(nextLong(MAX_PRICE));
+        payload.setOrgPrice(nextLong(ProductHelper.MAX_PRICE));
         payload.setNewPrice(nextLong(payload.getOrgPrice()));
         payload.setCostPrice(nextLong(payload.getNewPrice()));
 
@@ -263,9 +264,9 @@ public class APICreateProduct {
      * @param branchStock     Array of initial stock values for each branch.
      * @return Configured ProductPayload object.
      */
-    private ProductPayload createPayloadWithVariation(boolean isManagedByIMEI, int... branchStock) {
+    public ProductPayload createPayloadWithVariation(boolean isManagedByIMEI, int... branchStock) {
+        fetchInformation();
         ProductPayload payload = initializeBasicInformation(isManagedByIMEI);
-
         // Set product name with a timestamp
         String productName = String.format("[%s] %s%s", defaultLanguage,
                 isManagedByIMEI ? "Auto - IMEI - variation - " : "Auto - Normal - variation - ",
@@ -273,9 +274,9 @@ public class APICreateProduct {
         payload.setName(productName);
 
         // Generate variation data
-        Map<String, List<String>> variationMap = VariationUtils.randomVariationMap(defaultLanguage);
+        Map<String, List<String>> variationMap = VariationHelper.randomVariationMap(defaultLanguage);
         String variationName = variationMap.keySet().toString().replaceAll("[\\[\\]\\s]", "").replaceAll(",", "|");
-        List<String> variationList = VariationUtils.getVariationList(variationMap);
+        List<String> variationList = VariationHelper.getVariationValues(variationMap);
 
         // Create models with variations
         List<Model> models = variationList.stream().map(variation -> createModel(variation, variationName, branchStock))
@@ -296,7 +297,7 @@ public class APICreateProduct {
      * @return Configured Model object.
      */
     private Model createModel(String variation, String variationName, int... branchStock) {
-        long listingPrice = nextLong(MAX_PRICE);
+        long listingPrice = nextLong(ProductHelper.MAX_PRICE);
         long sellingPrice = nextLong(listingPrice);
 
         // Create inventory list with stock values
@@ -325,7 +326,6 @@ public class APICreateProduct {
      * @return The ID of the created product.
      */
     public int createProduct(boolean isManagedByIMEI, boolean withVariation, int... branchStock) {
-        fetchInformation();
         payload = withVariation ? createPayloadWithVariation(isManagedByIMEI, branchStock) : createPayloadWithoutVariation(isManagedByIMEI, branchStock);
 
         // Send POST request to create the product

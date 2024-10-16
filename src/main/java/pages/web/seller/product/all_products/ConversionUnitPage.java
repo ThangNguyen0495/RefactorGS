@@ -2,15 +2,15 @@ package pages.web.seller.product.all_products;
 
 import api.seller.login.APISellerLogin;
 import api.seller.product.APICreateConversionUnit;
-import api.seller.product.APIGetConversionUnitList;
+import api.seller.product.APIGetConversionUnits;
 import api.seller.product.APIGetProductDetail;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import utility.helper.ProductHelper;
 import utility.WebUtils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -21,13 +21,12 @@ import static org.apache.commons.lang.math.RandomUtils.nextInt;
  */
 public class ConversionUnitPage {
 
-    private static final long MAX_PRICE = 99999999999L;
     private final WebUtils webUtils;
     private final APISellerLogin.Credentials credentials;
     private final Logger logger = LogManager.getLogger();
     private final APIGetProductDetail.ProductInformation productInfo;
     private final List<String> variationValues;
-    private final List<APIGetConversionUnitList.UnitInformation> unitInfoList;
+    private final List<APIGetConversionUnits.UnitInformation> unitInfoList;
 
     // Locators
     private final By loc_btnSelectUnit = By.xpath("//*[text() = 'Chọn đơn vị' or text() = 'Select unit']/parent::button");
@@ -57,7 +56,7 @@ public class ConversionUnitPage {
         this.credentials = credentials;
         this.productInfo = productInfo;
         this.webUtils = new WebUtils(driver);
-        this.unitInfoList = new APIGetConversionUnitList(credentials).getAllConversionUnits();
+        this.unitInfoList = new APIGetConversionUnits(credentials).getAllConversionUnits();
         this.variationValues = APIGetProductDetail.getVariationValues(productInfo, defaultLanguage);
     }
 
@@ -80,17 +79,17 @@ public class ConversionUnitPage {
      * Configures a conversion unit for a product without variations.
      */
     private void configureConversionUnitForWithoutVariation() {
-        configureConversionUnit();
+        configureConversionUnit(null);
     }
 
     /**
      * Configures a conversion unit for a product with or without variations.
      */
-    private void configureConversionUnit() {
+    private void configureConversionUnit(Integer modelId) {
         clickSelectUnitButton();
         selectConversionUnit();
 
-        long quantity = getQuantityForUnit();
+        long quantity = getQuantityForUnit(modelId);
         webUtils.sendKeys(loc_txtUnitQuantity, String.valueOf(quantity));
         logger.info("Conversion unit quantity: {}", quantity);
 
@@ -124,7 +123,7 @@ public class ConversionUnitPage {
      * Selects a conversion unit from the list.
      */
     private void selectConversionUnit() {
-        List<String> unitNameList = APIGetConversionUnitList.getConversionUnitNames(unitInfoList);
+        List<String> unitNameList = APIGetConversionUnits.getConversionUnitNames(unitInfoList);
         String unitName = unitNameList.isEmpty() ? new APICreateConversionUnit(credentials).createConversionUnitAndGetName() : unitNameList.get(nextInt(unitNameList.size()));
 
         webUtils.sendKeys(loc_txtUnitName, unitName);
@@ -138,9 +137,9 @@ public class ConversionUnitPage {
      *
      * @return The calculated quantity.
      */
-    private long getQuantityForUnit() {
-        long maxBranchStock = Collections.max(APIGetProductDetail.getBranchStocks(productInfo, null));
-        long quantity = Math.min(Math.max(maxBranchStock, 1), MAX_PRICE / productInfo.getOrgPrice());
+    private long getQuantityForUnit(Integer modelId) {
+        long maxBranchStock = APIGetProductDetail.getMaximumBranchStockForModel(productInfo, modelId);
+        long quantity = Math.min(Math.max(maxBranchStock, 1), ProductHelper.MAX_PRICE / productInfo.getOrgPrice());
         logger.info("Calculated quantity for conversion unit: {}", quantity);
         return quantity;
     }
@@ -175,7 +174,7 @@ public class ConversionUnitPage {
         logger.info("Navigated to configure conversion unit for variation page, variation value: {}", variationValue);
 
         // Add conversion unit for variation
-        configureConversionUnit();
+        configureConversionUnit(APIGetProductDetail.getVariationModelId(productInfo, varIndex));
 
         webUtils.waitURLShouldBeContains("/conversion-unit/variation/edit/");
         logger.info("Waiting for setup conversion unit page to load.");

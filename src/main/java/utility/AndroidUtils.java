@@ -30,17 +30,17 @@ import static io.appium.java_client.AppiumBy.androidUIAutomator;
  * including initializing drivers, handling app states, and performing common actions.
  */
 
-public class AndroidUtils {
+public class AndroidUtils extends WebUtils{
 
     private static final Logger logger = LogManager.getLogger(AndroidUtils.class);
 
-    private static final String ANDROID_UI_AUTOMATOR_RESOURCE_ID_STRING =
+    public static final String uiScrollResourceId =
             "new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\"))";
-    private static final String ANDROID_UI_AUTOMATOR_RESOURCE_ID_INSTANCE_STRING =
+    public static final String uiScrollResourceIdInstance =
             "new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\").instance(%d))";
-    private static final String ANDROID_UI_AUTOMATOR_TEXT_STRING =
+    public static final String uiScrollText =
             "new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().text(\"%s\"))";
-    private static final String ANDROID_UI_AUTOMATOR_PART_TEXT_STRING =
+    public static final String uiScrollPartText =
             "new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().textContains(\"%s\"))";
 
     private final AndroidDriver driver;
@@ -52,24 +52,11 @@ public class AndroidUtils {
      * @param driver The AndroidDriver instance.
      */
     public AndroidUtils(AndroidDriver driver) {
+        super(driver);
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    /**
-     * Retries an action on StaleElementReferenceException.
-     *
-     * @param action The action to be retried.
-     * @param <T>    The return type of the action.
-     * @return The result of the action.
-     */
-    private <T> T retryOnStaleElement(Supplier<T> action) {
-        try {
-            return action.get();
-        } catch (StaleElementReferenceException ex) {
-            return action.get();
-        }
-    }
 
     /**
      * Creates a WebDriverWait instance with a custom timeout.

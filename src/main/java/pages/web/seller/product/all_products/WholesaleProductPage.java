@@ -8,7 +8,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import utility.WebUtils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -58,7 +57,7 @@ public class WholesaleProductPage {
 
         // Select a random segment from the list
         int segmentIndex = nextInt(segments.size());
-        String segmentName = webUtils.getText(loc_ddlSegment, segmentIndex);
+        String segmentName = webUtils.getValue(loc_ddlSegment, segmentIndex);
 
         // Click on the selected segment using JavaScript
         webUtils.clickJS(loc_ddlSegment, segmentIndex);
@@ -72,11 +71,11 @@ public class WholesaleProductPage {
     /**
      * Calculate and return the 'Buy From' quantity based on branch stock.
      *
-     * @param branchStock A list of branch stocks.
+     * @param maximumModelStock A list of branch stocks.
      * @return The 'Buy From' quantity.
      */
-    private int calculateBuyFrom(List<Integer> branchStock) {
-        return nextInt(Math.max(Collections.max(branchStock), 1)) + 1;
+    private int calculateBuyFrom(int maximumModelStock) {
+        return nextInt(Math.max(maximumModelStock, 1)) + 1;
     }
 
     /**
@@ -119,7 +118,7 @@ public class WholesaleProductPage {
         logger.info("Opened setup wholesale price table.");
 
         // Calculate and input the 'Buy From' quantity based on available branch stock
-        int buyFrom = calculateBuyFrom(APIGetProductDetail.getBranchStocks(productInfo, null));
+        int buyFrom = calculateBuyFrom(APIGetProductDetail.getMaximumBranchStockForModel(productInfo, null));
         webUtils.sendKeys(loc_txtBuyFrom, String.valueOf(buyFrom));
         logger.info("Input 'Buy From' quantity: {}.", buyFrom);
 
@@ -163,7 +162,7 @@ public class WholesaleProductPage {
             webUtils.clickJS(loc_btnAddWholesalePricing, index);
 
             // Calculate and input the 'Buy From' quantity based on available branch stock for the variation
-            int buyFrom = calculateBuyFrom(APIGetProductDetail.getBranchStocks(productInfo, variationModelIds.get(varIndex)));
+            int buyFrom = calculateBuyFrom(APIGetProductDetail.getMaximumBranchStockForModel(productInfo, variationModelIds.get(varIndex)));
             webUtils.sendKeys(loc_txtBuyFrom, index, String.valueOf(buyFrom));
             logger.info("[{}] Input 'Buy From' quantity: {}.", value, buyFrom);
 

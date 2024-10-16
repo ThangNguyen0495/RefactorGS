@@ -5,10 +5,10 @@ import org.openqa.selenium.WebDriver;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Listeners;
-import utility.ExtendReportListener;
+import utility.ListenerUtils;
 import utility.PropertiesUtils;
 
-@Listeners(ExtendReportListener.class)
+@Listeners(ListenerUtils.class)
 public class DashboardBaseTest {
 
     public WebDriver driver;

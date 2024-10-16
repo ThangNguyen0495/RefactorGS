@@ -13,7 +13,7 @@ import java.util.stream.IntStream;
 /**
  * Class to interact with the product collection API for sellers.
  */
-public class APIGetProductCollectionList {
+public class APIGetProductCollections {
     private final APISellerLogin.LoginInformation loginInfo;
 
     /**
@@ -21,7 +21,7 @@ public class APIGetProductCollectionList {
      *
      * @param credentials the seller's credentials.
      */
-    public APIGetProductCollectionList(APISellerLogin.Credentials credentials) {
+    public APIGetProductCollections(APISellerLogin.Credentials credentials) {
         this.loginInfo = new APISellerLogin().getSellerInformation(credentials);
     }
 

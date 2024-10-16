@@ -1,4 +1,4 @@
-package utility;
+package utility.helper;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -6,7 +6,7 @@ import java.util.stream.IntStream;
 
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 
-public class VariationUtils {
+public class VariationHelper {
 
     private static final int MAX_VARIATION_QUANTITY = 2;
     private static final int MAX_VARIATION_QUANTITY_FOR_EACH_VARIATION = 5;
@@ -87,7 +87,7 @@ public class VariationUtils {
      * @param variationMap A map where the values are lists of variation values.
      * @return A list of combined variation values if multiple lists are present, otherwise the single list.
      */
-    public static List<String> getVariationList(Map<String, List<String>> variationMap) {
+    public static List<String> getVariationValues(Map<String, List<String>> variationMap) {
         List<List<String>> varValues = new ArrayList<>(variationMap.values());
         return (varValues.size() > 1) ? mixVariationValue(varValues.getFirst(), varValues.getLast()) : varValues.getFirst();
     }

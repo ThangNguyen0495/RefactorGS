@@ -19,7 +19,7 @@ import java.io.File;
  * It implements the {@code ITestListener}, {@code ISuiteListener}, and {@code IInvokedMethodListener}
  * interfaces to handle events at the suite, test, and method levels.
  */
-public class ExtendReportListener implements ITestListener, ISuiteListener, IInvokedMethodListener {
+public class ListenerUtils implements ITestListener, ISuiteListener, IInvokedMethodListener {
     private ExtentReports extent;
     private ExtentTest test;
 
@@ -82,6 +82,7 @@ public class ExtendReportListener implements ITestListener, ISuiteListener, IInv
     public void onFinish(ISuite suite) {
         extent.flush();
     }
+
 
     /**
      * Logs the start of a test method invocation and method configuration (BeforeGroup, BeforeClass, etc.).
