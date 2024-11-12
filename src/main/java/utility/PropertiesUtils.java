@@ -6,6 +6,7 @@ import org.testng.Assert;
 import java.io.InputStream;
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
@@ -95,6 +96,15 @@ public class PropertiesUtils {
      */
     public static String getAPIHost() {
         return getProperty("apiHost");
+    }
+
+    /**
+     * Retrieves the language key property value. If not found, defaults to "vi".
+     *
+     * @return The language key property value or "vi" if not set.
+     */
+    public static String getLangKey() {
+        return Optional.ofNullable(getProperty("langKey")).orElse("vi");
     }
 
     /**

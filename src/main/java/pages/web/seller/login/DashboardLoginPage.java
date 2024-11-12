@@ -1,7 +1,6 @@
 package pages.web.seller.login;
 
 import api.seller.login.APISellerLogin;
-import net.bytebuddy.implementation.bytecode.Throw;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -50,17 +49,44 @@ public class DashboardLoginPage {
     By loc_lblPasswordError = By.cssSelector("#password + .invalid-feedback");
     By loc_lblLoginFailError = By.cssSelector("div[class~='alert__wrapper']:not(div[hidden])");
 
-    By loc_icnDotSpinner = new ByChained(loc_btnLogin, By.xpath(".//i[contains(@class,'fa-spinner')]"));
+    By loc_ddlLanguage = By.cssSelector(".change-language__wrapper");
+    By loc_ddvLanguage(String langKey) {
+        String displayLanguage = langKey.equals("vi") ? "VIE" : "ENG";
+        return By.xpath("//div[starts-with(@class,'select-country__option')]//div[@class='label' and .='%s']"
+                .formatted(displayLanguage));
+    }
 
     /**
      * Navigates to the login page of the seller's dashboard.
-     * This method opens the login page URL and retrieves the current language key from local storage.
+     * This method opens the login page URL.
      *
      * @return The current instance of `DashboardLoginPage`.
      */
     public DashboardLoginPage navigateToLoginPage() {
         driver.get(PropertiesUtils.getDomain() + "/login");
-        langKey = webUtils.getLocalStorageValue("langKey");
+        return this;
+    }
+
+    /**
+     * Selects the display language on the login page.
+     * This method retrieves the current language from local storage and updates it if needed.
+     *
+     * @param langKey The language key to select (e.g., "en" for English, "vi" for Vietnamese).
+     * @return The current instance of `DashboardLoginPage`.
+     */
+    public DashboardLoginPage selectDisplayLanguage(String langKey) {
+        this.langKey = langKey;
+        String currentLangKey = webUtils.getLocalStorageValue("langKey");
+
+        if (langKey.equals(currentLangKey)) {
+            logger.info("Current language is already set to '{}'; no change needed.", langKey);
+            return this;
+        }
+
+        webUtils.click(loc_ddlLanguage); // Opens the language dropdown
+        webUtils.click(loc_ddvLanguage(langKey)); // Selects the desired language
+        logger.info("Selected display language '{}'.", langKey);
+
         return this;
     }
 
@@ -125,6 +151,7 @@ public class DashboardLoginPage {
                 this::verifyLoginWithCorrectAccount);
         return this;
     }
+
     /**
      * Verifies that the appropriate error messages are displayed when the username and password fields are left blank.
      */

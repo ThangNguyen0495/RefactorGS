@@ -12,7 +12,8 @@ import utility.WebDriverManager;
  * Test suite for verifying login functionality on the seller dashboard.
  */
 public class DashboardLoginTest extends DashboardBaseTest {
-    DashboardLoginPage loginPage;
+    private DashboardLoginPage loginPage;
+    private static final String langKey = PropertiesUtils.getLangKey();
 
     /**
      * Setup WebDriver and initialize login page before test execution.
@@ -37,6 +38,7 @@ public class DashboardLoginTest extends DashboardBaseTest {
     @Test
     public void LG01_LoginWithBlankFields() {
         loginPage.navigateToLoginPage()
+                .selectDisplayLanguage(langKey)
                 .inputUsername("")
                 .inputPassword("")
                 .verifyErrorWhenLeaveAllBlank();
@@ -51,12 +53,14 @@ public class DashboardLoginTest extends DashboardBaseTest {
         // Test with less than 8 digits
         String lessThan8Numbers = RandomStringUtils.random(7, false, true);
         loginPage.navigateToLoginPage()
+                .selectDisplayLanguage(langKey)
                 .inputUsername(lessThan8Numbers)
                 .verifyWhenErrorInputInvalidPhoneFormat();
 
         // Test with more than 15 digits
         String greaterThan15Numbers = RandomStringUtils.random(16, false, true);
         loginPage.navigateToLoginPage()
+                .selectDisplayLanguage(langKey)
                 .inputUsername(greaterThan15Numbers)
                 .verifyWhenErrorInputInvalidPhoneFormat();
     }
@@ -69,6 +73,7 @@ public class DashboardLoginTest extends DashboardBaseTest {
         // Invalid email (missing '@' and '.')
         String notMailFormat = RandomStringUtils.random(7, true, false);
         loginPage.navigateToLoginPage()
+                .selectDisplayLanguage(langKey)
                 .inputUsername(notMailFormat)
                 .verifyErrorWhenInputInvalidMailFormat();
     }
@@ -81,6 +86,7 @@ public class DashboardLoginTest extends DashboardBaseTest {
     public void LG04_LoginWithNonExistentAccount() {
         // Test with a phone number
         loginPage.navigateToLoginPage()
+                .selectDisplayLanguage(langKey)
                 .inputUsername("12345678")
                 .inputPassword("Abc@12345")
                 .clickLoginBtn()
@@ -88,6 +94,7 @@ public class DashboardLoginTest extends DashboardBaseTest {
 
         // Test with an email
         loginPage.navigateToLoginPage()
+                .selectDisplayLanguage(langKey)
                 .inputUsername("abc@qa.team")
                 .inputPassword("Abc@12345")
                 .clickLoginBtn()
@@ -100,6 +107,7 @@ public class DashboardLoginTest extends DashboardBaseTest {
     @Test
     public void LG05_LoginWithValidAccount() {
         loginPage.navigateToLoginPage()
+                .selectDisplayLanguage(langKey)
                 .inputUsername(PropertiesUtils.getSellerCredentials().getUsername())
                 .inputPassword(PropertiesUtils.getSellerCredentials().getPassword())
                 .clickLoginBtn()
