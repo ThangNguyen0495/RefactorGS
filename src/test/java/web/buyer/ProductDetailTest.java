@@ -86,49 +86,49 @@ public class ProductDetailTest extends StorefrontBaseTest {
     @DataProvider(name = "productTestData")
     public Object[][] productTestData() {
         return new Object[][]{
-//                // G1: Without variation, manage inventory by Product
-//                generateTestObject(false, false, "hasFlashSale", "inStock", "G1: Check product information with flash sale."),
-//                generateTestObject(false, false, "hasDiscountCampaign", "inStock", "G1: Check product information with discount campaign"),
-//                generateTestObject(false, false, "hasWholesalePricing", "inStock", "G1: Check product information with wholesale price"),
+                // G1: Without variation, manage inventory by Product
+                generateTestObject(false, false, "hasFlashSale", "inStock", "G1: Check product information with flash sale."),
+                generateTestObject(false, false, "hasDiscountCampaign", "inStock", "G1: Check product information with discount campaign"),
+                generateTestObject(false, false, "hasWholesalePricing", "inStock", "G1: Check product information with wholesale price"),
                 generateTestObject(false, false, "hideRemaining", "inStock", "G1: Check product information when hiding remaining stock, product is in stock"),
-//                generateTestObject(false, false, "notDisplayOutOfStock", "", "G1: Check product information when hiding out of stock, product is out of stock"),
-//                generateTestObject(false, false, "notDisplayOutOfStock", "inStock", "G1: Check product information when hiding out of stock, product is in stock"),
-//                generateTestObject(false, false, "hideFreeBranch", "inStock", "G1: Check product information when free branch is active but hidden"),
-//                generateTestObject(false, false, "hidePaidBranch", "inStock", "G1: Check product information when paid branch is active but hidden"),
-//                generateTestObject(false, false, "deactivatePaidBranch", "inStock", "G1: Check product information when all paid branches are deactivated"),
-//
-//                // G2: Without variation, manage inventory by IMEI/Serial number
-//                generateTestObject(false, true, "hasFlashSale", "inStock", "G2: Check product information with flash sale."),
-//                generateTestObject(false, true, "hasDiscountCampaign", "inStock", "G2: Check product information with discount campaign"),
-//                generateTestObject(false, true, "hasWholesalePricing", "inStock", "G2: Check product information with wholesale price"),
-//                generateTestObject(false, true, "hideRemaining", "inStock", "G2: Check product information when hiding remaining stock, product is in stock"),
-//                generateTestObject(false, true, "notDisplayOutOfStock", "", "G2: Check product information when hiding out of stock, product is out of stock"),
-//                generateTestObject(false, true, "notDisplayOutOfStock", "inStock", "G2: Check product information when hiding out of stock, product is in stock"),
-//                generateTestObject(false, true, "hideFreeBranch", "inStock", "G2: Check product information when free branch is active but hidden"),
-//                generateTestObject(false, true, "hidePaidBranch", "inStock", "G2: Check product information when paid branch is active but hidden"),
-//                generateTestObject(false, true, "deactivatePaidBranch", "inStock", "G2: Check product information when all paid branches are deactivated"),
-//
-//                // G3: With variation, manage inventory by Product
-//                generateTestObject(true, false, "hasFlashSale", "inStock", "G3: Check product information with flash sale."),
-//                generateTestObject(true, false, "hasDiscountCampaign", "inStock", "G3: Check product information with discount campaign"),
-//                generateTestObject(true, false, "hasWholesalePricing", "inStock", "G3: Check product information with wholesale price"),
-//                generateTestObject(true, false, "hideRemaining", "inStock", "G3: Check product information when hiding remaining stock, product is in stock"),
-//                generateTestObject(true, false, "notDisplayOutOfStock", "", "G3: Check product information when hiding out of stock, product is out of stock"),
-//                generateTestObject(true, false, "notDisplayOutOfStock", "inStock", "G3: Check product information when hiding out of stock, product is in stock"),
-//                generateTestObject(true, false, "hideFreeBranch", "inStock", "G3: Check product information when free branch is active but hidden"),
-//                generateTestObject(true, false, "hidePaidBranch", "inStock", "G3: Check product information when paid branch is active but hidden"),
-//                generateTestObject(true, false, "deactivatePaidBranch", "inStock", "G3: Check product information when all paid branches are deactivated"),
-//
-//                // G4: With variation, manage inventory by IMEI / Serial number
-//                generateTestObject(true, true, "hasFlashSale", "inStock", "G4: Check product information with flash sale."),
-//                generateTestObject(true, true, "hasDiscountCampaign", "inStock", "G4: Check product information with discount campaign"),
-//                generateTestObject(true, true, "hasWholesalePricing", "inStock", "G4: Check product information with wholesale price"),
-//                generateTestObject(true, true, "hideRemaining", "inStock", "G4: Check product information when hiding remaining stock, product is in stock"),
-//                generateTestObject(true, true, "notDisplayOutOfStock", "", "G4: Check product information when hiding out of stock, product is out of stock"),
-//                generateTestObject(true, true, "notDisplayOutOfStock", "inStock", "G4: Check product information when hiding out of stock, product is in stock"),
-//                generateTestObject(true, true, "hideFreeBranch", "inStock", "G4: Check product information when free branch is active but hidden"),
-//                generateTestObject(true, true, "hidePaidBranch", "inStock", "G4: Check product information when paid branch is active but hidden"),
-//                generateTestObject(true, true, "deactivatePaidBranch", "inStock", "G4: Check product information when all paid branches are deactivated")
+                generateTestObject(false, false, "notDisplayOutOfStock", "", "G1: Check product information when hiding out of stock, product is out of stock"),
+                generateTestObject(false, false, "notDisplayOutOfStock", "inStock", "G1: Check product information when hiding out of stock, product is in stock"),
+                generateTestObject(false, false, "hideFreeBranch", "inStock", "G1: Check product information when free branch is active but hidden"),
+                generateTestObject(false, false, "hidePaidBranch", "inStock", "G1: Check product information when paid branch is active but hidden"),
+                generateTestObject(false, false, "deactivatePaidBranch", "inStock", "G1: Check product information when all paid branches are deactivated"),
+
+                // G2: Without variation, manage inventory by IMEI/Serial number
+                generateTestObject(false, true, "hasFlashSale", "inStock", "G2: Check product information with flash sale."),
+                generateTestObject(false, true, "hasDiscountCampaign", "inStock", "G2: Check product information with discount campaign"),
+                generateTestObject(false, true, "hasWholesalePricing", "inStock", "G2: Check product information with wholesale price"),
+                generateTestObject(false, true, "hideRemaining", "inStock", "G2: Check product information when hiding remaining stock, product is in stock"),
+                generateTestObject(false, true, "notDisplayOutOfStock", "", "G2: Check product information when hiding out of stock, product is out of stock"),
+                generateTestObject(false, true, "notDisplayOutOfStock", "inStock", "G2: Check product information when hiding out of stock, product is in stock"),
+                generateTestObject(false, true, "hideFreeBranch", "inStock", "G2: Check product information when free branch is active but hidden"),
+                generateTestObject(false, true, "hidePaidBranch", "inStock", "G2: Check product information when paid branch is active but hidden"),
+                generateTestObject(false, true, "deactivatePaidBranch", "inStock", "G2: Check product information when all paid branches are deactivated"),
+
+                // G3: With variation, manage inventory by Product
+                generateTestObject(true, false, "hasFlashSale", "inStock", "G3: Check product information with flash sale."),
+                generateTestObject(true, false, "hasDiscountCampaign", "inStock", "G3: Check product information with discount campaign"),
+                generateTestObject(true, false, "hasWholesalePricing", "inStock", "G3: Check product information with wholesale price"),
+                generateTestObject(true, false, "hideRemaining", "inStock", "G3: Check product information when hiding remaining stock, product is in stock"),
+                generateTestObject(true, false, "notDisplayOutOfStock", "", "G3: Check product information when hiding out of stock, product is out of stock"),
+                generateTestObject(true, false, "notDisplayOutOfStock", "inStock", "G3: Check product information when hiding out of stock, product is in stock"),
+                generateTestObject(true, false, "hideFreeBranch", "inStock", "G3: Check product information when free branch is active but hidden"),
+                generateTestObject(true, false, "hidePaidBranch", "inStock", "G3: Check product information when paid branch is active but hidden"),
+                generateTestObject(true, false, "deactivatePaidBranch", "inStock", "G3: Check product information when all paid branches are deactivated"),
+
+                // G4: With variation, manage inventory by IMEI / Serial number
+                generateTestObject(true, true, "hasFlashSale", "inStock", "G4: Check product information with flash sale."),
+                generateTestObject(true, true, "hasDiscountCampaign", "inStock", "G4: Check product information with discount campaign"),
+                generateTestObject(true, true, "hasWholesalePricing", "inStock", "G4: Check product information with wholesale price"),
+                generateTestObject(true, true, "hideRemaining", "inStock", "G4: Check product information when hiding remaining stock, product is in stock"),
+                generateTestObject(true, true, "notDisplayOutOfStock", "", "G4: Check product information when hiding out of stock, product is out of stock"),
+                generateTestObject(true, true, "notDisplayOutOfStock", "inStock", "G4: Check product information when hiding out of stock, product is in stock"),
+                generateTestObject(true, true, "hideFreeBranch", "inStock", "G4: Check product information when free branch is active but hidden"),
+                generateTestObject(true, true, "hidePaidBranch", "inStock", "G4: Check product information when paid branch is active but hidden"),
+                generateTestObject(true, true, "deactivatePaidBranch", "inStock", "G4: Check product information when all paid branches are deactivated")
         };
     }
 
@@ -191,7 +191,7 @@ public class ProductDetailTest extends StorefrontBaseTest {
         Arrays.fill(stock, inStock ? RandomUtils.nextInt(10) : 0);
 
         // Create the product using the API
-        return apiCreateProduct.createProduct(isManagedByIMEI, withVariation, stock);
+        return apiCreateProduct.createProductThenGetId(isManagedByIMEI, withVariation, stock);
     }
 
     /**

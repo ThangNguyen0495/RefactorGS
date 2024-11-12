@@ -1,10 +1,12 @@
 package utility;
 
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 
 import java.time.Duration;
 import java.util.List;
@@ -37,6 +39,34 @@ public class WebUtils {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS));
     }
 
+
+    private static final Logger logger = LogManager.getLogger();
+
+    /**
+     * Performs an action with optional logging and verification.
+     *
+     * @param logMessage A message to log before performing the action. If null or empty, no logging occurs.
+     * @param action     A Runnable representing the action to be performed. Must not be null.
+     * @param verifier   An optional Runnable to verify the action after it has been performed. Can be null.
+     * @throws IllegalArgumentException If the action is null.
+     */
+    public static void performAction(String logMessage, Runnable action, Runnable verifier) {
+        // Step 1: Log the start of the action
+        if (logMessage != null && !logMessage.isEmpty()) logger.info(logMessage);
+
+        // Step 2: Perform the mandatory action
+        if (action == null) {
+            throw new IllegalArgumentException("Action must be provided.");
+        }
+
+        action.run();
+
+        // Step 3: Verify the action, if verifier is provided
+        if (verifier != null) {
+            verifier.run();
+        }
+    }
+
     /**
      * Retries an operation until a specified condition is met or the maximum number of retries is reached.
      * The method performs the action and checks the condition after each attempt. If the condition is met,
@@ -52,7 +82,7 @@ public class WebUtils {
      * @return The result of the action if the condition is met within the allowed retry attempts.
      * @throws IllegalArgumentException if the operation fails after the maximum number of retries.
      */
-    public static  <T> T retryUntil(int maxRetries, int delayMillis, String exceptionMsg, Supplier<Boolean> condition, Supplier<T> action) {
+    public static <T> T retryUntil(int maxRetries, int delayMillis, String exceptionMsg, Supplier<Boolean> condition, Supplier<T> action) {
         for (int attempt = 0; attempt < maxRetries; attempt++) {
             // Perform the action
             T result = action.get();
@@ -154,9 +184,8 @@ public class WebUtils {
      * @param index   The index of the element if multiple elements match the locator.
      *                Use 0 to interact with the first element.
      * @param content The content (keys) to send to the element.
-     * @return T      Returns null since sendKeys actions do not return a value.
      */
-    private <T> T retrySendKeysOnElementNotInteractable(By locator, int index, CharSequence content) {
+    private void retrySendKeysOnElementNotInteractable(By locator, int index, CharSequence content) {
         try {
             // Attempt to send keys to the element normally
             getElement(locator, index).sendKeys(content);
@@ -168,7 +197,6 @@ public class WebUtils {
                     .build()
                     .perform(); // Execute the chain of actions
         }
-        return null; // Return null as sendKeys does not return a value
     }
 
 
@@ -219,7 +247,7 @@ public class WebUtils {
      * @param locator The By locator.
      * @return The WebElement.
      */
-    public WebElement getElement(By locator) {
+    private WebElement getElement(By locator) {
         return retryOnStaleElement(() -> wait.until(presenceOfElementLocated(locator)));
     }
 
@@ -253,14 +281,22 @@ public class WebUtils {
      * <p>
      * This method is designed to handle cases where multiple elements match the locator by specifying an index.
      * It briefly highlights the element by adding a red border to make it visible, ensures the element is clickable,
-     * and retries fetching the element if a stale element exception occurs.
+     * and retries fetching the element if a stale element exception occurs. If the specified index is out of bounds,
+     * an exception will be thrown.
      * </p>
      *
      * @param locator The By locator used to find the web element on the page.
      * @param index   The index of the element to be clicked if multiple elements match the locator.
-     *                Use 0 to click the first element.
+     *                Use 0 to click the first element. The index must be a non-negative integer that
+     *                is less than the number of elements found by the locator.
+     * @throws AssertionError                 If no elements match the locator.
+     * @throws IndexOutOfBoundsException      If the specified index is out of range (index < 0 or index >= number of elements).
+     * @throws StaleElementReferenceException If the element is no longer attached to the DOM when trying to click.
      */
     public void click(By locator, int index) {
+        // Ensure that at least one element is found
+        Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to click.");
+
         // Highlight the element by adding a red border
         highlightElement(locator, index);
 
@@ -298,6 +334,9 @@ public class WebUtils {
      *                Use 0 to click the first element.
      */
     public void clickJS(By locator, int index) {
+        // Ensure that at least one element is found
+        Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to click.");
+
         // Highlight the element
         highlightElement(locator, index);
 
@@ -341,9 +380,15 @@ public class WebUtils {
      * @param content The content to be sent.
      */
     public void sendKeys(By locator, int index, CharSequence content) {
+        // Ensure that at least one element is found
+        Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to sendKeys.");
+
         clear(locator, index);
         click(locator, index);
-        retryOnStaleElement(() -> retrySendKeysOnElementNotInteractable(locator, index, content));
+        retryOnStaleElement(() -> {
+            retrySendKeysOnElementNotInteractable(locator, index, content);
+            return null;
+        });
         clickOutOfTextBox(locator, index);
     }
 
@@ -354,10 +399,7 @@ public class WebUtils {
      * @param filePath The file path to be uploaded.
      */
     public void uploads(By locator, String filePath) {
-        retryOnStaleElement(() -> {
-            getElement(locator).sendKeys(filePath);
-            return null;
-        });
+        uploads(locator, 0, filePath);
     }
 
     /**
@@ -368,6 +410,9 @@ public class WebUtils {
      * @param content The file path to be uploaded.
      */
     public void uploads(By locator, int index, CharSequence content) {
+        // Ensure that at least one element is found
+        Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to upload files.");
+
         retryOnStaleElement(() -> {
             getElement(locator, index).sendKeys(content);
             return null;
@@ -381,7 +426,7 @@ public class WebUtils {
      * @return The text of the WebElement.
      */
     public String getText(By locator) {
-        return retryOnStaleElement(() -> trim(getAttribute(locator, "innerText")));
+        return getText(locator, 0);
     }
 
     /**
@@ -392,6 +437,9 @@ public class WebUtils {
      * @return The text of the WebElement.
      */
     public String getText(By locator, int index) {
+        // Ensure that at least one element is found
+        Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to getText.");
+
         return retryOnStaleElement(() -> trim(getAttribute(locator, index, "innerText")));
     }
 
@@ -425,6 +473,8 @@ public class WebUtils {
      * @return The attribute value.
      */
     public String getAttribute(By locator, int index, String attribute) {
+        // Ensure that at least one element is found
+        Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to getAttribute.");
         return retryOnStaleElement(() -> getElement(locator, index).getAttribute(attribute));
     }
 
@@ -470,9 +520,7 @@ public class WebUtils {
      * @return True if the element is selected, false otherwise.
      */
     public boolean isCheckedJS(By locator) {
-        return retryOnStaleElement(() ->
-                (boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", getElement(locator))
-        );
+        return isCheckedJS(locator, 0);
     }
 
     /**
@@ -483,6 +531,9 @@ public class WebUtils {
      * @return True if the element is selected, false otherwise.
      */
     public boolean isCheckedJS(By locator, int index) {
+        // Ensure that at least one element is found
+        Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to check checkbox state.");
+
         return retryOnStaleElement(() ->
                 (boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", getElement(locator, index))
         );
@@ -506,6 +557,9 @@ public class WebUtils {
      * @return True if the element is disabled, false otherwise.
      */
     public Boolean isDisabledJS(By locator, int index) {
+        // Ensure that at least one element is found
+        Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to check its state.");
+
         return retryOnStaleElement(() ->
                 (Boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].disabled", getElement(locator, index))
         );

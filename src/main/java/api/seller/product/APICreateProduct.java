@@ -325,7 +325,7 @@ public class APICreateProduct {
      * @param branchStock     Array of stock values for each branch.
      * @return The ID of the created product.
      */
-    public int createProduct(boolean isManagedByIMEI, boolean withVariation, int... branchStock) {
+    public int createProductThenGetId(boolean isManagedByIMEI, boolean withVariation, int... branchStock) {
         payload = withVariation ? createPayloadWithVariation(isManagedByIMEI, branchStock) : createPayloadWithoutVariation(isManagedByIMEI, branchStock);
 
         // Send POST request to create the product

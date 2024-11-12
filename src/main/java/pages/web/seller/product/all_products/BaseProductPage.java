@@ -418,10 +418,6 @@ public class BaseProductPage extends BaseProductElement {
         webUtils.click(skuLocator, variationIndex);
         logger.info("Opened the update SKU popup.");
 
-        // Wait for the SKU popup to become visible
-        webUtils.getElement(loc_dlgUpdateSKU);
-        logger.info("The update SKU popup is now visible.");
-
         // Input SKU for each branch
         IntStream.range(0, activeBranchNames.size()).forEach(branchIndex -> {
             String sku = getSKU(variationIndex, branchIndex);
@@ -1226,9 +1222,6 @@ public class BaseProductPage extends BaseProductElement {
 
         // Log the deletion
         logger.info("Delete product id: {}", currentProductInfo.getId());
-
-        // Wait for the page to load
-        webUtils.getElement(loc_lblSEOSetting);
 
         // Open the confirmation delete popup
         webUtils.click(loc_btnDelete);

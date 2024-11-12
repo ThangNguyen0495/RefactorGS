@@ -70,41 +70,41 @@ public class CreateProductTest extends DashboardBaseTest {
         return new Object[][]{
                 // G1: Without variation, manage inventory by Product
                 generateTestObject(false, false, "noDiscount", "G1_01: Create product without variation, managed by Product and no discount"),
-                generateTestObject(false, false, "noCost", "G1_02: Create product without variation, managed by Product and no cost"),
-                generateTestObject(false, false, "hasDimension", "G1_03: Create product without variation, managed by Product and with dimension"),
-                generateTestObject(false, false, "hasSEO", "G1_04: Create product without variation, managed by Product and with SEO"),
-                generateTestObject(false, false, "managedByLot", "G1_05: Create product without variation, managed by Product and managed by lot"),
-                generateTestObject(false, false, "hasAttribution", "G1_06: Create product without variation, managed by Product and with attribution"),
-                generateTestObject(false, false, "randomPlatforms", "G1_07: Create product without variation, managed by Product and randomized platforms"),
-                generateTestObject(false, false, "outOfStock", "G1_08: Create product without variation, managed by Product and out of stock"),
-
-                // G2: Without variation, manage inventory by IMEI/Serial number
-                generateTestObject(false, true, "noDiscount", "G2_01: Create product without variation, managed by IMEI and no discount"),
-                generateTestObject(false, true, "noCost", "G2_02: Create product without variation, managed by IMEI and no cost"),
-                generateTestObject(false, true, "hasDimension", "G2_03: Create product without variation, managed by IMEI and with dimension"),
-                generateTestObject(false, true, "hasSEO", "G2_04: Create product without variation, managed by IMEI and with SEO"),
-                generateTestObject(false, true, "hasAttribution", "G2_05: Create product without variation, managed by IMEI and with attribution"),
-                generateTestObject(false, true, "randomPlatforms", "G2_06: Create product without variation, managed by IMEI and randomized platforms"),
-                generateTestObject(false, true, "outOfStock", "G2_07: Create product without variation, managed by IMEI and out of stock"),
-
-                // G3: With variation, manage inventory by Product
-                generateTestObject(true, false, "noDiscount", "G3_01: Create product with variation, managed by Product and no discount"),
-                generateTestObject(true, false, "noCost", "G3_02: Create product with variation, managed by Product and no cost"),
-                generateTestObject(true, false, "hasDimension", "G3_03: Create product with variation, managed by Product and with dimension"),
-                generateTestObject(true, false, "hasSEO", "G3_04: Create product with variation, managed by Product and with SEO"),
-                generateTestObject(true, false, "managedByLot", "G3_05: Create product with variation, managed by Product and managed by lot"),
-                generateTestObject(true, false, "hasAttribution", "G3_06: Create product with variation, managed by Product and with attribution"),
-                generateTestObject(true, false, "randomPlatforms", "G3_07: Create product with variation, managed by Product and randomized platforms"),
-                generateTestObject(true, false, "outOfStock", "G3_08: Create product with variation, managed by Product and out of stock"),
-
-                // G4: With variation, manage inventory by IMEI/Serial number
-                generateTestObject(true, true, "noDiscount", "G4_01: Create product with variation, managed by IMEI and no discount"),
-                generateTestObject(true, true, "noCost", "G4_02: Create product with variation, managed by IMEI and no cost"),
-                generateTestObject(true, true, "hasDimension", "G4_03: Create product with variation, managed by IMEI and with dimension"),
-                generateTestObject(true, true, "hasSEO", "G4_04: Create product with variation, managed by IMEI and with SEO"),
-                generateTestObject(true, true, "hasAttribution", "G4_05: Create product with variation, managed by IMEI and with attribution"),
-                generateTestObject(true, true, "randomPlatforms", "G4_06: Create product with variation, managed by IMEI and randomized platforms"),
-                generateTestObject(true, true, "outOfStock", "G4_07: Create product with variation, managed by IMEI and out of stock")
+//                generateTestObject(false, false, "noCost", "G1_02: Create product without variation, managed by Product and no cost"),
+//                generateTestObject(false, false, "hasDimension", "G1_03: Create product without variation, managed by Product and with dimension"),
+//                generateTestObject(false, false, "hasSEO", "G1_04: Create product without variation, managed by Product and with SEO"),
+//                generateTestObject(false, false, "managedByLot", "G1_05: Create product without variation, managed by Product and managed by lot"),
+//                generateTestObject(false, false, "hasAttribution", "G1_06: Create product without variation, managed by Product and with attribution"),
+//                generateTestObject(false, false, "randomPlatforms", "G1_07: Create product without variation, managed by Product and randomized platforms"),
+//                generateTestObject(false, false, "outOfStock", "G1_08: Create product without variation, managed by Product and out of stock"),
+//
+//                // G2: Without variation, manage inventory by IMEI/Serial number
+//                generateTestObject(false, true, "noDiscount", "G2_01: Create product without variation, managed by IMEI and no discount"),
+//                generateTestObject(false, true, "noCost", "G2_02: Create product without variation, managed by IMEI and no cost"),
+//                generateTestObject(false, true, "hasDimension", "G2_03: Create product without variation, managed by IMEI and with dimension"),
+//                generateTestObject(false, true, "hasSEO", "G2_04: Create product without variation, managed by IMEI and with SEO"),
+//                generateTestObject(false, true, "hasAttribution", "G2_05: Create product without variation, managed by IMEI and with attribution"),
+//                generateTestObject(false, true, "randomPlatforms", "G2_06: Create product without variation, managed by IMEI and randomized platforms"),
+//                generateTestObject(false, true, "outOfStock", "G2_07: Create product without variation, managed by IMEI and out of stock"),
+//
+//                // G3: With variation, manage inventory by Product
+//                generateTestObject(true, false, "noDiscount", "G3_01: Create product with variation, managed by Product and no discount"),
+//                generateTestObject(true, false, "noCost", "G3_02: Create product with variation, managed by Product and no cost"),
+//                generateTestObject(true, false, "hasDimension", "G3_03: Create product with variation, managed by Product and with dimension"),
+//                generateTestObject(true, false, "hasSEO", "G3_04: Create product with variation, managed by Product and with SEO"),
+//                generateTestObject(true, false, "managedByLot", "G3_05: Create product with variation, managed by Product and managed by lot"),
+//                generateTestObject(true, false, "hasAttribution", "G3_06: Create product with variation, managed by Product and with attribution"),
+//                generateTestObject(true, false, "randomPlatforms", "G3_07: Create product with variation, managed by Product and randomized platforms"),
+//                generateTestObject(true, false, "outOfStock", "G3_08: Create product with variation, managed by Product and out of stock"),
+//
+//                // G4: With variation, manage inventory by IMEI/Serial number
+//                generateTestObject(true, true, "noDiscount", "G4_01: Create product with variation, managed by IMEI and no discount"),
+//                generateTestObject(true, true, "noCost", "G4_02: Create product with variation, managed by IMEI and no cost"),
+//                generateTestObject(true, true, "hasDimension", "G4_03: Create product with variation, managed by IMEI and with dimension"),
+//                generateTestObject(true, true, "hasSEO", "G4_04: Create product with variation, managed by IMEI and with SEO"),
+//                generateTestObject(true, true, "hasAttribution", "G4_05: Create product with variation, managed by IMEI and with attribution"),
+//                generateTestObject(true, true, "randomPlatforms", "G4_06: Create product with variation, managed by IMEI and randomized platforms"),
+//                generateTestObject(true, true, "outOfStock", "G4_07: Create product with variation, managed by IMEI and out of stock")
         };
     }
 

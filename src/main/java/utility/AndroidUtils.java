@@ -4,7 +4,6 @@ import io.appium.java_client.android.Activity;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.nativekey.AndroidKey;
 import io.appium.java_client.android.nativekey.KeyEvent;
-import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
@@ -17,10 +16,10 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 import static io.appium.java_client.AppiumBy.androidUIAutomator;
 
@@ -30,7 +29,7 @@ import static io.appium.java_client.AppiumBy.androidUIAutomator;
  * including initializing drivers, handling app states, and performing common actions.
  */
 
-public class AndroidUtils extends WebUtils{
+public class AndroidUtils extends WebUtils {
 
     private static final Logger logger = LogManager.getLogger(AndroidUtils.class);
 
@@ -56,7 +55,6 @@ public class AndroidUtils extends WebUtils{
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
-
 
     /**
      * Creates a WebDriverWait instance with a custom timeout.
@@ -117,8 +115,7 @@ public class AndroidUtils extends WebUtils{
         try {
             closeNotificationScreen();
             customWait(3000).until(ExpectedConditions.presenceOfElementLocated(locator));
-        } catch (TimeoutException e) {
-            logger.warn("Timeout while waiting for elements: {}", e.getMessage());
+        } catch (TimeoutException ignored) {
         }
 
         closeNotificationScreen();
@@ -132,15 +129,10 @@ public class AndroidUtils extends WebUtils{
      * @param locator The locator for the element.
      * @return The found WebElement.
      */
-    public WebElement getElement(By locator) {
+    private WebElement getElement(By locator) {
         return retryOnStaleElement(() -> {
             closeNotificationScreen();
-            try {
-                return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
-            } catch (TimeoutException e) {
-                logger.debug("Page source on timeout: {}", driver.getPageSource());
-                throw new TimeoutException("Cannot find the element.");
-            }
+            return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
         });
     }
 
@@ -168,15 +160,18 @@ public class AndroidUtils extends WebUtils{
 
     /**
      * Sends the specified keys to the given WebElement using Actions.
-     * Clears the element's existing value before sending keys.
+     * This method first clears the element's existing value before sending the specified keys.
      *
-     * @param element The WebElement to send keys to.
-     * @param content The keys to send to the element.
+     * @param locator The locator for the WebElement to which keys will be sent.
+     * @param content The keys to send to the WebElement, which can include text and special characters.
+     *
+     * @throws IllegalArgumentException if the specified locator does not correspond to a valid WebElement.
      */
-    public void sendKeysActions(WebElement element, CharSequence content) {
+    public void sendKeysActions(By locator, CharSequence content) {
+        WebElement element = getElement(locator);
         element.clear();
         element.click();
-        new Actions(driver).sendKeys(content).build().perform();
+        new Actions(driver).sendKeys(content).perform();
     }
 
     /**
@@ -231,9 +226,9 @@ public class AndroidUtils extends WebUtils{
      *
      * @param startX The start x-coordinate as a percentage of the screen width (0.0 to 1.0).
      * @param startY The start y-coordinate as a percentage of the screen height (0.0 to 1.0).
-     * @param endX The end x-coordinate as a percentage of the screen width (0.0 to 1.0).
-     * @param endY The end y-coordinate as a percentage of the screen height (0.0 to 1.0).
-     * @param delay The duration of the swipe in milliseconds.
+     * @param endX   The end x-coordinate as a percentage of the screen width (0.0 to 1.0).
+     * @param endY   The end y-coordinate as a percentage of the screen height (0.0 to 1.0).
+     * @param delay  The duration of the swipe in milliseconds.
      */
     public void swipeByCoordinatesInPercent(double startX, double startY, double endX, double endY, int delay) {
         Dimension size = driver.manage().window().getSize();
@@ -270,8 +265,8 @@ public class AndroidUtils extends WebUtils{
      * Swipes horizontally across the screen from a start to an end point, specified as percentages of the screen width.
      *
      * @param locator The locator of the element to use for determining the vertical position.
-     * @param startX The start x-coordinate as a percentage of the screen width (0.0 to 1.0).
-     * @param endX The end x-coordinate as a percentage of the screen width (0.0 to 1.0).
+     * @param startX  The start x-coordinate as a percentage of the screen width (0.0 to 1.0).
+     * @param endX    The end x-coordinate as a percentage of the screen width (0.0 to 1.0).
      */
     public void swipeHorizontalInPercent(By locator, double startX, double endX) {
         double y = getElementLocationYPercent(locator);
@@ -301,6 +296,7 @@ public class AndroidUtils extends WebUtils{
         return getElement(locator).isDisplayed();
     }
 
+
     /**
      * Checks if the element located by the specified locator is checked.
      *
@@ -309,14 +305,13 @@ public class AndroidUtils extends WebUtils{
      */
     public boolean isChecked(By locator) {
         WebElement element = getElement(locator);
-        if ("android.widget.ImageView".equals(element.getAttribute("class"))) {
-            try {
-                return new ScreenshotUtils().takeScreenshot(element).compareImages();
-            } catch (ArrayIndexOutOfBoundsException ex) {
-                swipeByCoordinatesInPercent(0.5, 0.8, 0.5, 0.6, 200);
-                return new ScreenshotUtils().takeScreenshot(element).compareImages();
-            }
+
+        // Check if the element is an ImageView and compare images if so
+        if (element.getAttribute("class").equals("android.widget.ImageView")) {
+            return new ScreenshotUtils().takeScreenshot(element).compareImages();
         }
+
+        // Check if the element is marked as checked
         return element.getAttribute("checked").equals("true");
     }
 
@@ -334,29 +329,54 @@ public class AndroidUtils extends WebUtils{
     /**
      * Navigates to a specific screen using the provided app package and activity.
      *
-     * @param appPackage The package name of the app.
+     * @param appPackage  The package name of the app.
      * @param appActivity The activity name of the screen to navigate to.
      */
     public void navigateToScreenUsingScreenActivity(String appPackage, String appActivity) {
-        // Navigate to screen by activity
-        if (!Objects.equals(driver.currentActivity(), appActivity)) {
-            Activity activity = new Activity(appPackage, appActivity);
-            activity.setStopApp(false);
-            driver.startActivity(activity);
-            logger.info("Navigated to screen activity: {}", appActivity);
+        // Return early if the current activity is already the desired activity
+        if (Objects.equals(driver.currentActivity(), appActivity)) {
+            return; // Early exit if the current activity matches the target activity
         }
+
+        // Navigate to screen by activity
+        Activity activity = new Activity(appPackage, appActivity);
+        activity.setStopApp(false);
+        driver.startActivity(activity);
+        logger.info("Navigated to screen activity: {}", appActivity);
     }
 
     /**
-     * Pushes a file from the resources to the mobile device.
+     * Pushes a file to the mobile device's download directory.
+     * <p>
+     * This method uploads a specified file to the mobile device's download directory.
+     * The file path provided should be the full path to the file on the local machine,
+     * not just the file name in the resources directory.
      *
-     * @param fileName The name of the file to be uploaded.
+     * @param filePath The full path of the file to be uploaded. It can be located anywhere on the local machine.
+     * @throws IllegalArgumentException if the specified file does not exist.
+     * @throws RuntimeException if there is an error during the file upload process,
+     *                          such as an IOException when accessing the file.
      */
-    @SneakyThrows
-    public void pushFileToMobileDevices(String fileName) {
-        File file = new File(System.getProperty("user.dir") + "/src/main/resources/file/images" + fileName);
-        driver.pushFile(String.format("/sdcard/Download/%s", fileName), file);
-        logger.info("Pushed file to mobile device: {}", fileName);
+    public void pushFileToMobileDevices(String filePath) {
+        // Create a File object from the provided file path
+        File file = new File(filePath);
+
+        // Check if the file exists before attempting to push it
+        if (!file.exists()) {
+            // Throw an exception if the file is not found
+            throw new IllegalArgumentException("File does not exist: " + file.getAbsolutePath());
+        }
+
+        try {
+            // Push the file to the mobile device's download directory
+            driver.pushFile(String.format("/sdcard/Download/%s", file.getName()), file);
+
+            // Log the successful file upload
+            logger.info("Pushed file to mobile device: {}", filePath);
+        } catch (IOException e) {
+            // If an IOException occurs, wrap it in a RuntimeException and throw
+            throw new RuntimeException("Failed to push file to mobile device: " + filePath, e);
+        }
     }
 
     /**

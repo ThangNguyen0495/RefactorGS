@@ -84,7 +84,7 @@ public class VariationDetailPage {
 
     private final By loc_dlgEditTranslation_variationName = By.cssSelector("#informationName");
     private final By loc_dlgEditTranslation_variationDescription = By.cssSelector(".modal-body .fr-element");
-    private final By loc_dlgEditTranslation_btnSave = By.cssSelector(".modal-footer .gs-button__green");
+    private final By loc_dlgEditTranslation_btnSave = By.xpath("//*[@name=\"submit-translate\"]");
     private final By loc_chkReUseParentAttribution = By.cssSelector("[name='cbx-resue-attribute']");
     private final By loc_lnkAddAttribution = By.cssSelector(".uik-checkbox__wrapper +.gs-fake-link");
     private final By loc_icnDeleteAttribution = By.cssSelector(".attribute-item-row button");

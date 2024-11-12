@@ -75,10 +75,10 @@ public class UpdateProductTest extends DashboardBaseTest {
      */
     @DataProvider(name = "productTestData")
     public Object[][] productTestData() {
-        int wpProdId = apiCreateProduct.createProduct(false, false, 0); // without variation, managed by Product
-        int wpIMEIProdId = apiCreateProduct.createProduct(true, false, 0); // without variation, managed by IMEI
-        int wvProdId = apiCreateProduct.createProduct(false, true, 0); // with variation, managed by Product
-        int wvIMEIProdId = apiCreateProduct.createProduct(true, true, 0); // with variation, managed by IMEI
+        int wpProdId = apiCreateProduct.createProductThenGetId(false, false, 0); // without variation, managed by Product
+        int wpIMEIProdId = apiCreateProduct.createProductThenGetId(true, false, 0); // without variation, managed by IMEI
+        int wvProdId = apiCreateProduct.createProductThenGetId(false, true, 0); // with variation, managed by Product
+        int wvIMEIProdId = apiCreateProduct.createProductThenGetId(true, true, 0); // with variation, managed by IMEI
 
         return new Object[][]{
                 // G1: Without variation, managed by Product

@@ -76,7 +76,7 @@ public class LoginScreen {
             logger.info("Term Agreement checkbox is already checked.");
             return;
         }
-        androidUtils.getElement(loc_chkTermOfUse).click();
+        androidUtils.click(loc_chkTermOfUse);
         logger.info("Clicked on Term Agreement checkbox.");
     }
 
@@ -84,7 +84,7 @@ public class LoginScreen {
      * Clicks the login button to initiate the login process.
      */
     public void clickLoginBtn() {
-        androidUtils.getElement(loc_btnLogin).click();
+        androidUtils.click(loc_btnLogin);
         logger.info("Clicked on Login button.");
     }
 

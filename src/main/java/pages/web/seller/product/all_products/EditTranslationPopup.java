@@ -36,7 +36,7 @@ public class EditTranslationPopup {
     private final By loc_dlgEditTranslation_txtSEODescription = By.cssSelector(".modal-body #seoDescription");
     private final By loc_dlgEditTranslation_txtSEOKeywords = By.cssSelector(".modal-body #seoKeywords");
     private final By loc_dlgEditTranslation_txtSEOUrl = By.cssSelector(".modal-body #seoUrl");
-    private final By loc_dlgEditTranslation_btnSave = By.cssSelector(".modal-footer .gs-button__green");
+    private final By loc_dlgEditTranslation_btnSave = By.xpath("//*[@name=\"submit-translate\"]");
     private final By loc_dlgEditTranslation_btnClose = By.cssSelector(".product-translate .close");
     private final By loc_dlgToastSuccess = By.cssSelector(".Toastify__toast--success");
 

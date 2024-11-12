@@ -37,7 +37,6 @@ public class WebDriverManager {
         UiAutomator2Options options = new UiAutomator2Options();
         options.setUdid(udid);
         options.setCapability("platformName", "Android");
-        options.setCapability("appium:platformVersion", "12.0");
         options.setCapability("appium:automationName", "uiautomator2");
         options.setCapability("appium:autoGrantPermissions", "true");
         options.setCapability("appium:appWaitActivity", "*");

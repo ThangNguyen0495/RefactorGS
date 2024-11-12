@@ -1,34 +1,63 @@
 package utility;
 
 import api.seller.login.APISellerLogin;
+import org.testng.Assert;
 
 import java.io.InputStream;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Properties;
+import java.util.ResourceBundle;
 
 /**
  * Utility class for loading and retrieving properties from a configuration file.
  */
 public class PropertiesUtils {
+    private static final String ENV_PROPERTIES_FILE = "config.properties";
+    private static final Properties envProperties = new Properties();
 
-    private static final String PROPERTIES_FILE = "config.properties";
-    private static final Properties properties = new Properties();
-
-    /*
-      Static block to load the properties from the "config.properties" file.
-      The file is loaded from the classpath, and if it cannot be found or an error occurs while loading,
-      a RuntimeException is thrown.
-     */
     static {
-        try (InputStream input = PropertiesUtils.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
+        try (InputStream input = PropertiesUtils.class.getClassLoader().getResourceAsStream(ENV_PROPERTIES_FILE)) {
             if (input == null) {
-                throw new RuntimeException("Unable to find " + PROPERTIES_FILE);
+                throw new RuntimeException("Unable to find " + ENV_PROPERTIES_FILE);
             }
             // Load the properties file from the class path
-            properties.load(input);
+            envProperties.load(input);
         } catch (IOException ex) {
-            throw new RuntimeException("Failed to load properties file: " + PROPERTIES_FILE, ex);
+            throw new RuntimeException("Failed to load properties file: " + ENV_PROPERTIES_FILE, ex);
         }
+    }
+
+    /**
+     * Retrieves the value associated with the specified key from the dashboard properties
+     * for the specified language key.
+     *
+     * @param key     The key for the desired property.
+     * @param langKey The language key to determine which language-specific properties file to load.
+     * @return The property value as a String, or null if the key is not found.
+     */
+    public static String getDashboardProperty(String key, String langKey) {
+        Assert.assertTrue(
+                "en".equals(langKey) || "vi".equals(langKey),
+                "LangKey must be 'en' (English) or 'vi' (Vietnamese)"
+        );
+        Locale locale = Locale.forLanguageTag(langKey); // "en" for English, "vi" for Vietnamese
+        ResourceBundle bundle = ResourceBundle.getBundle("localization/dashboard", locale);
+        return bundle.getString(key);
+    }
+
+    /**
+     * Retrieves the value associated with the specified key from the storefront properties
+     * for the specified language key.
+     *
+     * @param key     The key for the desired property.
+     * @param langKey The language key to determine which language-specific properties file to load.
+     * @return The property value as a String, or null if the key is not found.
+     */
+    public static String getStorefrontProperty(String key, String langKey) {
+        Locale locale = Locale.forLanguageTag(langKey); // "en" for English, "vi" for Vietnamese
+        ResourceBundle bundle = ResourceBundle.getBundle("localization/dashboard", locale);
+        return bundle.getString(key);
     }
 
     /**
@@ -38,7 +67,16 @@ public class PropertiesUtils {
      * @return The property value, or null if the key does not exist.
      */
     private static String getProperty(String key) {
-        return properties.getProperty(key);
+        return envProperties.getProperty(key);
+    }
+
+    /**
+     * Retrieves the environment setting from configuration properties.
+     *
+     * @return The environment setting value.
+     */
+    public static String getEnv() {
+        return getProperty("env");
     }
 
     /**

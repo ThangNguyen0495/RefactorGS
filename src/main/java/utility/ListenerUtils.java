@@ -14,29 +14,23 @@ import org.testng.*;
 import java.io.File;
 
 /**
- * The {@code ExtendReportListener} class is a TestNG listener that generates an Extent report for
+ * The {@code ListenerUtils} class is a TestNG listener that generates an Extent report for
  * test execution and captures screenshots on test failures.
- * It implements the {@code ITestListener}, {@code ISuiteListener}, and {@code IInvokedMethodListener}
- * interfaces to handle events at the suite, test, and method levels.
  */
-public class ListenerUtils implements ITestListener, ISuiteListener, IInvokedMethodListener {
+public class ListenerUtils implements ITestListener, ISuiteListener {
     private ExtentReports extent;
     private ExtentTest test;
+    private String testName;  // Global variable to store the test name
 
     // Logger instance for logging to the console
     private static final Logger logger = LogManager.getLogger();
 
     /**
      * Retrieves the WebDriver instance used in the current test method.
-     * <p>
-     * This method uses reflection to access the "driver" field from the test class.
-     * If the WebDriver instance cannot be retrieved due to access restrictions or the absence of the field,
-     * the method returns {@code null}.
      *
      * @param iTestResult The {@code ITestResult} object containing information about the executed test method.
      * @return The {@code WebDriver} instance used in the test, or {@code null} if the driver cannot be accessed.
      */
-
     public WebDriver getDriver(ITestResult iTestResult) {
         try {
             return (WebDriver) iTestResult.getTestClass().getRealClass().getField("driver").get(iTestResult.getInstance());
@@ -57,20 +51,8 @@ public class ListenerUtils implements ITestListener, ISuiteListener, IInvokedMet
         reporter.config().setReportName("Extent Report");
         extent = new ExtentReports();
         extent.attachReporter(reporter);
+        extent.setSystemInfo("Environment", PropertiesUtils.getEnv());
         extent.setSystemInfo("Author", "Automation Tester");
-    }
-
-    /**
-     * Logs the start of the test suite.
-     *
-     * @param context The {@code ITestContext} object representing the context of the suite.
-     */
-    @Override
-    public void onStart(ITestContext context) {
-        if (test == null) {
-            test = extent.createTest("Before Suite: " + context.getSuite().getName());
-            test.info("Starting Suite: " + context.getSuite().getName());
-        }
     }
 
     /**
@@ -80,68 +62,8 @@ public class ListenerUtils implements ITestListener, ISuiteListener, IInvokedMet
      */
     @Override
     public void onFinish(ISuite suite) {
+        if (extent == null) return;
         extent.flush();
-    }
-
-
-    /**
-     * Logs the start of a test method invocation and method configuration (BeforeGroup, BeforeClass, etc.).
-     *
-     * @param method The {@code IInvokedMethod} object representing the invoked method.
-     * @param result The {@code ITestResult} object containing information about the executed test.
-     */
-    @Override
-    public void beforeInvocation(IInvokedMethod method, ITestResult result) {
-        String methodName = method.getTestMethod().getMethodName();
-        if (method.isTestMethod()) {
-            logger.info("Method {} is starting.", methodName);
-            test.info("Method " + methodName + " is starting.");
-        }
-
-        if (method.isConfigurationMethod()) {
-            if (test == null) {
-                test = extent.createTest("Configuration: " + methodName);
-            }
-            if (method.getTestMethod().isBeforeGroupsConfiguration()) {
-                test.info("Before Group: " + result.getTestClass().getRealClass().getSimpleName());
-            } else if (method.getTestMethod().isBeforeClassConfiguration()) {
-                test.info("Before Class: " + result.getTestClass().getRealClass().getSimpleName());
-            } else if (method.getTestMethod().isBeforeSuiteConfiguration()) {
-                test.info("Before Suite: " + result.getTestContext().getSuite().getName());
-            } else if (method.getTestMethod().isBeforeMethodConfiguration()) {
-                test.info("Before Method: " + methodName);
-            }
-        }
-    }
-
-    /**
-     * Logs the end of a test method invocation and method configuration (AfterGroup, AfterClass, etc.).
-     *
-     * @param method The {@code IInvokedMethod} object representing the invoked method.
-     * @param result The {@code ITestResult} object containing information about the executed test.
-     */
-    @Override
-    public void afterInvocation(IInvokedMethod method, ITestResult result) {
-        String methodName = method.getTestMethod().getMethodName();
-        if (method.isTestMethod()) {
-            logger.info("Method {} has ended.", methodName);
-            test.info("Method " + methodName + " has ended.");
-        }
-
-        if (method.isConfigurationMethod()) {
-            if (test == null) {
-                test = extent.createTest("Configuration: " + methodName);
-            }
-            if (method.getTestMethod().isAfterGroupsConfiguration()) {
-                test.info("After Group: " + result.getTestClass().getRealClass().getSimpleName());
-            } else if (method.getTestMethod().isAfterClassConfiguration()) {
-                test.info("After Class: " + result.getTestClass().getRealClass().getSimpleName());
-            } else if (method.getTestMethod().isAfterSuiteConfiguration()) {
-                test.info("After Suite: " + result.getTestContext().getSuite().getName());
-            } else if (method.getTestMethod().isAfterMethodConfiguration()) {
-                test.info("After Method: " + methodName);
-            }
-        }
     }
 
     /**
@@ -151,16 +73,17 @@ public class ListenerUtils implements ITestListener, ISuiteListener, IInvokedMet
      */
     @Override
     public void onTestStart(ITestResult result) {
-        test = extent.createTest(result.getMethod().getMethodName());
-        String testName = (result.getParameters().length > 0)
+        if (result == null || extent == null) return;
+
+        // Store testName globally
+        testName = (result.getParameters().length > 0)
                 ? result.getParameters()[result.getParameters().length - 1].toString()
                 : result.getMethod().getMethodName();
 
+        test = extent.createTest(testName);
         test.info("Test Started: " + testName);
         logger.info("Test Started: {}", testName);
     }
-
-
 
     /**
      * Logs a successful test method execution.
@@ -169,7 +92,8 @@ public class ListenerUtils implements ITestListener, ISuiteListener, IInvokedMet
      */
     @Override
     public void onTestSuccess(ITestResult result) {
-        test.pass("Test Passed: " + result.getMethod().getMethodName());
+        if (test == null || result == null) return;
+        test.pass("Test Passed: " + testName);
     }
 
     /**
@@ -179,13 +103,22 @@ public class ListenerUtils implements ITestListener, ISuiteListener, IInvokedMet
      */
     @Override
     public void onTestFailure(ITestResult result) {
+        if (test == null || result == null) return;
+
+        test.log(Status.FAIL, "Test Failed: " + testName);
         test.log(Status.FAIL, result.getThrowable());
 
-        // Capture screenshot on test failure
-        if (getDriver(result) != null) {
-            WebDriver driver = getDriver(result);
+        // Capture screenshot on test failure and add it to Extent report
+        WebDriver driver = getDriver(result);
+        if (driver == null) return;
+
+        try {
+            // Capture screenshot and save it as Base64 string
             String base64Image = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BASE64);
-            test.addScreenCaptureFromBase64String(base64Image);
+            test.addScreenCaptureFromBase64String(base64Image, "Failure Screenshot");
+            logger.error("Screenshot captured for failed test: {}", testName);
+        } catch (Exception e) {
+            logger.error("Failed to capture screenshot for {}", testName, e);
         }
     }
 
@@ -196,6 +129,7 @@ public class ListenerUtils implements ITestListener, ISuiteListener, IInvokedMet
      */
     @Override
     public void onTestSkipped(ITestResult result) {
-        test.skip("Test Skipped: " + result.getMethod().getMethodName());
+        if (test == null || result == null) return;
+        test.skip("Test Skipped: " + testName);
     }
 }

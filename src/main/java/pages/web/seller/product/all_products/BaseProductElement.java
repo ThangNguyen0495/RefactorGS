@@ -33,7 +33,7 @@ public class BaseProductElement {
     protected final By loc_btnSave = By.cssSelector("[data-testid=\"desktop-saveBtn\"]");
     protected final By loc_btnDeactivate = By.xpath("(//*[text() = 'Ngừng bán' or text() = 'Deactivate' or text() = 'Bán ngay' or text() = 'Activate'])[1]/parent::div/parent::button");
     protected final By loc_btnDelete = By.xpath("(//*[text() = 'Xóa' or text() = 'Delete'])[1]/parent::div/parent::button");
-    protected final By loc_dlgConfirmDelete_btnOK = By.cssSelector(".modal-footer .gs-button__green");
+    protected final By loc_dlgConfirmDelete_btnOK = By.xpath("//*[@data-testid=\"confirmBtn\"]");
     protected final By loc_dlgSuccessNotification = By.cssSelector(".modal-success");
     protected final By loc_dlgNotification_btnClose = By.cssSelector("[data-testid='closeBtn']");
     protected final By loc_btnAddAttribution = By.xpath("//span[text() = 'Add attribution' or text() = 'Thêm thuộc tính']");

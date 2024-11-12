@@ -39,7 +39,7 @@ public class ProductDescriptionScreen {
      */
     public void inputDescription(String description) {
         // Input product description
-        androidUtils.sendKeysActions(androidUtils.getElement(locTxtContent), description);
+        androidUtils.sendKeysActions(locTxtContent, description);
 
         // Save changes
         androidUtils.click(locBtnSave);
