@@ -12,7 +12,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static org.apache.commons.lang.StringUtils.trim;
 import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 
 /**
@@ -151,56 +150,6 @@ public class WebUtils {
     }
 
     /**
-     * Attempts to click on a web element located by the specified locator and index.
-     * <p>
-     * If a regular click is intercepted (e.g., by another element), this method falls back
-     * to clicking the element using JavaScript.
-     * </p>
-     *
-     * @param locator The By locator used to find the web element on the page.
-     * @param index   The index of the element to be clicked if multiple elements match the locator.
-     *                Use 0 to click the first element.
-     */
-    private <T> T retryOnClickIntercepted(By locator, int index) {
-        try {
-            // Attempt to perform a regular click on the element
-            getElement(locator, index).click();
-        } catch (ElementClickInterceptedException ex) {
-            // If click is intercepted, perform the click using JavaScript
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", getElement(locator, index));
-        }
-
-        return null;
-    }
-
-    /**
-     * Attempts to send keys to a web element located by the specified locator and index.
-     * <p>
-     * If the element is not interactable (throws an ElementNotInteractableException), this method
-     * retries the action by moving to the element, clicking it, and then sending the keys using Actions class.
-     * </p>
-     *
-     * @param locator The By locator used to find the web element on the page.
-     * @param index   The index of the element if multiple elements match the locator.
-     *                Use 0 to interact with the first element.
-     * @param content The content (keys) to send to the element.
-     */
-    private void retrySendKeysOnElementNotInteractable(By locator, int index, CharSequence content) {
-        try {
-            // Attempt to send keys to the element normally
-            getElement(locator, index).sendKeys(content);
-        } catch (ElementNotInteractableException ex) {
-            // If element is not interactable, retry using Actions class
-            new Actions(driver).moveToElement(getElement(locator, index)) // Move to the element
-                    .click() // Click on the element to ensure it's focused
-                    .sendKeys(content) // Send the keys
-                    .build()
-                    .perform(); // Execute the chain of actions
-        }
-    }
-
-
-    /**
      * Highlights the specified web element by adding a red border around it.
      *
      * @param locator The By locator to find the web element to be highlighted.
@@ -216,11 +165,10 @@ public class WebUtils {
         });
 
         // Remove the border after a short delay for visual confirmation
-        new WebDriverWait(driver, Duration.ofSeconds(1))
-                .until(_ -> retryOnStaleElement(() -> {
-                    jsExecutor.executeScript("arguments[0].style.border = ''", getElement(locator, index));
-                    return true;
-                }));
+        getWait(1000).until(_ -> retryOnStaleElement(() -> {
+            jsExecutor.executeScript("arguments[0].style.border = ''", getElement(locator, index));
+            return true;
+        }));
     }
 
     /**
@@ -234,11 +182,11 @@ public class WebUtils {
         int waitTime = (milliseconds.length != 0) ? milliseconds[0] : 3000;
         try {
             getWait(waitTime).until(ExpectedConditions.presenceOfElementLocated(locator));
-        } catch (TimeoutException ignore) {
+        } catch (TimeoutException ex) {
+            return List.of();
         }
-        return driver.findElements(locator).isEmpty()
-                ? driver.findElements(locator)
-                : wait.until(presenceOfAllElementsLocatedBy(locator));
+
+        return wait.until(presenceOfAllElementsLocatedBy(locator));
     }
 
     /**
@@ -305,6 +253,29 @@ public class WebUtils {
 
         // Retry to click the element
         retryOnStaleElement(() -> retryOnClickIntercepted(locator, index));
+    }
+
+    /**
+     * Attempts to click on a web element located by the specified locator and index.
+     * <p>
+     * If a regular click is intercepted (e.g., by another element), this method falls back
+     * to clicking the element using JavaScript.
+     * </p>
+     *
+     * @param locator The By locator used to find the web element on the page.
+     * @param index   The index of the element to be clicked if multiple elements match the locator.
+     *                Use 0 to click the first element.
+     */
+    private <T> T retryOnClickIntercepted(By locator, int index) {
+        try {
+            // Attempt to perform a regular click on the element
+            getElement(locator, index).click();
+        } catch (ElementClickInterceptedException ex) {
+            // If click is intercepted, perform the click using JavaScript
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", getElement(locator, index));
+        }
+
+        return null;
     }
 
     /**
@@ -383,13 +354,100 @@ public class WebUtils {
         // Ensure that at least one element is found
         Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to sendKeys.");
 
-        clear(locator, index);
-        click(locator, index);
-        retryOnStaleElement(() -> {
-            retrySendKeysOnElementNotInteractable(locator, index, content);
-            return null;
-        });
-        clickOutOfTextBox(locator, index);
+        retryUntil(5, 0, "Cannot input to field after 5 attempts",
+                () -> elementTextMatches(locator, index, content),
+                () -> {
+                    clear(locator, index);
+                    click(locator, index);
+                    retryOnStaleElement(() -> {
+                        retrySendKeysOnElementNotInteractable(locator, index, content);
+                        return null;
+                    });
+                    clickOutOfTextBox(locator, index);
+                    return null;
+                });
+    }
+
+    /**
+     * Attempts to send keys to a web element located by the specified locator and index.
+     * <p>
+     * If the element is not interactable (throws an ElementNotInteractableException), this method
+     * retries the action by moving to the element, clicking it, and then sending the keys using the Actions class.
+     * </p>
+     *
+     * @param locator The By locator used to find the web element on the page.
+     * @param index   The index of the element if multiple elements match the locator.
+     *                Use 0 to interact with the first element.
+     * @param content The content (keys) to send to the element.
+     */
+    private void retrySendKeysOnElementNotInteractable(By locator, int index, CharSequence content) {
+
+        try {
+            // Attempt to send keys to the element normally
+            getElement(locator, index).sendKeys(content);
+        } catch (ElementNotInteractableException ex) {
+            // Log the exception for debugging purposes
+            LogManager.getLogger().warn("Element not interactable, retrying with Actions", ex);
+
+            // Retry using Actions to ensure the element is focused and interactable
+            new Actions(driver)
+                    .moveToElement(getElement(locator, index)) // Move to the element
+                    .click() // Click on the element to ensure it has focus
+                    .sendKeys(content) // Send the keys
+                    .build()
+                    .perform(); // Execute the action chain
+        }
+    }
+
+    /**
+     * Checks if the element's text or value matches the provided content.
+     *
+     * @param locator The By locator of the element.
+     * @param index   The index of the element if multiple elements match the locator.
+     * @param content The content to compare with the element's text or value.
+     * @return True if the element's text or value matches the content; otherwise, false.
+     */
+    private boolean elementTextMatches(By locator, int index, CharSequence content) {
+        // Only compare if the content is a String (not Keys or other CharSequence types)
+        if (content instanceof String) {
+            String contentStr = content.toString();
+            // Check if the element's text or value matches the content
+            return compareStringsIgnoreCase(contentStr, getText(locator, index))
+                   || compareStringsIgnoreCase(getValue(locator, index), contentStr);
+        }
+
+        // If content is not a String (e.g., Keys), return true as no comparison is needed
+        return true;
+    }
+
+    /**
+     * Compares two strings in a case-insensitive manner, removing commas from numbers before comparison.
+     *
+     * @param firstString  The first string to compare.
+     * @param secondString The second string to compare.
+     * @return True if the two strings are equal after case-insensitive comparison and number formatting;
+     * otherwise, false.
+     */
+    private boolean compareStringsIgnoreCase(String firstString, String secondString) {
+        // Check if either of the strings is null
+        if (firstString == null || secondString == null) {
+            return false;
+        }
+
+        // Remove commas from both strings to handle number formatting
+        String firstStr = firstString.replace(",", "").trim();
+        String secondStr = secondString.replace(",", "").trim();
+
+        // Try to compare the two strings as numbers
+        try {
+            // Parse both strings as numbers
+            double firstNum = Double.parseDouble(firstStr);
+            double secondNum = Double.parseDouble(secondStr);
+            return firstNum == secondNum;
+        } catch (NumberFormatException e) {
+            // If parsing fails (not a valid number), compare the strings case-insensitively
+            return firstStr.equalsIgnoreCase(secondStr);
+        }
     }
 
     /**
@@ -440,7 +498,7 @@ public class WebUtils {
         // Ensure that at least one element is found
         Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to getText.");
 
-        return retryOnStaleElement(() -> trim(getAttribute(locator, index, "innerText")));
+        return retryOnStaleElement(() -> waitVisibilityOfElementLocated(locator, index).getText());
     }
 
     /**
@@ -500,17 +558,14 @@ public class WebUtils {
      * @throws IllegalStateException if the element cannot be cleared after 5 attempts
      */
     private void clear(By locator, int index) {
-        retryUntil(5, 1000, "Cannot clear field after 5 attempts", () -> {
-            // Check if field is already clear
-            String value = getValue(locator, index);
-            return getText(locator, index).isEmpty() && (value == null || value.isEmpty()); // Field is already clear
-        }, () -> {
-            retryOnStaleElement(() -> {
-                getElement(locator, index).sendKeys(Keys.HOME, Keys.chord(Keys.SHIFT, Keys.END), Keys.DELETE);
-                return null;
-            });
-            return null;
-        });
+        retryUntil(5, 1000, "Cannot clear field after 5 attempts",
+                () -> elementTextMatches(locator, index, ""), () -> {
+                    retryOnStaleElement(() -> {
+                        getElement(locator, index).sendKeys(Keys.HOME, Keys.chord(Keys.SHIFT, Keys.END), Keys.DELETE);
+                        return null;
+                    });
+                    return null;
+                });
     }
 
     /**
@@ -656,8 +711,8 @@ public class WebUtils {
      *
      * @param locator The locator of the element.
      */
-    public void waitVisibilityOfElementLocated(By locator) {
-        wait.until(visibilityOfElementLocated(locator));
+    public WebElement waitVisibilityOfElementLocated(By locator, int index) {
+        return retryOnStaleElement(() -> wait.until(visibilityOfAllElementsLocatedBy(locator)).get(index));
     }
 
     /**
