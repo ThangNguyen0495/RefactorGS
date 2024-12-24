@@ -14,7 +14,7 @@ public class CollectionsScreen {
     AndroidUtils androidUtils;
     Logger logger = LogManager.getLogger();
 
-    public CollectionsScreen(AndroidDriver driver) {
+    public CollectionsScreen(WebDriver driver) {
         // Get driver
         this.driver = driver;
 

@@ -1,22 +1,21 @@
 package pages.android.seller.products.product_management;
 
 
-import io.appium.java_client.android.AndroidDriver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebDriver;
 import utility.AndroidUtils;
 
 import static utility.helper.ActivityHelper.*;
 
 
 public class ProductManagementScreen extends ProductManagementElement {
-    AndroidDriver driver;
+    WebDriver driver;
     AndroidUtils androidUtils;
     Logger logger = LogManager.getLogger();
 
-    public ProductManagementScreen(AndroidDriver driver) {
+    public ProductManagementScreen(WebDriver driver) {
         // Get driver
         this.driver = driver;
 
@@ -42,10 +41,9 @@ public class ProductManagementScreen extends ProductManagementElement {
         logger.info("Search product by name: {}", productName);
 
         // Navigate to product detail screen
-        By resultXpath = By.xpath(str_lblProductName.formatted(productName));
-        if (!androidUtils.getListElement(resultXpath).isEmpty()) {
+        if (!androidUtils.getListElement(loc_lblProductName(productName)).isEmpty()) {
             // Click into first result
-            androidUtils.click(resultXpath);
+            androidUtils.click(loc_lblProductName(productName));
 
             // Wait screen loaded
             androidUtils.waitUntilScreenLoaded(sellerProductDetailActivity);

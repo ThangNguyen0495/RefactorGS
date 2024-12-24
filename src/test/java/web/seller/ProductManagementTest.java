@@ -1,21 +1,24 @@
 package web.seller;
 
+import baseTest.BaseTest;
 import org.apache.logging.log4j.LogManager;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import pages.web.seller.login.DashboardLoginPage;
 import pages.web.seller.product.all_products.ProductManagementPage;
-import utility.WebDriverManager;
 
-public class ProductManagementTest extends DashboardBaseTest {
+import java.io.IOException;
+import java.net.URISyntaxException;
+
+public class ProductManagementTest extends BaseTest {
     private ProductManagementPage productManagementPage;
 
     @BeforeClass
-    void setup() {
-        driver = new WebDriverManager().getWebDriver();
-        new DashboardLoginPage(driver).loginDashboardByJs(credentials);
-        productManagementPage = new ProductManagementPage(driver).fetchInformation(credentials);
+    void setup() throws IOException, URISyntaxException {
+        initDriver("SELLER", "WEB");
+        new DashboardLoginPage(driver).loginDashboardByJs(sellerCredentials);
+        productManagementPage = new ProductManagementPage(driver).fetchInformation(sellerCredentials);
     }
 
     @DataProvider(name = "bulkUpdateActions")

@@ -6,6 +6,7 @@ import org.openqa.selenium.support.pagefactory.ByChained;
 import static io.appium.java_client.AppiumBy.androidUIAutomator;
 import static org.openqa.selenium.By.xpath;
 import static utility.AndroidUtils.uiScrollResourceId;
+import static utility.AndroidUtils.uiScrollResourceIdInstance;
 import static utility.helper.ActivityHelper.sellerBundleId;
 
 
@@ -13,6 +14,7 @@ public class BaseProductElement {
     By loc_btnSave = androidUIAutomator(uiScrollResourceId.formatted("%s:id/ivActionBarIconRight".formatted(sellerBundleId)));
     By loc_icnDeleteImages = androidUIAutomator(uiScrollResourceId.formatted("%s:id/ivDelete".formatted(sellerBundleId)));
     By loc_icnUploadImages = androidUIAutomator(uiScrollResourceId.formatted("%s:id/rlSelectImages".formatted(sellerBundleId)));
+    By loc_dlgSelectImages = androidUIAutomator(uiScrollResourceId.formatted("%s:id/fragment_choose_photo_dialog_toolbar".formatted(sellerBundleId)));
     By loc_txtProductName = androidUIAutomator(uiScrollResourceId.formatted("%s:id/edtProductName".formatted(sellerBundleId)));
     By loc_btnProductDescription = androidUIAutomator(uiScrollResourceId.formatted("%s:id/tvProductDescription".formatted(sellerBundleId)));
     By loc_txtWithoutVariationListingPrice = new ByChained(androidUIAutomator(uiScrollResourceId.formatted("%s:id/edtProductOrgPrice".formatted(sellerBundleId))), By.id("%s:id/edtPriceCustom".formatted(sellerBundleId)));
@@ -40,5 +42,9 @@ public class BaseProductElement {
     By loc_swVariations = androidUIAutomator(uiScrollResourceId.formatted("%s:id/swVariation".formatted(sellerBundleId)));
     By loc_btnAddVariation = androidUIAutomator(uiScrollResourceId.formatted("%s:id/tvAddVariation".formatted(sellerBundleId)));
     By loc_lstVariations = androidUIAutomator(uiScrollResourceId.formatted("%s:id/llVariationContainer".formatted(sellerBundleId)));
+    By loc_lstVariations(int variationIndex)  {
+        return androidUIAutomator(uiScrollResourceIdInstance.formatted("%s:id/llVariationContainer".formatted(sellerBundleId), variationIndex));
+    }
     By loc_btnEditMultiple = androidUIAutomator(uiScrollResourceId.formatted("%s:id/clEditMultiple".formatted(sellerBundleId)));
+    By loc_dlgWarningManageByLot_btnOK = androidUIAutomator(uiScrollResourceId.formatted("%s:id/tvRightButton".formatted(sellerBundleId)));
 }

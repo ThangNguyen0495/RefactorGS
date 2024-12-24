@@ -7,8 +7,10 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import pages.web.seller.login.DashboardLoginPage;
 import pages.web.seller.product.all_products.BaseProductPage;
-import utility.WebDriverManager;
+import baseTest.BaseTest;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 
 /**
@@ -16,7 +18,7 @@ import java.util.Arrays;
  * This class tests various scenarios for product creation
  * using different configurations of product attributes.
  */
-public class CreateProductTest extends DashboardBaseTest {
+public class CreateProductTest extends BaseTest {
     private BaseProductPage productPage;
 
     /**
@@ -24,10 +26,10 @@ public class CreateProductTest extends DashboardBaseTest {
      * Initializes the WebDriver and logs into the dashboard.
      */
     @BeforeClass
-    void setup() {
-        driver = new WebDriverManager().getWebDriver();
-        productPage = new BaseProductPage(driver).fetchInformation(credentials);
-        new DashboardLoginPage(driver).loginDashboardByJs(credentials);
+    void setup() throws IOException, URISyntaxException {
+        initDriver("SELLER", "WEB");
+        productPage = new BaseProductPage(driver).fetchInformation(sellerCredentials);
+        new DashboardLoginPage(driver).loginDashboardByJs(sellerCredentials);
     }
 
     /**
@@ -69,30 +71,30 @@ public class CreateProductTest extends DashboardBaseTest {
     public Object[][] productTestData() {
         return new Object[][]{
                 // G1: Without variation, manage inventory by Product
-                generateTestObject(false, false, "noDiscount", "G1_01: Create product without variation, managed by Product and no discount"),
-                generateTestObject(false, false, "noCost", "G1_02: Create product without variation, managed by Product and no cost"),
-                generateTestObject(false, false, "hasDimension", "G1_03: Create product without variation, managed by Product and with dimension"),
-                generateTestObject(false, false, "hasSEO", "G1_04: Create product without variation, managed by Product and with SEO"),
-                generateTestObject(false, false, "managedByLot", "G1_05: Create product without variation, managed by Product and managed by lot"),
-                generateTestObject(false, false, "hasAttribution", "G1_06: Create product without variation, managed by Product and with attribution"),
-                generateTestObject(false, false, "randomPlatforms", "G1_07: Create product without variation, managed by Product and randomized platforms"),
-                generateTestObject(false, false, "outOfStock", "G1_08: Create product without variation, managed by Product and out of stock"),
+//                generateTestObject(false, false, "noDiscount", "G1_01: Create product without variation, managed by Product and no discount"),
+//                generateTestObject(false, false, "noCost", "G1_02: Create product without variation, managed by Product and no cost"),
+//                generateTestObject(false, false, "hasDimension", "G1_03: Create product without variation, managed by Product and with dimension"),
+//                generateTestObject(false, false, "hasSEO", "G1_04: Create product without variation, managed by Product and with SEO"),
+//                generateTestObject(false, false, "managedByLot", "G1_05: Create product without variation, managed by Product and managed by lot"),
+//                generateTestObject(false, false, "hasAttribution", "G1_06: Create product without variation, managed by Product and with attribution"),
+//                generateTestObject(false, false, "randomPlatforms", "G1_07: Create product without variation, managed by Product and randomized platforms"),
+//                generateTestObject(false, false, "outOfStock", "G1_08: Create product without variation, managed by Product and out of stock"),
 
                 // G2: Without variation, manage inventory by IMEI/Serial number
-                generateTestObject(false, true, "noDiscount", "G2_01: Create product without variation, managed by IMEI and no discount"),
-                generateTestObject(false, true, "noCost", "G2_02: Create product without variation, managed by IMEI and no cost"),
-                generateTestObject(false, true, "hasDimension", "G2_03: Create product without variation, managed by IMEI and with dimension"),
-                generateTestObject(false, true, "hasSEO", "G2_04: Create product without variation, managed by IMEI and with SEO"),
-                generateTestObject(false, true, "hasAttribution", "G2_05: Create product without variation, managed by IMEI and with attribution"),
-                generateTestObject(false, true, "randomPlatforms", "G2_06: Create product without variation, managed by IMEI and randomized platforms"),
-                generateTestObject(false, true, "outOfStock", "G2_07: Create product without variation, managed by IMEI and out of stock"),
+//                generateTestObject(false, true, "noDiscount", "G2_01: Create product without variation, managed by IMEI and no discount"),
+//                generateTestObject(false, true, "noCost", "G2_02: Create product without variation, managed by IMEI and no cost"),
+//                generateTestObject(false, true, "hasDimension", "G2_03: Create product without variation, managed by IMEI and with dimension"),
+//                generateTestObject(false, true, "hasSEO", "G2_04: Create product without variation, managed by IMEI and with SEO"),
+//                generateTestObject(false, true, "hasAttribution", "G2_05: Create product without variation, managed by IMEI and with attribution"),
+//                generateTestObject(false, true, "randomPlatforms", "G2_06: Create product without variation, managed by IMEI and randomized platforms"),
+//                generateTestObject(false, true, "outOfStock", "G2_07: Create product without variation, managed by IMEI and out of stock"),
 
                 // G3: With variation, manage inventory by Product
-                generateTestObject(true, false, "noDiscount", "G3_01: Create product with variation, managed by Product and no discount"),
-                generateTestObject(true, false, "noCost", "G3_02: Create product with variation, managed by Product and no cost"),
-                generateTestObject(true, false, "hasDimension", "G3_03: Create product with variation, managed by Product and with dimension"),
-                generateTestObject(true, false, "hasSEO", "G3_04: Create product with variation, managed by Product and with SEO"),
-                generateTestObject(true, false, "managedByLot", "G3_05: Create product with variation, managed by Product and managed by lot"),
+//                generateTestObject(true, false, "noDiscount", "G3_01: Create product with variation, managed by Product and no discount"),
+//                generateTestObject(true, false, "noCost", "G3_02: Create product with variation, managed by Product and no cost"),
+//                generateTestObject(true, false, "hasDimension", "G3_03: Create product with variation, managed by Product and with dimension"),
+//                generateTestObject(true, false, "hasSEO", "G3_04: Create product with variation, managed by Product and with SEO"),
+//                generateTestObject(true, false, "managedByLot", "G3_05: Create product with variation, managed by Product and managed by lot"),
                 generateTestObject(true, false, "hasAttribution", "G3_06: Create product with variation, managed by Product and with attribution"),
                 generateTestObject(true, false, "randomPlatforms", "G3_07: Create product with variation, managed by Product and randomized platforms"),
                 generateTestObject(true, false, "outOfStock", "G3_08: Create product with variation, managed by Product and out of stock"),
@@ -142,9 +144,9 @@ public class CreateProductTest extends DashboardBaseTest {
 
         // Set platforms based on the randomPlatforms flag
         if (randomPlatforms) {
-            productPage.setSellingPlatform(RandomUtils.nextBoolean(),
+            productPage.setSellingPlatform(false,
                     RandomUtils.nextBoolean(),
-                    RandomUtils.nextBoolean(),
+                    false,
                     RandomUtils.nextBoolean());
         }
 

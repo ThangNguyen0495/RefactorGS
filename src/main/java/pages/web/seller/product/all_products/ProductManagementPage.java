@@ -176,7 +176,7 @@ public class ProductManagementPage {
 
         // Collect product IDs into a list
         return IntStream.range(0, productCount)
-                .mapToObj(index -> Integer.parseInt(webUtils.getText(loc_lblProductId, index)))
+                .mapToObj(index -> Integer.parseInt(webUtils.getText(loc_lblProductId)))
                 .toList();
     }
 

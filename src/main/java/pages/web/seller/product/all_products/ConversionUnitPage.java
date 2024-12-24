@@ -169,7 +169,7 @@ public class ConversionUnitPage {
      * @param varIndex The index of the current variation.
      */
     private void configureConversionUnitForVariation(int varIndex) {
-        String variationValue = webUtils.getText(loc_lblVariationValue, varIndex);
+        String variationValue = webUtils.getText(loc_lblVariationValue);
         webUtils.clickJS(loc_btnVariationConfigure, varIndex);
         logger.info("Navigated to configure conversion unit for variation page, variation value: {}", variationValue);
 

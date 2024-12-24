@@ -239,12 +239,12 @@ public class ProductDetailPage {
             for (int attributeIndex = 0; attributeIndex < attributeGroups.size(); attributeIndex++) {
                 if (displayAttributes.get(attributeIndex)) {
                     // Validate attribute name
-                    String actualAttributeName = webUtils.getText(loc_cntAttributeGroup, storefrontAttributeIndex);
+                    String actualAttributeName = webUtils.getText(loc_cntAttributeGroup);
                     Assert.assertEquals(actualAttributeName, attributeGroups.get(attributeIndex),
                             "Attribute name must be '%s', but found '%s'.".formatted(attributeGroups.get(attributeIndex), actualAttributeName));
 
                     // Validate attribute value
-                    String actualAttributeValue = webUtils.getText(loc_cntAttributeValue, storefrontAttributeIndex);
+                    String actualAttributeValue = webUtils.getText(loc_cntAttributeValue);
                     Assert.assertEquals(actualAttributeValue, attributeValues.get(attributeIndex),
                             "Attribute value must be '%s', but found '%s'.".formatted(attributeValues.get(attributeIndex), actualAttributeValue));
 
@@ -336,7 +336,7 @@ public class ProductDetailPage {
     private void validateBranchStock(String branchName, int branchIndex, boolean isVisible, int expectedStock, String variationName) {
         String varName = !variationName.isEmpty() ? "[Variation: %s]".formatted(variationName) : "";
         if (!productInfo.getIsHideStock() && isVisible) {
-            String actualStockText = webUtils.getText(loc_lblBranchStock, branchIndex);
+            String actualStockText = webUtils.getText(loc_lblBranchStock);
             int actualStock = Integer.parseInt(actualStockText.replaceAll("\\D+", ""));
 
             // Assert stock quantities match
@@ -519,7 +519,7 @@ public class ProductDetailPage {
      * @return true if a flash sale is active and not scheduled, false otherwise
      */
     private boolean isFlashSaleActive(FlashSaleInformation flashSaleInfo) {
-        return flashSaleInfo != null && "IN_PROGRESS".equals(flashSaleInfo.getStatus());
+        return flashSaleInfo != null && flashSaleInfo.getStatus().equals("IN_PROGRESS");
     }
 
 
@@ -566,7 +566,7 @@ public class ProductDetailPage {
     private long calculateCampaignPrice(CampaignInformation campaignInfo, long sellingPrice) {
         String discountType = campaignInfo.getWholesales().getFirst().getType();
         long discountValue = campaignInfo.getWholesales().getFirst().getWholesaleValue();
-        return "FIXED_AMOUNT".equals(discountType)
+        return discountType.equals("FIXED_AMOUNT")
                 ? Math.max(sellingPrice - discountValue, 0)
                 : (sellingPrice * (100 - discountValue)) / 100;
     }
@@ -720,7 +720,7 @@ public class ProductDetailPage {
      */
     private String switchBranchAndGetBranchName(int brElementIndex) {
         webUtils.clickJS(loc_lblBranchName, brElementIndex);
-        return webUtils.getText(loc_lblBranchName, brElementIndex);
+        return webUtils.getText(loc_lblBranchName);
     }
 
     /**
@@ -823,8 +823,8 @@ public class ProductDetailPage {
             int variationIndex = modelIds.indexOf(modelId);
 
             // Check if the product or variation is in 'ACTIVE' status
-            if ((productInfo.isHasModel() && "ACTIVE".equals(APIGetProductDetail.getVariationStatus(productInfo, variationIndex)))
-                || "ACTIVE".equals(productInfo.getBhStatus())) {
+            if ((productInfo.isHasModel() && APIGetProductDetail.getVariationStatus(productInfo, variationIndex).equals("ACTIVE"))
+                || productInfo.getBhStatus().equals("ACTIVE")) {
 
                 String variationValue = "";
 

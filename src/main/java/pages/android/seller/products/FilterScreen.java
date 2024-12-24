@@ -1,22 +1,22 @@
 package pages.android.seller.products;
 
-import io.appium.java_client.android.AndroidDriver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import utility.AndroidUtils;
 
 import static io.appium.java_client.AppiumBy.androidUIAutomator;
-import static utility.helper.ActivityHelper.sellerBundleId;
 import static utility.AndroidUtils.uiScrollResourceId;
 import static utility.AndroidUtils.uiScrollResourceIdInstance;
+import static utility.helper.ActivityHelper.sellerBundleId;
 
 public class FilterScreen {
-    AndroidDriver driver;
+    WebDriver driver;
     AndroidUtils androidUtils;
     Logger logger = LogManager.getLogger();
 
-    public FilterScreen(AndroidDriver driver) {
+    public FilterScreen(WebDriver driver) {
         // Get driver
         this.driver = driver;
 

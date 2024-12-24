@@ -7,6 +7,7 @@ import api.seller.product.APIGetProductDetail;
 import api.seller.promotion.APICreateFlashSale;
 import api.seller.promotion.APICreateProductDiscountCampaign;
 import api.seller.setting.APIUpdateBranchInformation;
+import baseTest.BaseTest;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.logging.log4j.LogManager;
 import org.testng.annotations.BeforeClass;
@@ -14,8 +15,9 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import pages.web.buyer.detail_product.ProductDetailPage;
 import pages.web.buyer.login.StorefrontLoginPage;
-import utility.WebDriverManager;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,7 +25,7 @@ import java.util.List;
  * This class contains test cases for verifying product details on the storefront,
  * including various scenarios for products managed by Product or IMEI.
  */
-public class ProductDetailTest extends StorefrontBaseTest {
+public class ProductDetailTest extends BaseTest {
     private int customerId;
     private APICreateProduct apiCreateProduct;
     private APICreateFlashSale apiCreateFlashSale;
@@ -35,8 +37,8 @@ public class ProductDetailTest extends StorefrontBaseTest {
      * Sets up the necessary APIs and logs into the storefront before running tests.
      */
     @BeforeClass
-    void setup() {
-        this.driver = new WebDriverManager().getWebDriver();
+    void setup() throws IOException, URISyntaxException {
+        initDriver("BUYER", "WEB");
         new StorefrontLoginPage(driver).loginStorefrontByJS(buyerCredentials);
         this.customerId = new APIBuyerLogin().getBuyerInformation(buyerCredentials).getId();
         this.apiCreateProduct = new APICreateProduct(sellerCredentials);

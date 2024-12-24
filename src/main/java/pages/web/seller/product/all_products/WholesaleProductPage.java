@@ -153,7 +153,7 @@ public class WholesaleProductPage {
         // For each selected variation, configure wholesale pricing
         IntStream.range(0, numberOfWholesaleProduct).forEach(index -> {
             // Retrieve the variation's label value
-            String value = webUtils.getText(loc_lblVariationValue, index).replace(",", "");
+            String value = webUtils.getText(loc_lblVariationValue).replace(",", "");
 
             // Find the index of the variation in the variation values list
             int varIndex = variationValues.indexOf(value);

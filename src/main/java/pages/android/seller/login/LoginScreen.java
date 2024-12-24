@@ -1,13 +1,13 @@
 package pages.android.seller.login;
 
 import api.seller.login.APISellerLogin;
-import io.appium.java_client.android.AndroidDriver;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import utility.helper.ActivityHelper;
+import org.openqa.selenium.WebDriver;
 import utility.AndroidUtils;
+import utility.helper.ActivityHelper;
 
 /**
  * Represents the login screen for the seller application.
@@ -26,12 +26,12 @@ public class LoginScreen {
      *
      * @param driver the AndroidDriver instance used for interacting with the app.
      */
-    public LoginScreen(AndroidDriver driver) {
+    public LoginScreen(WebDriver driver) {
         this.androidUtils = new AndroidUtils(driver);
     }
 
     // Locators for UI elements
-    private final By loc_txtUsername = By.xpath("//*[ends-with(@resource-id,'edtUsername')]");
+    private final By loc_txtUsername = By.xpath("//*[ends-with(@resource-id,'edtUserName')]");
     private final By loc_txtPassword = By.xpath("//*[ends-with(@resource-id,'edtPassword')]");
     private final By loc_chkTermOfUse = By.xpath("//*[ends-with(@resource-id,'cbxTermAndPrivacy')]");
     private final By loc_btnLogin = By.xpath("//*[ends-with(@resource-id,'tvLogin')]");

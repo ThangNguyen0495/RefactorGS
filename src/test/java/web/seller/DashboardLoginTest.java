@@ -1,17 +1,20 @@
 package web.seller;
 
+import baseTest.BaseTest;
 import org.apache.commons.lang.RandomStringUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import pages.web.seller.login.DashboardLoginPage;
 import utility.PropertiesUtils;
-import utility.WebDriverManager;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 /**
  * Test suite for verifying login functionality on the seller dashboard.
  */
-public class DashboardLoginTest extends DashboardBaseTest {
+public class DashboardLoginTest extends BaseTest {
     private DashboardLoginPage loginPage;
     private static final String langKey = PropertiesUtils.getLangKey();
 
@@ -19,8 +22,8 @@ public class DashboardLoginTest extends DashboardBaseTest {
      * Setup WebDriver and initialize login page before test execution.
      */
     @BeforeClass
-    void setup() {
-        driver = new WebDriverManager().getWebDriver();
+    void setup() throws IOException, URISyntaxException {
+        initDriver("SELLER", "WEB");
         loginPage = new DashboardLoginPage(driver);
     }
 
@@ -79,7 +82,7 @@ public class DashboardLoginTest extends DashboardBaseTest {
     }
 
     /**
-     * Test case LG04_LoginWithNonExistentAccount: Verifies that login fails with an error message when non-existent account credentials are used.
+     * Test case LG04_LoginWithNonExistentAccount: Verifies that login fails with an error message when non-existent account sellerCredentials are used.
      * Tests both phone and email login failures.
      */
     @Test
@@ -102,7 +105,7 @@ public class DashboardLoginTest extends DashboardBaseTest {
     }
 
     /**
-     * Test case LG05_LoginWithValidAccount: Verifies successful login with correct account credentials.
+     * Test case LG05_LoginWithValidAccount: Verifies successful login with correct account sellerCredentials.
      */
     @Test
     public void LG05_LoginWithValidAccount() {

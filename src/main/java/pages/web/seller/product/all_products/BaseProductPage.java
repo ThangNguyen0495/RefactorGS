@@ -7,14 +7,14 @@ import api.seller.setting.APIGetBranchList;
 import api.seller.setting.APIGetStoreDefaultLanguage;
 import api.seller.setting.APIGetStoreLanguage;
 import api.seller.setting.APIGetVATList;
+import api.seller.user_feature.APIGetUserFeature;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
+import pages.android.seller.login.LoginScreen;
 import utility.PropertiesUtils;
 import utility.WebUtils;
 import utility.helper.ProductHelper;
@@ -25,6 +25,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static api.seller.user_feature.APIGetUserFeature.*;
+import static api.seller.user_feature.APIGetUserFeature.hasGoPOS;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 
 public class BaseProductPage extends BaseProductElement {
@@ -88,10 +90,10 @@ public class BaseProductPage extends BaseProductElement {
      */
     @Setter
     private boolean hasAttribution = false;
-    private boolean showOnApp = true;
-    private boolean showOnWeb = true;
-    private boolean showInStore = true;
-    private boolean showInGoSocial = true;
+    private boolean showOnApp;
+    private boolean showOnWeb;
+    private boolean showInStore;
+    private boolean showInGoSocial;
 
     // Product and Language Information
     private String defaultLanguage;
@@ -100,6 +102,9 @@ public class BaseProductPage extends BaseProductElement {
     private List<Integer> activeBranchIds;
     private List<String> storeLanguageCodes;
     private List<String> storeLanguageNames;
+
+    // User features
+    private List<UserPackage> userPackages;
 
     // Constructor
     public BaseProductPage(WebDriver driver) {
@@ -128,18 +133,27 @@ public class BaseProductPage extends BaseProductElement {
         List<APIGetStoreLanguage.LanguageInformation> languageInfos = new APIGetStoreLanguage(credentials).getStoreLanguageInformation();
 
         // Retrieve the default language of the seller
-        defaultLanguage = new APIGetStoreDefaultLanguage(credentials).getDefaultLanguage();
+        this.defaultLanguage = new APIGetStoreDefaultLanguage(credentials).getDefaultLanguage();
 
         // Get active branch names and IDs
-        activeBranchNames = APIGetBranchList.getActiveBranchNames(branchInfos);
-        activeBranchIds = APIGetBranchList.getActiveBranchIds(branchInfos);
+        this.activeBranchNames = APIGetBranchList.getActiveBranchNames(branchInfos);
+        this.activeBranchIds = APIGetBranchList.getActiveBranchIds(branchInfos);
 
         // Get all branches IDs
         allBranchesIds = APIGetBranchList.getBranchIds(branchInfos);
 
         // Get all store language codes and names
-        storeLanguageCodes = APIGetStoreLanguage.getAllStoreLanguageCodes(languageInfos);
-        storeLanguageNames = APIGetStoreLanguage.getAllStoreLanguageNames(languageInfos);
+        this.storeLanguageCodes = APIGetStoreLanguage.getAllStoreLanguageCodes(languageInfos);
+        this.storeLanguageNames = APIGetStoreLanguage.getAllStoreLanguageNames(languageInfos);
+
+        // Get all user packages
+        this.userPackages = new APIGetUserFeature(LoginScreen.getCredentials()).getUserFeature();
+
+        // Init platform information
+        this.showOnApp = hasGoAPP(userPackages);
+        this.showOnWeb = hasGoWEB(userPackages);
+        this.showInGoSocial = hasGoSOCIAL(userPackages);
+        this.showInStore = hasGoPOS(userPackages);
 
         // Return the current instance of ProductPage for method chaining
         return this;
@@ -181,7 +195,7 @@ public class BaseProductPage extends BaseProductElement {
         initProductInfo.setBranchStock(branchStock);
 
         // Generate product information using the InitProductInfo object
-        newProductInfo = ProductHelper.generateProductInformation(initProductInfo);
+        this.newProductInfo = ProductHelper.generateProductInformation(initProductInfo);
     }
 
     /**
@@ -203,10 +217,10 @@ public class BaseProductPage extends BaseProductElement {
      * @param showInGoSocial True if the product should be shown on GoSocial.
      */
     public void setSellingPlatform(boolean showOnApp, boolean showOnWeb, boolean showInStore, boolean showInGoSocial) {
-        this.showOnApp = showOnApp;
-        this.showOnWeb = showOnWeb;
-        this.showInStore = showInStore;
-        this.showInGoSocial = showInGoSocial;
+        this.showOnApp = showOnApp && hasGoAPP(userPackages);
+        this.showOnWeb = showOnWeb && hasGoWEB(userPackages);
+        this.showInGoSocial = showInGoSocial && hasGoSOCIAL(userPackages);
+        this.showInStore = showInStore && hasGoPOS(userPackages);
     }
 
     /**
@@ -219,10 +233,10 @@ public class BaseProductPage extends BaseProductElement {
         this.hasSEO = false;
         this.manageByLotDate = false;
         this.hasAttribution = false;
-        this.showOnApp = true;
-        this.showOnWeb = true;
-        this.showInStore = true;
-        this.showInGoSocial = true;
+        this.showOnApp = hasGoAPP(userPackages);
+        this.showOnWeb = hasGoWEB(userPackages);
+        this.showInGoSocial = hasGoSOCIAL(userPackages);
+        this.showInStore = hasGoPOS(userPackages);
     }
 
     /**
@@ -231,10 +245,11 @@ public class BaseProductPage extends BaseProductElement {
      * @return The current instance of ProductPage for method chaining.
      */
     public BaseProductPage navigateToCreateProductPage() {
-        driver.get("%s/product/create".formatted(PropertiesUtils.getDomain()));
-        logger.info("Navigated to create product page.");
-
-        return this;
+        return WebUtils.executeWithAlertHandling(driver, () -> {
+            driver.get("%s/product/create".formatted(PropertiesUtils.getDomain()));
+            logger.info("Navigated to create product page.");
+            return this;
+        });
     }
 
 
@@ -260,9 +275,12 @@ public class BaseProductPage extends BaseProductElement {
      * @param productId The ID of the product to navigate to.
      */
     private void navigateToProductPage(int productId) {
-        driver.get("%s/product/edit/%s".formatted(PropertiesUtils.getDomain(), productId));
-        driver.navigate().refresh();
-        logger.info("Navigated to product update page, productId: {}", productId);
+        webUtils.executeWithAlertHandling(() -> {
+            driver.navigate().refresh();
+            driver.get("%s/product/edit/%s".formatted(PropertiesUtils.getDomain(), productId));
+            driver.navigate().refresh();
+            logger.info("Navigated to product update page, productId: {}", productId);
+        });
     }
 
     /**
@@ -668,6 +686,40 @@ public class BaseProductPage extends BaseProductElement {
         IntStream.range(0, numOfAttributes).forEach(this::inputAttributionDetails);
     }
 
+    /**
+     * Checks if an alert is present and dismisses it.
+     *
+     * @return true if an alert was present and dismissed, false otherwise.
+     */
+    private boolean dismissIfAlertPresent() {
+        try {
+            // Wait for alert and dismiss it if present
+            var alert = webUtils.getWait(5_000).until(ExpectedConditions.alertIsPresent());
+            if (alert != null) {
+                alert.dismiss();
+            }
+        } catch (TimeoutException ignored) {
+        }
+        return true;
+    }
+
+    /**
+     * Retries the provided action, skipping an alert if it appears during execution.
+     *
+     * @param action the action to be performed.
+     */
+    private void retryActionWithAlertHandling(Runnable action) {
+        WebUtils.retryUntil(
+                5,
+                1000,
+                "Unable to complete the action after 5 retries",
+                this::dismissIfAlertPresent,
+                () -> {
+                    action.run();
+                    return null;
+                }
+        );
+    }
 
     /**
      * Inputs the details for a specific attribution.
@@ -675,9 +727,11 @@ public class BaseProductPage extends BaseProductElement {
      * @param attIndex The index of the attribution.
      */
     private void inputAttributionDetails(int attIndex) {
+//        retryActionWithAlertHandling(() -> webUtils.sendKeys(loc_txtAttributionName, attIndex, newProductInfo.getItemAttributes().get(attIndex).getAttributeName()));
+//        retryActionWithAlertHandling(() -> webUtils.sendKeys(loc_txtAttributionValue, attIndex, newProductInfo.getItemAttributes().get(attIndex).getAttributeValue()));
+
         webUtils.sendKeys(loc_txtAttributionName, attIndex, newProductInfo.getItemAttributes().get(attIndex).getAttributeName());
         webUtils.sendKeys(loc_txtAttributionValue, attIndex, newProductInfo.getItemAttributes().get(attIndex).getAttributeValue());
-
         if (newProductInfo.getItemAttributes().get(attIndex).getIsDisplay()) {
             webUtils.checkCheckbox(loc_chkDisplayAttribute, attIndex);
         }
@@ -932,7 +986,7 @@ public class BaseProductPage extends BaseProductElement {
     private void updateBranchStockForModel(Integer modelId) {
         IntStream.range(0, activeBranchNames.size()).forEach(branchIndex -> {
             String variationName = newProductInfo.isHasModel() ?
-                    APIGetProductDetail.getVariationValue(newProductInfo, defaultLanguage, modelId) : "";
+                    "[%s]".formatted(APIGetProductDetail.getVariationValue(newProductInfo, defaultLanguage, modelId)) : "";
             int branchId = activeBranchIds.get(branchIndex);
             int stock = APIGetProductDetail.getStockByModelAndBranch(newProductInfo,
                     newProductInfo.isHasModel() ? modelId : null, branchId);
@@ -1251,7 +1305,7 @@ public class BaseProductPage extends BaseProductElement {
         webUtils.click(loc_btnSave);
 
         // Ensure the success notification popup appears and close it
-        Assert.assertFalse(webUtils.getListElement(loc_dlgSuccessNotification, 30000).isEmpty(), isUpdate ? "[Create product] Cannot create product." : "[Update product] Cannot update product.");
+        Assert.assertFalse(webUtils.getListElement(loc_dlgSuccessNotification, 60_000).isEmpty(), isUpdate ? "[Create product] Cannot create product." : "[Update product] Cannot update product.");
         webUtils.click(loc_dlgNotification_btnClose);
 
         // Log that the process is waiting for the save action to complete
@@ -1261,14 +1315,7 @@ public class BaseProductPage extends BaseProductElement {
         if (isUpdate) return;
 
         // Wait product creation
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            // Restore the interrupted status
-            Thread.currentThread().interrupt();
-            // Throw an exception to indicate that the thread was interrupted while waiting
-            throw new IllegalStateException("Thread interrupted while waiting for product creation", e);
-        }
+        WebUtils.sleep(3000);
 
         // Wait for the API response to retrieve the new product's ID
         int productId = new APIGetProductList(credentials).searchProductIdByName(newProductInfo.getName());
@@ -1372,7 +1419,7 @@ public class BaseProductPage extends BaseProductElement {
      */
     private ConversionUnitPage navigateToConversionUnitPage(WebDriver driver, APISellerLogin.Credentials credentials, APIGetProductDetail.ProductInformation productInfo) {
         // Handle conversion unit configuration based on inventory management type
-        if ("IMEI_SERIAL_NUMBER".equals(currentProductInfo.getInventoryManageType())) {
+        if (currentProductInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
             logger.info("Conversion units are not supported for products managed by IMEI/Serial at this time.");
             return new ConversionUnitPage(driver, credentials, productInfo, defaultLanguage);
         }

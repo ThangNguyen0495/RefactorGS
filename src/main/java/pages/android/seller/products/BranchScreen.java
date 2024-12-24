@@ -13,7 +13,7 @@ public class BranchScreen {
     WebDriver driver;
     AndroidUtils androidUtils;
     Logger logger = LogManager.getLogger();
-    public BranchScreen(AndroidDriver driver) {
+    public BranchScreen(WebDriver driver) {
         // Get driver
         this.driver = driver;
 
