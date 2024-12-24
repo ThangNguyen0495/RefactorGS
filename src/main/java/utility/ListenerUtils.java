@@ -181,7 +181,6 @@ public class ListenerUtils implements ITestListener, ISuiteListener {
             // Capture screenshot and save it as Base64 string
             String base64Image = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BASE64);
             test.addScreenCaptureFromBase64String(base64Image);
-            logger.error("Screenshot captured for failed test: {}", testName);
         } catch (Exception e) {
             logger.error("Failed to capture screenshot for {}", testName, e);
         }

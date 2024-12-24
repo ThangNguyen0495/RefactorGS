@@ -185,11 +185,11 @@ public class APIGetInventoryHistory {
      */
     private boolean hasTransferInComplete(InventoryHistory history) {
         String orderIdWithoutPrefix = history.getOrderId().replaceAll("CH", "");
-        String status = "FROM_TRANSFER_AFFILIATE_OUT".equals(history.getActionType())
+        String status = history.getActionType().equals("FROM_TRANSFER_AFFILIATE_OUT")
                 ? new APIGetPartnerTransferDetail(credentials).getPartnerTransferInformation(Integer.parseInt(orderIdWithoutPrefix)).getStatus()
                 : new APIGetTransferDetail(credentials).getTransferInformation(Integer.parseInt(orderIdWithoutPrefix)).getStatus();
 
-        return !"RECEIVED".equals(status) && !"CANCELLED".equals(status);
+        return !status.equals("RECEIVED") && !status.equals("CANCELLED");
     }
 
     /**
@@ -204,7 +204,7 @@ public class APIGetInventoryHistory {
         String orderIdWithoutPrefix = history.getOrderId().replaceAll("PO", "");
         String status = new APIGetPurchaseOrderDetail(credentials).getPurchaseOrderInformation(Integer.parseInt(orderIdWithoutPrefix)).getStatus();
 
-        return !"COMPLETED".equals(status) && !"CANCELLED".equals(status);
+        return !status.equals("COMPLETED") && !status.equals("CANCELLED");
     }
 
     /**

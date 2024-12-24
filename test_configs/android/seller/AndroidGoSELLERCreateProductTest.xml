@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Product Creation Test Suite">
+    <test name="[ANDROID][GoSELLER] Product Update Tests">
+        <classes>
+            <class name="android.seller.CreateProductTest">
+            </class>
+        </classes>
+    </test>
+</suite>

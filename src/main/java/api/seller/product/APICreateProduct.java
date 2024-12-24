@@ -107,9 +107,9 @@ public class APICreateProduct {
         private boolean expiredQuality;
         private String inventoryManageType;
         private String conversionUnitId;
-        private final boolean onApp = true;
+        private final boolean onApp = false;
         private final boolean onWeb = true;
-        private final boolean inStore = true;
+        private final boolean inStore = false;
         private final boolean inGoSocial = true;
         private final boolean enabledListing = false;
         private List<Inventory> lstInventory = new ArrayList<>();

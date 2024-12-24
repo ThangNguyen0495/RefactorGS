@@ -16,13 +16,18 @@ import static io.restassured.RestAssured.given;
  */
 public class APIUtils {
 
+    private String uri;
+
     /**
      * Initializes the APIUtils class.
-     * Configures RestAssured proxy settings if enabled, and sets the base URI from the properties.
+     * Configures RestAssured proxy settings if enabled, and sets the base URI.
+     * If a URI is provided, it is used as the base URI; otherwise, the base URI is retrieved from the properties.
+     *
+     * @param uri an optional URI to override the default base URI. If no URI is provided, the base URI is fetched from the properties.
      */
-    public APIUtils() {
-        configureProxy();
-        setBaseURI();
+    public APIUtils(String... uri) {
+        configureProxy(); // Configure proxy settings if enabled
+        setBaseURI(uri.length == 0 ? PropertiesUtils.getAPIHost() : uri[0]); // Set base URI based on provided URI or default property value
     }
 
     /**
@@ -38,8 +43,8 @@ public class APIUtils {
     /**
      * Sets the base URI for API requests using the 'apiHost' property.
      */
-    private void setBaseURI() {
-        RestAssured.baseURI = PropertiesUtils.getAPIHost();
+    private void setBaseURI(String uri) {
+        this.uri = uri;
     }
 
     /**
@@ -52,6 +57,7 @@ public class APIUtils {
     private RequestSpecification buildRequest(String token, Map<String, Object> headers) {
         RequestSpecification request = given()
                 .relaxedHTTPSValidation()
+                .baseUri(uri)
                 .contentType(ContentType.JSON);
 
         if (token != null) {

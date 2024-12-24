@@ -9,8 +9,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 public class ScreenshotUtils {
@@ -20,7 +22,7 @@ public class ScreenshotUtils {
      * @param driver The WebDriver instance used to take the screenshot.
      */
     @SneakyThrows
-    public void takeScreenshot(WebDriver driver) {
+    public static void takeScreenshot(WebDriver driver) {
         // Ensure the debug directory exists
         File debugDir = new File("./debug/");
         if (!debugDir.exists()) {
@@ -42,7 +44,7 @@ public class ScreenshotUtils {
      * @param fileName   The name of the file to save the screenshot as.
      */
     @SneakyThrows
-    public void takeScreenshot(WebDriver driver, String folderName, String fileName) {
+    public static void takeScreenshot(WebDriver driver, String folderName, String fileName) {
         // Ensure the specified folder exists
         File folder = new File("./debug/%s/".formatted(folderName));
         if (!folder.exists()) {
@@ -55,54 +57,76 @@ public class ScreenshotUtils {
         FileUtils.copyFile(((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE), new File(path));
     }
 
+    // Define the constant paths for the images
     /**
      * Takes a screenshot of a specific WebElement and saves it to the 'element_image' folder.
      *
      * @param element The WebElement to take a screenshot of.
-     * @return The ScreenshotUtils instance for method chaining.
      */
     @SneakyThrows
-    public ScreenshotUtils takeScreenshot(WebElement element) {
+    public void takeElementScreenShot(String imagePath, WebElement element) {
         // Capture screenshot of the WebElement
         File screenshot = element.getScreenshotAs(OutputType.FILE);
 
-        // Ensure the 'element_image' folder exists
-        File elementImageDir = new File("./src/main/resources/files/element_image");
+        // Ensure the checkbox folder exists
+        String directoryPath = imagePath.substring(0, imagePath.lastIndexOf("/"));
+        File elementImageDir = new File(directoryPath);
         if (!elementImageDir.exists()) {
             boolean created = elementImageDir.mkdirs();
             LogManager.getLogger().info(created ? "Created 'element_image' folder" : "Failed to create 'element_image' folder");
         }
 
         // Define the destination file path
-        File destination = new File("src/main/resources/files/element_image/el_image.png");
+        File destination = new File(imagePath);
         FileUtils.copyFile(screenshot, destination);
 
-        return this;
     }
 
     /**
-     * Compares two images pixel by pixel to determine if they are identical.
+     * Compares two images pixel by pixel, considering only the overlapping area based on the minimum width and height.
      *
-     * @return true if the images are identical, false otherwise.
+     * @return true if the overlapping area of the images is identical, false otherwise.
+     * @throws IOException if there is an error reading the image files.
      */
-    @SneakyThrows
-    public boolean compareImages() {
+    public boolean compareImages(String expectedImagePath, String actualImagePath) throws IOException {
         // Load the images to compare
-        BufferedImage img1 = ImageIO.read(new File("src/main/resources/files/element_image/checked.png"));
-        BufferedImage img2 = ImageIO.read(new File("src/main/resources/files/element_image/el_image.png"));
+        BufferedImage img1 = ImageIO.read(new File(expectedImagePath));
+        BufferedImage img2 = ImageIO.read(new File(actualImagePath));
+        img2 = scaleImage(img2, img1.getWidth(), img1.getHeight());
 
-        // Compare images pixel by pixel
-        int totalPixels = img1.getHeight() * img1.getWidth() / 4;
+        // Determine the minimum width and height for comparison
+        int minWidth = Math.min(img1.getWidth(), img2.getWidth());
+        int minHeight = Math.min(img1.getHeight(), img2.getHeight());
+
+        // Compare images pixel by pixel for the overlapping area
+        int totalPixels = minWidth * minHeight;
         int matchingPixels = 0;
-        for (int height = 0; height < img1.getHeight() / 2; height++) {
-            for (int width = 0; width < img1.getWidth() / 2; width++) {
-                if (img1.getRGB(width, height) == img2.getRGB(width, height)) {
+
+        for (int y = 0; y < minHeight; y++) {
+            for (int x = 0; x < minWidth; x++) {
+                if (img1.getRGB(x, y) == img2.getRGB(x, y)) {
                     matchingPixels++;
                 }
             }
         }
 
-        // Return true if all compared pixels match
-        return Math.round((float) matchingPixels / totalPixels) == 1;
+        // Calculate match percentage
+        float matchPercentage = (float) matchingPixels / totalPixels;
+
+        // Return true if all pixels in the overlapping area match
+        return matchPercentage >= 0.75;
+    }
+
+    public static BufferedImage scaleImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
+        // Create a new BufferedImage for the scaled version
+        BufferedImage scaledImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_ARGB_PRE);
+
+        // Get the Graphics2D object for rendering the scaled image
+        Graphics2D g2d = scaledImage.createGraphics();
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g2d.drawImage(originalImage, 0, 0, targetWidth, targetHeight, null);
+        g2d.dispose(); // Release resources
+
+        return scaledImage;
     }
 }

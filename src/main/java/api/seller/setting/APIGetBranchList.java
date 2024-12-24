@@ -175,7 +175,7 @@ public class APIGetBranchList {
      * @return {@code true} if the branch is visible on the storefront, {@code false} otherwise.
      */
     public static boolean isBranchShownOnStorefront(List<BranchInformation> branchInfos, int branchIndex) {
-        return "ACTIVE".equalsIgnoreCase(branchInfos.get(branchIndex).getBranchStatus())
+        return branchInfos.get(branchIndex).getBranchStatus().equalsIgnoreCase("ACTIVE")
                && !branchInfos.get(branchIndex).isHideOnStoreFront();
     }
 

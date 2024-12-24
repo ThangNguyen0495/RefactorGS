@@ -58,21 +58,29 @@ public class IOSUtils {
      * @param optionText The text of the button to accept.
      */
     public void allowPermission(String optionText) {
-        HashMap<String, Object> args = new HashMap<>();
-        args.put("action", "accept");
-        args.put("buttonLabel", optionText);
-        ((IOSDriver) driver).executeScript("mobile: alert", args);
-        logger.info("Allowed permission with option: {}", optionText);
+        try {
+            createCustomWait(1000).until(ExpectedConditions.alertIsPresent());
+            HashMap<String, Object> args = new HashMap<>();
+            args.put("action", "accept");
+            args.put("buttonLabel", optionText);
+            ((IOSDriver) driver).executeScript("mobile: alert", args);
+            logger.info("Allowed permission with option: {}", optionText);
+        } catch (TimeoutException | NoAlertPresentException ignored) {
+        }
     }
 
     /**
      * Hides the keyboard if it is visible.
      */
     public void hideKeyboard() {
+//        Map<String, String> args = new HashMap<>();
+//        args.put("strategy", "pressKey");
+//        args.put("keyName", "Done");  // or "Return"
+//        driver.executeScript("mobile: hideKeyboard", args);
         By doneButtonLocator = By.xpath("//XCUIElementTypeButton[@name=\"Done\"]");
-        if (!driver.findElements(doneButtonLocator).isEmpty()) {
-            click(doneButtonLocator);
-        }
+        WebUtils.retryUntil(5, 1000, "Can not hide keyboard",
+                () -> driver.findElements(doneButtonLocator).isEmpty(),
+                () -> click(doneButtonLocator));
     }
 
     /**
@@ -91,7 +99,7 @@ public class IOSUtils {
      * @param locator The locator for the elements.
      * @return A list of found WebElements.
      */
-    public List<WebElement> getElements(By locator) {
+    public List<WebElement> getListElement(By locator) {
         try {
             createCustomWait(3000).until(ExpectedConditions.presenceOfElementLocated(locator));
         } catch (TimeoutException ignored) {
@@ -113,7 +121,6 @@ public class IOSUtils {
             try {
                 return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
             } catch (TimeoutException ex) {
-                logger.error("Element not found: {}", driver.getPageSource());
                 throw new TimeoutException("Cannot find element");
             }
         });
@@ -220,72 +227,107 @@ public class IOSUtils {
         tapAtRightTopCorner(getElement(locator, index));
     }
 
+
     /**
-     * Clicks the element located by the specified locator.
-     * Uses tapAtCenter if the element's type is "XCUIElementTypeImage" or "XCUIElementTypeOther".
+     * Toggles the status of a checkbox. If the checkbox cannot be clicked directly due to its type,
+     * the method attempts to interact with an alternative element (e.g., a button).
      *
-     * @param locator The locator for the element.
+     * @param locator The {@link By} locator used to identify the checkbox element.
+     */
+    public void toggleCheckbox(By locator) {
+        // Retrieve the initial status of the checkbox
+        boolean isInitiallyChecked = isChecked(locator);
+
+        // Attempt to click the checkbox element
+        getElement(locator).click();
+
+        // Verify if the status has been toggled successfully
+        if (isChecked(locator) != isInitiallyChecked) {
+            return; // Status toggled successfully, no further action needed
+        }
+
+        // If the status did not change and the type is 'XCUIElementTypeOther', try an alternate approach
+        if (getElement(locator).getAttribute("type").equals("XCUIElementTypeOther")) {
+            String updatedXPath = locator.toString()
+                    .replaceAll("By.xpath: +", "") // Extract XPath string
+                    .replaceAll("XCUIElementTypeOther$", "XCUIElementTypeButton"); // Replace last element type
+
+            // Attempt to click the alternative element (e.g., a button)
+            getElement(By.xpath(updatedXPath)).click();
+        }
+    }
+
+    /**
+     * Clicks the first element located by the specified locator.
+     *
+     * @param locator The {@link By} locator of the target element.
      */
     public void click(By locator) {
-        WebElement element = getElement(locator);
-        String elementType = element.getAttribute("type");
-        if ("XCUIElementTypeImage".equals(elementType) || "XCUIElementTypeOther".equals(elementType)) {
-            tapAtCenter(element);
-        } else {
-            element.click();
-        }
+        click(locator, 0);
     }
 
     /**
-     * Clicks the element located by the specified locator and index.
-     * Uses tapAtCenter if the element's type is "XCUIElementTypeImage" or "XCUIElementTypeOther".
+     * Clicks the element at the specified index located by the given locator.
      *
-     * @param locator The locator for the elements.
-     * @param index   The index of the element in the list.
+     * @param locator The {@link By} locator of the target elements.
+     * @param index   The zero-based index of the element to click.
+     * @throws IndexOutOfBoundsException If no element exists at the given index.
      */
     public void click(By locator, int index) {
-        WebElement element = getElement(locator, index);
-        String elementType = element.getAttribute("type");
-        if ("XCUIElementTypeImage".equals(elementType) || "XCUIElementTypeOther".equals(elementType)) {
-            tapAtCenter(element);
-        } else {
-            element.click();
-        }
+        getElement(locator, index).click();
     }
 
     /**
-     * Sends the specified keys to the element located by the specified locator.
-     * Clears the element's existing value before sending keys and hides the keyboard.
+     * Sends the specified keys to the element located by the given locator.
+     * Clears the element's existing value before sending keys.
      *
      * @param locator The locator for the element.
-     * @param content The keys to send to the element.
+     * @param content The keys or content to send to the element.
+     *                Non-CharSequence objects will be converted to strings.
+     * @throws IllegalArgumentException if content is null.
      */
-    public void sendKeys(By locator, CharSequence content) {
-        WebElement element = getElement(locator);
-        clearAndSendKeys(element, content);
+    public void sendKeys(By locator, Object content) {
+        sendKeys(locator, 0, content);
     }
 
-    /**
-     * Sends the specified keys to the element located by the specified locator and index.
-     * Clears the element's existing value before sending keys and hides the keyboard.
-     *
-     * @param locator The locator for the elements.
-     * @param index   The index of the element in the list.
-     * @param content The keys to send to the element.
-     */
-    public void sendKeys(By locator, int index, CharSequence content) {
-        WebElement element = getElement(locator, index);
-        clearAndSendKeys(element, content);
-    }
+    public void sendKeys(By locator, int index, Object content) {
+        if (content == null) {
+            throw new IllegalArgumentException("Content to send cannot be null.");
+        }
 
-    private void clearAndSendKeys(WebElement element, CharSequence content) {
-        retryOnStaleElement(() -> {
-            element.clear();
-            element.sendKeys(content);
+        WebUtils.retryOnStaleElement(driver, () -> {
+            getElement(locator, index).clear();
+
+            if (content instanceof CharSequence) {
+                getElement(locator, index).sendKeys((CharSequence) content);
+            } else {
+                getElement(locator, index).sendKeys(String.valueOf(content));
+            }
             hideKeyboard();
-            return null; // Returning null as this is a void action.
         });
     }
+
+//    /**
+//     * Sends the specified keys to the element located by the specified locator and index.
+//     * Clears the element's existing value before sending keys and hides the keyboard.
+//     *
+//     * @param locator The locator for the elements.
+//     * @param index   The index of the element in the list.
+//     * @param content The keys to send to the element.
+//     */
+//    public void sendKeys(By locator, int index, CharSequence content) {
+//        WebElement element = getElement(locator, index);
+//        clearAndSendKeys(element, content);
+//    }
+//
+//    private void clearAndSendKeys(WebElement element, CharSequence content) {
+//        retryOnStaleElement(() -> {
+//            element.clear();
+//            element.sendKeys(content);
+//            hideKeyboard();
+//            return null; // Returning null as this is a void action.
+//        });
+//    }
 
     /**
      * Retrieves the text of the element located by the specified locator.
@@ -351,18 +393,32 @@ public class IOSUtils {
     /**
      * Checks if the specified WebElement is checked based on its type and attributes.
      *
-     * @param element The WebElement to check.
+     * @param locator The locator to check.
      * @return True if the element is checked, false otherwise.
      */
-    public boolean isChecked(WebElement element) {
+    public boolean isChecked(By locator) {
         return retryOnStaleElement(() -> {
-            if ("XCUIElementTypeOther".equals(element.getAttribute("type"))) {
-                element.click();
-                return !element.findElements(By.xpath("//XCUIElementTypeImage[@name=\"icon_checked_white\"]")).isEmpty();
+            // Get the WebElement
+            WebElement element = getElement(locator);
+
+            // Check the "name" attribute
+            String name = element.getAttribute("name");
+            if (name != null) {
+                if (name.equals("ic_green_rectangle_unselected")) return false;
+                if (name.equals("ic_green_rectangle_selected")) return true;
             }
-            return "1".equals(element.getAttribute("value"));
+
+            // Check the "type" attribute for specific handling
+            String type = element.getAttribute("type");
+            if (type.equals("XCUIElementTypeOther")) {
+                return !element.findElements(By.xpath("//XCUIElementTypeImage[@name='icon_checked_white']")).isEmpty();
+            }
+
+            // Fallback: Check the "value" attribute
+            return element.getAttribute("value") != null && element.getAttribute("value").equals("1");
         });
     }
+
 
     /**
      * Relaunches the app by terminating and then activating it again.

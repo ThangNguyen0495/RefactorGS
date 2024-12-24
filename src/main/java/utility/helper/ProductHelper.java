@@ -131,8 +131,8 @@ public class ProductHelper {
 
         // Case 4: Create/edit basic product information
         // Determine if inventory is managed by IMEI based on the current product info or the parameter
-        boolean manageInventoryByIMEI = initProductInfo.getCurrentProductInfo() != null
-                                        && initProductInfo.getCurrentProductInfo().getInventoryManageType().equals("IMEI_SERIAL_NUMBER")
+        boolean manageInventoryByIMEI = ((initProductInfo.getCurrentProductInfo() != null)
+                                         && initProductInfo.getCurrentProductInfo().getInventoryManageType().equals("IMEI_SERIAL_NUMBER"))
                                         || initProductInfo.isManageByIMEI();
 
         // Build the basic product information using the provided parameters
@@ -223,7 +223,7 @@ public class ProductHelper {
 
         // Generate product name and description
         newProductInfo.setName(generateProductName(defaultLangCode, hasModel, manageByIMEI));
-        newProductInfo.setDescription("[%s] Product description".formatted(defaultLangCode));
+        newProductInfo.setDescription("[%s] Product description %s".formatted(defaultLangCode, LocalDateTime.now()));
 
         // Set original and new price
         newProductInfo.setOrgPrice(nextLong(MAX_PRICE));
@@ -397,6 +397,8 @@ public class ProductHelper {
         // Set the model's unique ID and variation name
         model.setId(index);
         model.setName(variationValue);
+        model.setVersionName("[%s] Version name %s".formatted(variationValue, LocalDateTime.now()));
+        model.setSku("%s_SKU%s".formatted(model.getName(), Instant.now().toEpochMilli()));
 
         // Set original, new, and cost prices for the model
         model.setOrgPrice(nextLong(MAX_PRICE)); // Generate a random original price
@@ -410,6 +412,9 @@ public class ProductHelper {
         // Assign status and description usage flag
         model.setStatus("ACTIVE"); // Set model status
         model.setUseProductDescription(nextBoolean()); // Determine if product description should be used
+        model.setDescription(model.isUseProductDescription()
+                ? productInfo.getDescription()
+                : "[%s] Version description %s".formatted(variationValue, LocalDateTime.now()));
 
         // Generate languages for the model based on the provided variation details
         model.setLanguages(generateVersionLanguages(variationName, variationValue, model.isUseProductDescription(), productInfo.getDescription(), langCodes, defaultLangCode));

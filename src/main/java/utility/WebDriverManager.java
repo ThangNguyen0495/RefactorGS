@@ -22,7 +22,7 @@ import java.net.URISyntaxException;
  * for browser and mobile testing.
  */
 public class WebDriverManager {
-    private final String url = "http://127.0.0.1:4723/wd/hub";
+    private static final String url = "http://127.0.0.1:4723/wd/hub";
 
     /**
      * Initializes and returns an AndroidDriver instance.
@@ -33,7 +33,7 @@ public class WebDriverManager {
      * @throws MalformedURLException If the URL is malformed.
      * @throws URISyntaxException    If the URI syntax is incorrect.
      */
-    public AndroidDriver getAndroidDriver(String udid, String appPath) throws MalformedURLException, URISyntaxException {
+    public static AndroidDriver getAndroidDriver(String udid, String appPath) throws MalformedURLException, URISyntaxException {
         UiAutomator2Options options = new UiAutomator2Options();
         options.setUdid(udid);
         options.setCapability("platformName", "Android");
@@ -60,7 +60,7 @@ public class WebDriverManager {
      * @throws MalformedURLException If the URL is malformed.
      * @throws URISyntaxException    If the URI syntax is incorrect.
      */
-    public AndroidDriver getAndroidDriver(String udid, String appBundleId, String appPath) throws MalformedURLException, URISyntaxException {
+    public static AndroidDriver getAndroidDriver(String udid, String appBundleId, String appPath) throws MalformedURLException, URISyntaxException {
         AndroidDriver driver = getAndroidDriver(udid, appPath);
         driver.terminateApp(appBundleId);
         driver.activateApp(appBundleId);
@@ -76,7 +76,7 @@ public class WebDriverManager {
      * @throws MalformedURLException If the URL is malformed.
      * @throws URISyntaxException    If the URI syntax is incorrect.
      */
-    public IOSDriver getIOSDriver(String udid, String appPath) throws MalformedURLException, URISyntaxException {
+    public static IOSDriver getIOSDriver(String udid, String appPath) throws MalformedURLException, URISyntaxException {
         XCUITestOptions options = new XCUITestOptions();
         options.setCapability("appium:udid", udid);
         options.setCapability("platformName", "iOS");
@@ -99,7 +99,7 @@ public class WebDriverManager {
      * @throws MalformedURLException If the URL is malformed.
      * @throws URISyntaxException    If the URI syntax is incorrect.
      */
-    public IOSDriver getIOSDriver(String udid, String appBundleId, String appPath) throws MalformedURLException, URISyntaxException {
+    public static IOSDriver getIOSDriver(String udid, String appBundleId, String appPath) throws MalformedURLException, URISyntaxException {
         IOSDriver driver = getIOSDriver(udid, appPath);
         driver.terminateApp(appBundleId);
         driver.activateApp(appBundleId);
@@ -111,7 +111,7 @@ public class WebDriverManager {
      *
      * @return An instance of WebDriver for the specified browser.
      */
-    public WebDriver getWebDriver() {
+    public static WebDriver getWebDriver() {
         WebDriver driver;
         boolean headless = System.getProperty("os.name").equals("Linux") || PropertiesUtils.getHeadless();
 

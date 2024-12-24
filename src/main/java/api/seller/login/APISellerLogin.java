@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import utility.APIUtils;
+import utility.PropertiesUtils;
 
 import java.util.Objects;
 
@@ -65,16 +66,31 @@ public class APISellerLogin {
      *
      * @param credentials The {@link Credentials} used to authenticate the seller.
      * @return A {@link LoginInformation} object containing details about the authenticated seller.
+     * @throws IllegalArgumentException if credentials are null.
      */
     public LoginInformation getSellerInformation(Credentials credentials) {
-        // If cached credentials match, return cached seller information
-        if (Objects.equals(credentials, cachedCredentials)) {
+        if (credentials == null) {
+            throw new IllegalArgumentException("Credentials cannot be null.");
+        }
+
+        // Check if cached credentials match and return cached information
+        if (Objects.equals(credentials, cachedCredentials) && cachedSellerInfo != null) {
             return cachedSellerInfo;
         }
 
-        // Perform login and update cached credentials and seller information
-        cachedSellerInfo = authenticateSeller(credentials);
-        cachedCredentials = credentials;
+        synchronized (this) {
+            // Double-check in case another thread updated the cache
+            if (Objects.equals(credentials, cachedCredentials) && cachedSellerInfo != null) {
+                return cachedSellerInfo;
+            }
+
+            // Authenticate and update cache
+            cachedSellerInfo = authenticateSeller(credentials);
+            if (cachedSellerInfo == null) {
+                throw new RuntimeException("Authentication failed. Seller information is null.");
+            }
+            cachedCredentials = credentials;
+        }
 
         return cachedSellerInfo;
     }
@@ -86,6 +102,10 @@ public class APISellerLogin {
      * @return A {@link LoginInformation} object with the seller's details.
      */
     private LoginInformation authenticateSeller(Credentials credentials) {
+        if (credentials == null) {
+            credentials = PropertiesUtils.getSellerCredentials();
+        }
+
         return new APIUtils().post("/api/authenticate/store/email/gosell", null, credentials)
                 .then()
                 .statusCode(200)

@@ -39,7 +39,7 @@ public class PropertiesUtils {
      */
     public static String getDashboardProperty(String key, String langKey) {
         Assert.assertTrue(
-                "en".equals(langKey) || "vi".equals(langKey),
+                langKey.contains("en") || langKey.equals("vi"),
                 "LangKey must be 'en' (English) or 'vi' (Vietnamese)"
         );
         Locale locale = Locale.forLanguageTag(langKey); // "en" for English, "vi" for Vietnamese
@@ -190,5 +190,29 @@ public class PropertiesUtils {
      */
     public static String getBuyerBundleId() {
         return getProperty("goBUYERBundleId");
+    }
+
+    public static String getAndroidEmulatorUdid() {
+        return getProperty("androidEmulatorUdid");
+    }
+
+    public static String getAndroidSellerAppURL() {
+        return getProperty("androidSELLERApp");
+    }
+
+    public static String getAndroidBuyerAppURL() {
+        return getProperty("androidBUYERApp");
+    }
+
+    public static String getIOSSimulatorUdid() {
+        return getProperty("iosSimulatorUdid");
+    }
+
+    public static String getIOSSellerAppURL() {
+        return getProperty("iosSELLERApp");
+    }
+
+    public static String getIOSBuyerAppURL() {
+        return getProperty("iosBUYERApp");
     }
 }

@@ -29,7 +29,7 @@ import static io.appium.java_client.AppiumBy.androidUIAutomator;
  * including initializing drivers, handling app states, and performing common actions.
  */
 
-public class AndroidUtils extends WebUtils {
+public class AndroidUtils {
 
     private static final Logger logger = LogManager.getLogger(AndroidUtils.class);
 
@@ -42,7 +42,7 @@ public class AndroidUtils extends WebUtils {
     public static final String uiScrollPartText =
             "new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().textContains(\"%s\"))";
 
-    private final AndroidDriver driver;
+    private final WebDriver driver;
     private final WebDriverWait wait;
 
     /**
@@ -50,8 +50,7 @@ public class AndroidUtils extends WebUtils {
      *
      * @param driver The AndroidDriver instance.
      */
-    public AndroidUtils(AndroidDriver driver) {
-        super(driver);
+    public AndroidUtils(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
@@ -81,6 +80,16 @@ public class AndroidUtils extends WebUtils {
         }
     }
 
+    public void scrollUp() {
+        try {
+            driver.findElement(androidUIAutomator(
+                    "new UiScrollable(new UiSelector().scrollable(true)).scrollBackward()"));
+            logger.info("Scrolled up once on the screen.");
+        } catch (NoSuchElementException e) {
+            logger.warn("Failed to scroll up: {}", e.getMessage());
+        }
+    }
+
     /**
      * Scrolls to the end of the screen using UiScrollable.
      */
@@ -94,12 +103,22 @@ public class AndroidUtils extends WebUtils {
         }
     }
 
+    public void scrollDown() {
+        try {
+            driver.findElement(androidUIAutomator(
+                    "new UiScrollable(new UiSelector().scrollable(true)).scrollForward()"));
+            logger.info("Scrolled down once on the screen.");
+        } catch (NoSuchElementException e) {
+            logger.warn("Failed to scroll down: {}", e.getMessage());
+        }
+    }
+
     /**
      * Closes the notification screen if it is visible.
      */
     private void closeNotificationScreen() {
         if (driver.getPageSource().contains("Appium Settings")) {
-            driver.pressKey(new KeyEvent(AndroidKey.BACK));
+            ((AndroidDriver) driver).pressKey(new KeyEvent(AndroidKey.BACK));
             logger.info("Closed the notification screen.");
         }
     }
@@ -125,15 +144,32 @@ public class AndroidUtils extends WebUtils {
     /**
      * Retrieves a single element located by the specified locator.
      * Closes the notification screen before and after finding the element.
+     * If the element is not fully visible, retries up to 5 times to locate it again.
      *
-     * @param locator The locator for the element.
-     * @return The found WebElement.
+     * @param locator The locator for the element (e.g., UiAutomator locator).
+     * @return The fully visible WebElement.
+     * @throws RuntimeException If the element cannot be made fully visible after 5 retries.
      */
     private WebElement getElement(By locator) {
-        return retryOnStaleElement(() -> {
-            closeNotificationScreen();
-            return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
-        });
+        int retries = 0;
+
+        // Retry until the element is fully visible or the retry limit is reached
+        while (retries < 5) {
+            WebElement element = WebUtils.retryOnStaleElement(driver, () -> {
+                closeNotificationScreen();
+                return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+            });
+
+            // If the element is fully visible, return it
+            if (isElementFullyVisible(element)) {
+                return element;
+            }
+
+            retries++;
+        }
+
+        // Throw an exception if the element is still not fully visible
+        throw new RuntimeException("Failed to make element fully visible after 5 retries.");
     }
 
     /**
@@ -146,16 +182,27 @@ public class AndroidUtils extends WebUtils {
     }
 
     /**
-     * Sends the specified keys to the element located by the specified locator.
+     * Sends the specified keys to the element located by the given locator.
      * Clears the element's existing value before sending keys.
      *
      * @param locator The locator for the element.
-     * @param content The keys to send to the element.
+     * @param content The keys or content to send to the element.
+     *                Non-CharSequence objects will be converted to strings.
+     * @throws IllegalArgumentException if content is null.
      */
-    public void sendKeys(By locator, CharSequence content) {
-        WebElement element = getElement(locator);
-        element.clear();
-        element.sendKeys(content);
+    public void sendKeys(By locator, Object content) {
+        if (content == null) {
+            throw new IllegalArgumentException("Content to send cannot be null.");
+        }
+
+        getElement(locator).clear();
+
+        if (content instanceof CharSequence) {
+            getElement(locator).sendKeys((CharSequence) content);
+            return; // Early return for CharSequence
+        }
+
+        getElement(locator).sendKeys(String.valueOf(content));
     }
 
     /**
@@ -164,7 +211,6 @@ public class AndroidUtils extends WebUtils {
      *
      * @param locator The locator for the WebElement to which keys will be sent.
      * @param content The keys to send to the WebElement, which can include text and special characters.
-     *
      * @throws IllegalArgumentException if the specified locator does not correspond to a valid WebElement.
      */
     public void sendKeysActions(By locator, CharSequence content) {
@@ -207,7 +253,7 @@ public class AndroidUtils extends WebUtils {
                 .addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
                 .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
 
-        driver.perform(List.of(tapSequence));
+        ((AndroidDriver) driver).perform(List.of(tapSequence));
     }
 
     /**
@@ -246,7 +292,7 @@ public class AndroidUtils extends WebUtils {
                 .addAction(finger.createPointerMove(Duration.ofMillis(delay), PointerInput.Origin.viewport(), endXCoordinate, endYCoordinate))
                 .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
 
-        driver.perform(List.of(swipeSequence));
+        ((AndroidDriver) driver).perform(List.of(swipeSequence));
     }
 
     /**
@@ -296,6 +342,13 @@ public class AndroidUtils extends WebUtils {
         return getElement(locator).isDisplayed();
     }
 
+    private boolean isElementFullyVisible(WebElement element) {
+        Rectangle rect = element.getRect();
+        int screenHeight = driver.manage().window().getSize().getHeight();
+
+        // Check if the element is fully visible within the screen's height
+        return rect.y >= 0 && (rect.y + rect.height) <= screenHeight;
+    }
 
     /**
      * Checks if the element located by the specified locator is checked.
@@ -304,15 +357,22 @@ public class AndroidUtils extends WebUtils {
      * @return True if the element is checked, false otherwise.
      */
     public boolean isChecked(By locator) {
-        WebElement element = getElement(locator);
-
         // Check if the element is an ImageView and compare images if so
-        if (element.getAttribute("class").equals("android.widget.ImageView")) {
-            return new ScreenshotUtils().takeScreenshot(element).compareImages();
+        if (getElement(locator).getAttribute("class").equals("android.widget.ImageView")) {
+            String checkedImagePath = "./src/main/resources/files/checkbox_images/checked.png";
+            String checkboxImagePath = "./src/main/resources/files/element_image/el_image.png";
+
+            try {
+                ScreenshotUtils screenshotUtils = new ScreenshotUtils();
+                screenshotUtils.takeElementScreenShot(checkboxImagePath, getElement(locator));
+                return screenshotUtils.compareImages(checkedImagePath, checkboxImagePath);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         // Check if the element is marked as checked
-        return element.getAttribute("checked").equals("true");
+        return getElement(locator).getAttribute("checked").equals("true");
     }
 
     /**
@@ -321,8 +381,8 @@ public class AndroidUtils extends WebUtils {
      * @param appPackage The package name of the app.
      */
     public void relaunchApp(String appPackage) {
-        driver.terminateApp(appPackage);
-        driver.activateApp(appPackage);
+        ((AndroidDriver) driver).terminateApp(appPackage);
+        ((AndroidDriver) driver).activateApp(appPackage);
         logger.info("Relaunched app with package: {}", appPackage);
     }
 
@@ -334,14 +394,14 @@ public class AndroidUtils extends WebUtils {
      */
     public void navigateToScreenUsingScreenActivity(String appPackage, String appActivity) {
         // Return early if the current activity is already the desired activity
-        if (Objects.equals(driver.currentActivity(), appActivity)) {
+        if (Objects.equals(((AndroidDriver) driver).currentActivity(), appActivity)) {
             return; // Early exit if the current activity matches the target activity
         }
 
         // Navigate to screen by activity
         Activity activity = new Activity(appPackage, appActivity);
         activity.setStopApp(false);
-        driver.startActivity(activity);
+        ((AndroidDriver) driver).startActivity(activity);
         logger.info("Navigated to screen activity: {}", appActivity);
     }
 
@@ -354,8 +414,8 @@ public class AndroidUtils extends WebUtils {
      *
      * @param filePath The full path of the file to be uploaded. It can be located anywhere on the local machine.
      * @throws IllegalArgumentException if the specified file does not exist.
-     * @throws RuntimeException if there is an error during the file upload process,
-     *                          such as an IOException when accessing the file.
+     * @throws RuntimeException         if there is an error during the file upload process,
+     *                                  such as an IOException when accessing the file.
      */
     public void pushFileToMobileDevices(String filePath) {
         // Create a File object from the provided file path
@@ -369,7 +429,7 @@ public class AndroidUtils extends WebUtils {
 
         try {
             // Push the file to the mobile device's download directory
-            driver.pushFile(String.format("/sdcard/Download/%s", file.getName()), file);
+            ((AndroidDriver) driver).pushFile(String.format("/sdcard/Download/%s", file.getName()), file);
 
             // Log the successful file upload
             logger.info("Pushed file to mobile device: {}", filePath);

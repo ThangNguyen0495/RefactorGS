@@ -4,15 +4,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
-
-import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 
 /**
  * Utility class providing common methods for interacting with web elements
@@ -42,35 +43,82 @@ public class WebUtils {
     private static final Logger logger = LogManager.getLogger();
 
     /**
-     * Performs an action with optional logging and verification.
+     * Performs a given action with optional logging.
      *
-     * @param logMessage A message to log before performing the action. If null or empty, no logging occurs.
-     * @param action     A Runnable representing the action to be performed. Must not be null.
-     * @param verifier   An optional Runnable to verify the action after it has been performed. Can be null.
-     * @throws IllegalArgumentException If the action is null.
+     * @param action the action to be performed, represented as a {@link Runnable}.
+     * @throws IllegalArgumentException if the action is null.
+     */
+    public static void performAction(Runnable action) {
+        performAction(null, action, null);
+    }
+
+    /**
+     * Performs a given action with optional logging.
+     *
+     * @param logMessage a message to be logged before performing the action; can be null or empty.
+     * @param action     the action to be performed, represented as a {@link Runnable}.
+     * @throws IllegalArgumentException if the action is null.
+     */
+    public static void performAction(String logMessage, Runnable action) {
+        performAction(logMessage, action, null);
+    }
+
+    /**
+     * Performs a given action with optional logging and verification.
+     *
+     * @param logMessage a message to be logged before performing the action; can be null or empty.
+     * @param action     the action to be performed, represented as a {@link Runnable}.
+     * @param verifier   an optional action to verify the primary action; can be null.
+     * @throws IllegalArgumentException if the action is null.
      */
     public static void performAction(String logMessage, Runnable action, Runnable verifier) {
-        // Step 1: Log the start of the action
         if (logMessage != null && !logMessage.isEmpty()) logger.info(logMessage);
 
-        // Step 2: Perform the mandatory action
         if (action == null) {
             throw new IllegalArgumentException("Action must be provided.");
         }
-
         action.run();
 
-        // Step 3: Verify the action, if verifier is provided
         if (verifier != null) {
             verifier.run();
         }
     }
 
     /**
+     * Performs a given action that returns a result, without logging.
+     *
+     * @param <T>    the type of the result produced by the action.
+     * @param action the action to be performed, represented as a {@link Supplier}.
+     * @return the result of the action.
+     * @throws IllegalArgumentException if the action is null.
+     */
+    public static <T> T performAction(Supplier<T> action) {
+        return performAction(null, action);
+    }
+
+    /**
+     * Performs a given action that returns a result, with optional logging.
+     *
+     * @param <T>        the type of the result produced by the action.
+     * @param logMessage a message to be logged before performing the action; can be null or empty.
+     * @param action     the action to be performed, represented as a {@link Supplier}.
+     * @return the result of the action.
+     * @throws IllegalArgumentException if the action is null.
+     */
+    public static <T> T performAction(String logMessage, Supplier<T> action) {
+        if (logMessage != null && !logMessage.isEmpty()) logger.info(logMessage);
+
+        if (action == null) {
+            throw new IllegalArgumentException("Action must be provided.");
+        }
+        return action.get();
+    }
+
+    /**
      * Retries an operation until a specified condition is met or the maximum number of retries is reached.
      * The method performs the action and checks the condition after each attempt. If the condition is met,
-     * the operation succeeds and the result is returned. If the condition is not met after the maximum
-     * retries, an exception is thrown.
+     * the operation succeeds and the result is returned. If the condition not met after the maximum
+     * retries, an exception thrown.
      *
      * @param <T>          The return type of the operation.
      * @param maxRetries   The maximum number of retry attempts before throwing an exception.
@@ -83,26 +131,50 @@ public class WebUtils {
      */
     public static <T> T retryUntil(int maxRetries, int delayMillis, String exceptionMsg, Supplier<Boolean> condition, Supplier<T> action) {
         for (int attempt = 0; attempt < maxRetries; attempt++) {
-            // Perform the action
-            T result = action.get();
-
-            // If the condition is met, return the result
             if (condition.get()) {
-                return result;
+                return action.get();
             }
-
-            // Sleep before retrying
-            WebUtils.sleep(delayMillis);
-
-            // If it's the last attempt and condition still not met, throw an exception
-            if (attempt == maxRetries - 1) {
-                throw new IllegalArgumentException(exceptionMsg);
-            }
+            sleep(delayMillis);
         }
 
         // Safeguard: this should never be reached
         throw new IllegalStateException(exceptionMsg);
     }
+
+    /**
+     * Retries an operation until a specified condition is met or the maximum number of retries is reached.
+     * This method performs the action and checks the condition after each attempt. If the condition is met,
+     * the operation succeeds. If the condition is not met after the maximum retries, an exception thrown.
+     * <p>
+     * This version used for actions that do not return a result.
+     *
+     * @param maxRetries   The maximum number of retry attempts before throwing an exception.
+     * @param delayMillis  The delay in milliseconds between retry attempts.
+     * @param exceptionMsg The message included in the exception if the maximum number of retries is reached.
+     * @param condition    A lambda function that returns {@code true} to stop retrying or {@code false} to continue.
+     * @param action       The action to be performed and retried, which does not return a result.
+     * @throws IllegalArgumentException if the operation fails after the maximum number of retries.
+     */
+    public static void retryUntil(int maxRetries, int delayMillis, String exceptionMsg, Supplier<Boolean> condition, Runnable action) {
+        for (int attempt = 0; attempt < maxRetries; attempt++) {
+            // Check if the condition is already met
+            if (condition.get()) {
+                return; // Exit early if the condition is satisfied
+            }
+
+            // Perform the action if the condition was not met
+            action.run();
+
+            // Pause between retry attempts if more retries are available
+            if (attempt < maxRetries - 1) {
+                sleep(delayMillis); // Sleep for the specified delay
+            }
+        }
+
+        // If the loop exits without meeting the condition, throw an exception
+        throw new IllegalArgumentException(exceptionMsg);
+    }
+
 
     /**
      * Creates a WebDriverWait instance with a custom timeout.
@@ -114,6 +186,33 @@ public class WebUtils {
     public WebDriverWait getWait(int... milliseconds) {
         int timeout = (milliseconds.length == 0) ? SHORT_TIMEOUT_MS : milliseconds[0];
         return new WebDriverWait(driver, Duration.ofMillis(timeout));
+    }
+
+    /**
+     * Waits for a specific condition to be met within the given timeout period.
+     *
+     * @param <T>             The type of the result returned by the condition.
+     * @param condition       The {@link ExpectedCondition} to wait for. Must not be null.
+     * @param timeoutInMillis The maximum time to wait for the condition, in milliseconds. Must be greater than 0.
+     * @return The result of the condition if met within the timeout, or {@code null} if the timeout occurs.
+     * @throws IllegalArgumentException If the condition is null or timeout is not valid.
+     */
+    public <T> T waitForCondition(ExpectedCondition<T> condition, int... timeoutInMillis) {
+        return executeWithAlertHandling(driver, () -> {
+            try {
+                // Wait for the condition to be met
+                return getWait(timeoutInMillis).until(condition);
+            } catch (TimeoutException e) {
+                // Log that the condition was not met within the timeout
+                logger.info("Timeout waiting for condition: {}", condition);
+            } catch (UnhandledAlertException e) {
+                try {
+                    driver.switchTo().alert().dismiss();
+                } catch (NoAlertPresentException ignored) {
+                }
+            }
+            return null;
+        });
     }
 
     /**
@@ -140,13 +239,31 @@ public class WebUtils {
      * @param <T>    The return type of the action.
      * @return The result of the action.
      */
-    public <T> T retryOnStaleElement(Supplier<T> action) {
-        while (true) {
+    public static <T> T retryOnStaleElement(WebDriver driver, Supplier<T> action) {
+        return executeWithAlertHandling(driver, () -> {
             try {
                 return action.get();
             } catch (StaleElementReferenceException ignored) {
+                return action.get();
             }
-        }
+        });
+    }
+
+    /**
+     * Retries an action when a StaleElementReferenceException is thrown.
+     * <p>
+     * This version is used for actions that do not return a value. The action will
+     * be retried up to a certain number of attempts if a StaleElementReferenceException
+     * is encountered.
+     *
+     * @param action The action to be executed and retried if needed.
+     * @throws RuntimeException if the action repeatedly fails due to a StaleElementReferenceException.
+     */
+    public static void retryOnStaleElement(WebDriver driver, Runnable action) {
+        retryOnStaleElement(driver, () -> {
+            action.run(); // Execute the Runnable action
+            return null;  // Return null as Runnable has no return type
+        });
     }
 
     /**
@@ -159,16 +276,55 @@ public class WebUtils {
         JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
 
         // Highlight the element with a red border
-        retryOnStaleElement(() -> {
-            jsExecutor.executeScript("arguments[0].style.border = '2px solid red'", getElement(locator, index));
-            return null;
-        });
+        retryOnStaleElement(driver, () -> jsExecutor.executeScript("arguments[0].style.border = '2px solid red'", getElement(locator, index)));
 
         // Remove the border after a short delay for visual confirmation
-        getWait(1000).until(_ -> retryOnStaleElement(() -> {
+        getWait(1000).until(_ -> retryOnStaleElement(driver, () -> {
             jsExecutor.executeScript("arguments[0].style.border = ''", getElement(locator, index));
             return true;
         }));
+    }
+
+    /**
+     * Executes the given action, dismissing any alert if it appears during execution.
+     *
+     * @param action the action to perform, returning a result of type T.
+     * @param <T>    the type of result returned by the action.
+     * @return the result of the action.
+     */
+    public static <T> T executeWithAlertHandling(WebDriver driver, Supplier<T> action) {
+        try {
+            return action.get(); // Try to execute the action
+        } catch (UnhandledAlertException e) {
+            handleAlert(driver); // Handle unexpected alert
+            return action.get(); // Retry the action once after dismissing the alert
+        }
+    }
+
+    /**
+     * Executes the given action, dismissing any alert if it appears during execution.
+     *
+     * @param action the action to perform, which does not return a result.
+     * @throws RuntimeException if the action fails after handling an alert.
+     */
+    public void executeWithAlertHandling(Runnable action) {
+        executeWithAlertHandling(driver, () -> {
+            action.run(); // Wrap the Runnable in a Supplier
+            return null;  // Return null since Runnable doesn't produce a result
+        });
+    }
+
+    /**
+     * Dismisses an alert if present.
+     */
+    private static void handleAlert(WebDriver driver) {
+        try {
+            Alert alert = driver.switchTo().alert();
+            alert.dismiss();
+            logger.debug("Alert dismissed.");
+        } catch (NoAlertPresentException ignored) {
+            // No alert was present, nothing to dismiss
+        }
     }
 
     /**
@@ -179,14 +335,18 @@ public class WebUtils {
      * @return A list of web elements.
      */
     public List<WebElement> getListElement(By locator, int... milliseconds) {
+        // Determine the wait time, using the provided timeout or defaulting to 3000 ms
         int waitTime = (milliseconds.length != 0) ? milliseconds[0] : 3000;
-        try {
-            getWait(waitTime).until(ExpectedConditions.presenceOfElementLocated(locator));
-        } catch (TimeoutException ex) {
+
+        // Wait for the presence of at least one element matching the locator
+        var result = waitForCondition(ExpectedConditions.presenceOfElementLocated(locator), waitTime);
+        if (result == null) {
+            // Return an empty list if the condition was not met
             return List.of();
         }
 
-        return wait.until(presenceOfAllElementsLocatedBy(locator));
+        // Retrieve all elements matching the locator
+        return executeWithAlertHandling(driver, () -> wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator)));
     }
 
     /**
@@ -195,8 +355,8 @@ public class WebUtils {
      * @param locator The By locator.
      * @return The WebElement.
      */
-    private WebElement getElement(By locator) {
-        return retryOnStaleElement(() -> wait.until(presenceOfElementLocated(locator)));
+    public WebElement getElement(By locator) {
+        return retryOnStaleElement(driver, () -> wait.until(ExpectedConditions.presenceOfElementLocated(locator)));
     }
 
     /**
@@ -207,7 +367,7 @@ public class WebUtils {
      * @return The WebElement.
      */
     public WebElement getElement(By locator, int index) {
-        return retryOnStaleElement(() -> wait.until(presenceOfAllElementsLocatedBy(locator)).get(index));
+        return retryOnStaleElement(driver, () -> wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator)).get(index));
     }
 
     /**
@@ -249,10 +409,10 @@ public class WebUtils {
         highlightElement(locator, index);
 
         // Wait for the element to be clickable
-        elementToBeClickable(locator, index);
+        waitElementVisible(locator, index);
 
         // Retry to click the element
-        retryOnStaleElement(() -> retryOnClickIntercepted(locator, index));
+        retryOnStaleElement(driver, () -> retryOnClickIntercepted(locator, index));
     }
 
     /**
@@ -266,7 +426,7 @@ public class WebUtils {
      * @param index   The index of the element to be clicked if multiple elements match the locator.
      *                Use 0 to click the first element.
      */
-    private <T> T retryOnClickIntercepted(By locator, int index) {
+    private void retryOnClickIntercepted(By locator, int index) {
         try {
             // Attempt to perform a regular click on the element
             getElement(locator, index).click();
@@ -274,8 +434,6 @@ public class WebUtils {
             // If click is intercepted, perform the click using JavaScript
             ((JavascriptExecutor) driver).executeScript("arguments[0].click();", getElement(locator, index));
         }
-
-        return null;
     }
 
     /**
@@ -312,10 +470,9 @@ public class WebUtils {
         highlightElement(locator, index);
 
         // Retry click element by JavaScripts
-        retryOnStaleElement(() -> {
+        retryOnStaleElement(driver, () -> {
             // Perform click using JavaScript
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator, index));
-            return null;
         });
     }
 
@@ -327,10 +484,7 @@ public class WebUtils {
      * @param index   The index of the element in the list.
      */
     private void clickOutOfTextBox(By locator, int index) {
-        retryOnStaleElement(() -> {
-            ((JavascriptExecutor) driver).executeScript("arguments[0].blur();", getElement(locator, index));
-            return null;
-        });
+        retryOnStaleElement(driver, () -> ((JavascriptExecutor) driver).executeScript("arguments[0].blur();", getElement(locator, index)));
     }
 
     /**
@@ -359,12 +513,8 @@ public class WebUtils {
                 () -> {
                     clear(locator, index);
                     click(locator, index);
-                    retryOnStaleElement(() -> {
-                        retrySendKeysOnElementNotInteractable(locator, index, content);
-                        return null;
-                    });
+                    retryOnStaleElement(driver, () -> retrySendKeysOnElementNotInteractable(locator, index, content));
                     clickOutOfTextBox(locator, index);
-                    return null;
                 });
     }
 
@@ -412,12 +562,25 @@ public class WebUtils {
         if (content instanceof String) {
             String contentStr = content.toString();
             // Check if the element's text or value matches the content
-            return compareStringsIgnoreCase(contentStr, getText(locator, index))
-                   || compareStringsIgnoreCase(getValue(locator, index), contentStr);
+            return compareStringsIgnoreCase(contentStr, getElementValue(locator, index));
         }
 
         // If content is not a String (e.g., Keys), return true as no comparison is needed
         return true;
+    }
+
+    private String getElementValue(By locator, int index) {
+        var text = getText(locator, index);
+        if (!text.isEmpty()) {
+            return text; // Return early if text is not empty
+        }
+
+        text = getValue(locator, index);
+        if (text != null && !text.isEmpty()) {
+            return text; // Return early if value is not null and not empty
+        }
+
+        return ""; // Return empty string if neither condition is met
     }
 
     /**
@@ -471,10 +634,7 @@ public class WebUtils {
         // Ensure that at least one element is found
         Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to upload files.");
 
-        retryOnStaleElement(() -> {
-            getElement(locator, index).sendKeys(content);
-            return null;
-        });
+        retryOnStaleElement(driver, () -> getElement(locator, index).sendKeys(content));
     }
 
     /**
@@ -491,14 +651,16 @@ public class WebUtils {
      * Gets the text of a WebElement located by the specified locator and index.
      *
      * @param locator The By locator.
-     * @param index   The index of the element in the list.
      * @return The text of the WebElement.
      */
     public String getText(By locator, int index) {
         // Ensure that at least one element is found
         Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to getText.");
 
-        return retryOnStaleElement(() -> waitVisibilityOfElementLocated(locator, index).getText());
+        return retryOnStaleElement(driver, () -> {
+            waitVisibilityOfElementLocated(locator);
+            return getElement(locator, index).getText();
+        });
     }
 
     /**
@@ -519,7 +681,7 @@ public class WebUtils {
      * @return The value of the WebElement.
      */
     public String getValue(By locator, int index) {
-        return retryOnStaleElement(() -> getAttribute(locator, index, "value"));
+        return retryOnStaleElement(driver, () -> getAttribute(locator, index, "value"));
     }
 
     /**
@@ -533,7 +695,10 @@ public class WebUtils {
     public String getAttribute(By locator, int index, String attribute) {
         // Ensure that at least one element is found
         Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to getAttribute.");
-        return retryOnStaleElement(() -> getElement(locator, index).getAttribute(attribute));
+        return retryOnStaleElement(driver, () -> {
+            waitVisibilityOfElementLocated(locator);
+            return getElement(locator, index).getAttribute(attribute);
+        });
     }
 
     /**
@@ -559,12 +724,14 @@ public class WebUtils {
      */
     private void clear(By locator, int index) {
         retryUntil(5, 1000, "Cannot clear field after 5 attempts",
-                () -> elementTextMatches(locator, index, ""), () -> {
-                    retryOnStaleElement(() -> {
-                        getElement(locator, index).sendKeys(Keys.HOME, Keys.chord(Keys.SHIFT, Keys.END), Keys.DELETE);
-                        return null;
-                    });
-                    return null;
+                () -> elementTextMatches(locator, index, ""),
+                () -> {
+                    String elementText = getElementValue(locator, index);
+                    CharSequence[] clearChars = new CharSequence[elementText.length()];
+                    Arrays.fill(clearChars, Keys.BACK_SPACE);
+                    retryOnStaleElement(driver, () -> getElement(locator, index).sendKeys(clearChars));
+                    Arrays.fill(clearChars, Keys.DELETE);
+                    retryOnStaleElement(driver, () -> getElement(locator, index).sendKeys(clearChars));
                 });
     }
 
@@ -589,7 +756,7 @@ public class WebUtils {
         // Ensure that at least one element is found
         Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to check checkbox state.");
 
-        return retryOnStaleElement(() ->
+        return retryOnStaleElement(driver, () ->
                 (boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", getElement(locator, index))
         );
     }
@@ -615,7 +782,7 @@ public class WebUtils {
         // Ensure that at least one element is found
         Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to check its state.");
 
-        return retryOnStaleElement(() ->
+        return retryOnStaleElement(driver, () ->
                 (Boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].disabled", getElement(locator, index))
         );
     }
@@ -640,10 +807,7 @@ public class WebUtils {
      */
     public void removeElement(By locator) {
         if (getElement(locator) != null) {
-            retryOnStaleElement(() -> {
-                ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", getElement(locator));
-                return null;
-            });
+            retryOnStaleElement(driver, () -> ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", getElement(locator)));
         }
     }
 
@@ -711,8 +875,8 @@ public class WebUtils {
      *
      * @param locator The locator of the element.
      */
-    public WebElement waitVisibilityOfElementLocated(By locator, int index) {
-        return retryOnStaleElement(() -> wait.until(visibilityOfAllElementsLocatedBy(locator)).get(index));
+    public void waitVisibilityOfElementLocated(By locator) {
+        retryOnStaleElement(driver, () -> wait.until(ExpectedConditions.visibilityOfElementLocated(locator)));
     }
 
     /**
@@ -721,10 +885,7 @@ public class WebUtils {
      * @param locator The locator of the element.
      */
     public void waitInvisibilityOfElementLocated(By locator) {
-        retryOnStaleElement(() -> {
-            wait.until(invisibilityOfElementLocated(locator));
-            return null;
-        });
+        retryOnStaleElement(driver, () -> wait.until(ExpectedConditions.invisibilityOfElementLocated(locator)));
     }
 
     /**
@@ -743,7 +904,26 @@ public class WebUtils {
         }
 
         // Wait until the element becomes clickable
-        retryOnStaleElement(() -> wait.until(ExpectedConditions.elementToBeClickable(getElement(locator, index))));
+        retryOnStaleElement(driver, () -> wait.until(ExpectedConditions.elementToBeClickable(getElement(locator, index))));
+    }
+
+    /**
+     * Waits for the element identified by the locator and index to be clickable.
+     * If the element is disabled, it skips the wait.
+     *
+     * @param locator The locator of the element.
+     * @param index   The index of the element if there are multiple matching elements.
+     */
+    private void waitElementVisible(By locator, int index) {
+        Boolean isDisabled = isDisabledJS(locator, index);
+
+        // Skip the wait if the element is null or disabled
+        if (isDisabled == null || isDisabled) {
+            return;
+        }
+
+        // Wait until the element becomes clickable
+        retryOnStaleElement(driver, () -> wait.until(ExpectedConditions.visibilityOf(getElement(locator, index))));
     }
 
     /**
@@ -779,16 +959,14 @@ public class WebUtils {
     public void checkCheckbox(By locator, int index) {
         String errorMessage = "Failed to check the checkbox after 5 attempts.";
 
+        if (isDisabledJS(locator, index)) {
+            throw new RuntimeException("Can not check the checkbox because the checkbox is disabled.");
+        }
+
         // Retry checking the checkbox up to 5 times
         retryUntil(5, 1000, errorMessage,
                 () -> isCheckedJS(locator, index), // Condition to stop retrying: checkbox is checked
-                () -> {
-                    // Attempt to check the checkbox using JavaScript if it's still unchecked
-                    if (!isCheckedJS(locator, index)) {
-                        clickJS(locator, index); // Click the checkbox using JavaScript
-                    }
-                    return null; // Return null since the Supplier expects a return value
-                }
+                () -> clickJS(locator, index)
         );
     }
 
@@ -815,18 +993,60 @@ public class WebUtils {
     public void uncheckCheckbox(By locator, int index) {
         String errorMessage = "Failed to uncheck the checkbox after 5 attempts.";
 
+        if (isDisabledJS(locator, index)) {
+            return;
+        }
+
         // Retry unchecking the checkbox up to 5 times
         retryUntil(5, 1000, errorMessage,
                 () -> !isCheckedJS(locator, index), // Condition to stop retrying: checkbox is unchecked
-                () -> {
-                    // Attempt to uncheck the checkbox using JavaScript if it's still checked
-                    if (isCheckedJS(locator, index)) {
-                        clickJS(locator, index); // Click the checkbox to uncheck it using JavaScript
-                    }
-
-                    return null; // Return null since the Supplier expects a return value
-                }
+                () -> clickJS(locator, index)
         );
     }
 
+    /**
+     * Waits until a dropdown contains a specific option value.
+     *
+     * @param locator The {@link By} locator to identify the dropdown element.
+     * @param value   The option value to wait for in the dropdown.
+     * @throws TimeoutException If the dropdown does not contain the specified value within the wait time.
+     */
+    private void waitUntilDropdownContainsValueThenGetItsText(By locator, String value) {
+        wait.until((ExpectedCondition<Boolean>) driver -> retryOnStaleElement(driver, () -> {
+            List<WebElement> options = new Select(getElement(locator)).getOptions();
+            return options.stream().anyMatch(option -> option.getAttribute("value").equals(value));
+        }));
+    }
+
+    /**
+     * Selects an option in a dropdown menu based on its value and logs the selected option's text.
+     * This method waits for the dropdown to contain the specified value, selects the option with the given value,
+     * and then logs the option's text. If the value is not found, an exception is thrown.
+     *
+     * @param locator     The {@link By} locator to identify the dropdown element.
+     * @param optionValue The value of the option to be selected.
+     * @throws NoSuchElementException If the specified option value does not exist in the dropdown.
+     * @throws TimeoutException       If the dropdown does not contain the specified value within the wait time.
+     */
+    public void selectDropdownOptionByValue(By locator, String optionValue) {
+        // Wait for the dropdown to contain the option value and retrieve its text
+        waitUntilDropdownContainsValueThenGetItsText(locator, optionValue);
+
+        retryOnStaleElement(driver, () -> {
+            try {
+                // Select the option by value
+                new Select(getElement(locator)).selectByValue(optionValue);
+
+                // Find the selected option and log its text
+                retryOnStaleElement(driver, () -> {
+                    WebElement selectedOption = new Select(getElement(locator)).getFirstSelectedOption();
+                    logger.info("Selected option: {} with value: {}", selectedOption.getText(), optionValue);
+                });
+            } catch (NoSuchElementException e) {
+                // If the value is not found, throw an exception with a descriptive message
+                throw new NoSuchElementException("Option with value '" + optionValue + "' not found in dropdown.", e);
+            }
+
+        });
+    }
 }

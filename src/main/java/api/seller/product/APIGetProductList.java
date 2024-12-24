@@ -142,7 +142,7 @@ public class APIGetProductList {
                 .filter(product -> product.getName().equals(name))
                 .findAny()
                 .map(Product::getId)
-                .orElseThrow(() -> new NoSuchElementException("Product with name '" + name + "' not found"));
+                .orElseThrow(() -> new RuntimeException("Product with name '" + name + "' not found"));
     }
 
     /**
