@@ -72,7 +72,7 @@ jobs:
 #          scripts: |
 #            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
 #            mvn test "-DsuiteFile=test_configs/web/buyer/product_detail.xml"
-            
+
 
   IOS-GoSELLER-CreateProduct:
     runs-on: macos-latest
@@ -91,7 +91,14 @@ jobs:
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo 'iosSimulatorUdid=$UDID' > src/main/resources/config.properties
-            cat src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/ios/seller/IOSGoSELLERCreateProductTest.xml"
+      - name: Upload configs files
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+            name: Configs
+            path: |
+              **/config.properties
+            
 
 
