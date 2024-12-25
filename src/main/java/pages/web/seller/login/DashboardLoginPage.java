@@ -71,21 +71,26 @@ public class DashboardLoginPage {
      * Selects the display language on the login page.
      * This method retrieves the current language from local storage and updates it if needed.
      *
-     * @param langKey The language key to select (e.g., "en" for English, "vi" for Vietnamese).
      * @return The current instance of `DashboardLoginPage`.
      */
-    public DashboardLoginPage selectDisplayLanguage(String langKey) {
-        this.langKey = langKey;
+    public DashboardLoginPage selectDisplayLanguage() {
+        if (PropertiesUtils.getEnv().contains("BIZ")) {
+            this.langKey = "en";
+            logger.info("Shop BIZ does not have language to select.");
+            return this;
+        }
+
+        this.langKey = PropertiesUtils.getLangKey();
         String currentLangKey = webUtils.getLocalStorageValue("langKey");
 
-        if (langKey.equals(currentLangKey)) {
-            logger.info("Current language is already set to '{}'; no change needed.", langKey);
+        if (this.langKey.equals(currentLangKey)) {
+            logger.info("Current language is already set to '{}'; no change needed.", this.langKey);
             return this;
         }
 
         webUtils.click(loc_ddlLanguage); // Opens the language dropdown
-        webUtils.click(loc_ddvLanguage(langKey)); // Selects the desired language
-        logger.info("Selected display language '{}'.", langKey);
+        webUtils.click(loc_ddvLanguage(this.langKey)); // Selects the desired language
+        logger.info("Selected display language '{}'.", this.langKey);
 
         return this;
     }
