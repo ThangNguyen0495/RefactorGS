@@ -79,6 +79,7 @@ jobs:
     environment: ${{ github.event.inputs.target_env }}
     steps:
       - uses: ThangNguyen0495/create-ios-simulator@v1.0.0
+        id: retrieve_udid
 
       - uses: ThangNguyen0495/execute-appium-ios-test@v1.0.0
         with:
