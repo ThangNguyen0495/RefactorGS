@@ -20,3 +20,10 @@ jobs:
             echo "$ENV_FILES" >> src/main/resources/config.properties
             chmod 600 src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/web/seller/loginTest.xml"
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: Configs
+          path: |
+            **/src/main/resources/config.properties

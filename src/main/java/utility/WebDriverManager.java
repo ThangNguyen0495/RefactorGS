@@ -114,7 +114,6 @@ public class WebDriverManager {
     public static WebDriver getWebDriver() {
         WebDriver driver;
         boolean headless = System.getProperty("os.name").equals("Linux") || PropertiesUtils.getHeadless();
-
         switch (PropertiesUtils.getBrowser()) {
             case "firefox" -> {
                 io.github.bonigarcia.wdm.WebDriverManager.firefoxdriver().setup();
