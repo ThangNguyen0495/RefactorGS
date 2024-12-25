@@ -20,7 +20,7 @@ jobs:
         with:
           test_name: "Dashboard-Login"
           scripts: |
-            echo "$CONFIG_FILES" > src/main/resources/config.properties
+            echo "$CONFIG_FILES" >> src/main/resources/config.properties > /dev/null 2>&1
             mvn test "-DsuiteFile=test_configs/web/seller/loginTest.xml"
 
       - name: Upload Test Report
