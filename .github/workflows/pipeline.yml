@@ -27,3 +27,11 @@ jobs:
       #          scripts: |
       #            echo "$CONFIG_FILES" >> src/main/resources/config.properties > /dev/null 2>&1
       #            mvn test "-DsuiteFile=test_configs/web/seller/loginTest.xml"
+
+      - name: Upload Test Report
+        if: always()  # Ensure this runs even if the previous step fails
+        uses: actions/upload-artifact@v3
+        with:
+          name: Configs  # Name of the artifact
+          path: |
+            **/config.txt  # Correct the path to the file
