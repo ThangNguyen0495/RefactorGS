@@ -84,21 +84,23 @@ jobs:
       - run: |
           UDID=$(cat udid.txt)
           echo "udid: $UDID"
+          echo '${{ secrets.ENV_FILES }}' > config.txt
+          cat udid.txt > config.txt
 
-      - uses: ThangNguyen0495/execute-appium-ios-test@v1.0.0
-        with:
-          test_name: "IOS-GoSELLER-CreateProduct"
-          scripts: |
-            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            echo 'iosSimulatorUdid=$UDID' > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/ios/seller/IOSGoSELLERCreateProductTest.xml"
+#      - uses: ThangNguyen0495/execute-appium-ios-test@v1.0.0
+#        with:
+#          test_name: "IOS-GoSELLER-CreateProduct"
+#          scripts: |
+#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+#            echo 'iosSimulatorUdid=$UDID' > src/main/resources/config.properties
+#            mvn test "-DsuiteFile=test_configs/ios/seller/IOSGoSELLERCreateProductTest.xml"
       - name: Upload configs files
         if: always()
         uses: actions/upload-artifact@v3
         with:
             name: Configs
             path: |
-              **/config.properties
+              **/config.txt
             
 
 
