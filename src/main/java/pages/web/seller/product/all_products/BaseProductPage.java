@@ -15,6 +15,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 import pages.android.seller.login.LoginScreen;
+import pages.web.seller.login.DashboardLoginPage;
 import utility.PropertiesUtils;
 import utility.WebUtils;
 import utility.helper.ProductHelper;
@@ -147,7 +148,7 @@ public class BaseProductPage extends BaseProductElement {
         this.storeLanguageNames = APIGetStoreLanguage.getAllStoreLanguageNames(languageInfos);
 
         // Get all user packages
-        this.userPackages = new APIGetUserFeature(LoginScreen.getCredentials()).getUserFeature();
+        this.userPackages = new APIGetUserFeature(credentials).getUserFeature();
 
         // Init platform information
         this.showOnApp = hasGoAPP(userPackages);

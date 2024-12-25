@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="Product Creation Test Suite">
-    <test name="[ANDROID][GoSELLER] Product Update Tests">
+<suite name="Product Update Test Suite">
+    <test name="[IOS][GoSELLER] Product Update Tests">
         <classes>
-            <class name="android.seller.AndroidGoSELLERCreateProductTest">
+            <class name="ios.seller.IOSGoSELLERUpdateProductTest">
             </class>
         </classes>
     </test>

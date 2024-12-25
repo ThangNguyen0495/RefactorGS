@@ -18,7 +18,7 @@ import java.util.Arrays;
  * Test class for updating products on the seller dashboard.
  * This class tests various scenarios for product updates using different configurations of product attributes.
  */
-public class UpdateProductTest extends BaseTest {
+public class AndroidGoSELLERUpdateProductTest extends BaseTest {
     private AndroidBaseProductScreen productScreen;
 
     /**

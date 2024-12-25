@@ -4,6 +4,7 @@ import api.seller.product.APICreateProduct;
 import baseTest.BaseTest;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.logging.log4j.LogManager;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -18,7 +19,7 @@ import java.util.Arrays;
  * Test class for updating products on the seller dashboard.
  * This class tests various scenarios for product updates using different configurations of product attributes.
  */
-public class UpdateProductTest extends BaseTest {
+public class DashboardUpdateProductTest extends BaseTest {
     private BaseProductPage productPage;
     private APICreateProduct apiCreateProduct;
 
@@ -33,6 +34,15 @@ public class UpdateProductTest extends BaseTest {
         productPage = new BaseProductPage(driver).fetchInformation(sellerCredentials);
         new DashboardLoginPage(driver).loginDashboardByJs(sellerCredentials);
         apiCreateProduct = new APICreateProduct(sellerCredentials);
+    }
+
+    /**
+     * Cleans up after the test suite by quitting the WebDriver instance.
+     * This method runs after all tests in the suite are completed.
+     */
+    @AfterClass
+    void tearDown() {
+        if (driver != null) driver.quit();
     }
 
     /**
@@ -85,61 +95,61 @@ public class UpdateProductTest extends BaseTest {
         return new Object[][]{
                 // G1: Without variation, managed by Product
                 generateTestObject(false, wpProdId, "noDiscount", "G1_01: Update product without variation, managed by Product and no discount"),
-//                generateTestObject(false, wpProdId, "noCost", "G1_02: Update product without variation, managed by Product and no cost"),
-//                generateTestObject(false, wpProdId, "hasDimension", "G1_03: Update product without variation, managed by Product and with dimension"),
-//                generateTestObject(false, wpProdId, "hasSEO", "G1_04: Update product without variation, managed by Product and with SEO"),
-//                generateTestObject(false, wpProdId, "managedByLot", "G1_05: Update product without variation, managed by Product and manage by lot"),
-//                generateTestObject(false, wpProdId, "hasAttribution", "G1_06: Add attribution to product without variation, managed by Product"),
-//                generateTestObject(false, wpProdId, "randomPlatforms", "G1_07: Update product without variation, managed by Product with random platforms"),
-//                generateTestObject(false, wpProdId, "inStock", "G1_08: Update product without variation, managed by Product and in stock"),
-//                generateTestObject(false, wpProdId, "addWholesalePrice", "G1_09: Add wholesale pricing to product without variation, managed by Product"),
-//                generateTestObject(false, wpProdId, "addConversionUnit", "G1_10: Add conversion unit to product without variation, managed by Product"),
-//                generateTestObject(false, wpProdId, "changeStatus", "G1_11: Change product's status without variation, managed by Product"),
-//                generateTestObject(false, wpProdId, "editTranslation", "G1_12: Add translation to product without variation, managed by Product"),
-//                generateTestObject(false, wpProdId, "isDelete", "G1_13: Delete product without variation, managed by Product"),
-//
-//                // G2: Without variation, managed by IMEI
-//                generateTestObject(false, wpIMEIProdId, "noDiscount", "G2_01: Update product without variation, managed by IMEI and no discount"),
-//                generateTestObject(false, wpIMEIProdId, "noCost", "G2_02: Update product without variation, managed by IMEI and no cost"),
-//                generateTestObject(false, wpIMEIProdId, "hasDimension", "G2_03: Update product without variation, managed by IMEI and with dimension"),
-//                generateTestObject(false, wpIMEIProdId, "hasSEO", "G2_04: Update product without variation, managed by IMEI and with SEO"),
-//                generateTestObject(false, wpIMEIProdId, "randomPlatforms", "G2_05: Update product without variation, managed by IMEI with random platforms"),
-//                generateTestObject(false, wpIMEIProdId, "hasAttribution", "G2_06: Add attribution to product without variation, managed by IMEI"),
-//                generateTestObject(false, wpIMEIProdId, "inStock", "G2_07: Update product without variation, managed by IMEI and in stock"),
-//                generateTestObject(false, wpIMEIProdId, "addWholesalePrice", "G2_08: Add wholesale pricing to product without variation, managed by IMEI"),
-//                generateTestObject(false, wpIMEIProdId, "addConversionUnit", "G2_09: Add conversion unit to product without variation, managed by IMEI"),
-//                generateTestObject(false, wpIMEIProdId, "changeStatus", "G2_10: Change product's status without variation, managed by IMEI"),
-//                generateTestObject(false, wpIMEIProdId, "editTranslation", "G2_11: Add translation to product without variation, managed by IMEI"),
-//                generateTestObject(false, wpIMEIProdId, "isDelete", "G2_12: Delete product without variation, managed by IMEI"),
-//
-//                // G3: With variation, managed by Product
-//                generateTestObject(true, wvProdId, "noDiscount", "G3_01: Update product with variation, managed by Product and no discount"),
-//                generateTestObject(true, wvProdId, "noCost", "G3_02: Update product with variation, managed by Product and no cost"),
-//                generateTestObject(true, wvProdId, "hasDimension", "G3_03: Update product with variation, managed by Product and with dimension"),
-//                generateTestObject(true, wvProdId, "hasSEO", "G3_04: Update product with variation, managed by Product and with SEO"),
-//                generateTestObject(true, wvProdId, "managedByLot", "G3_05: Update product with variation, managed by Product and manage by lot"),
-//                generateTestObject(true, wvProdId, "hasAttribution", "G3_06: Add attribution to product with variation, managed by Product"),
-//                generateTestObject(true, wvProdId, "randomPlatforms", "G3_07: Update product with variation, managed by Product and set random platform"),
-//                generateTestObject(true, wvProdId, "inStock", "G3_08: Update product with variation, managed by Product and in stock"),
-//                generateTestObject(true, wvProdId, "addWholesalePrice", "G3_09: Add wholesale pricing to product with variation, managed by Product"),
-//                generateTestObject(true, wvProdId, "addConversionUnit", "G3_10: Add conversion unit to product with variation, managed by Product"),
-//                generateTestObject(true, wvProdId, "changeStatus", "G3_11: Change product's status with variation, managed by Product"),
-//                generateTestObject(true, wvProdId, "editTranslation", "G3_12: Add translation to product with variation, managed by Product"),
-//                generateTestObject(true, wvProdId, "isDelete", "G3_13: Delete product with variation, managed by Product"),
-//
-//                // G4: With variation, managed by IMEI
-//                generateTestObject(true, wvIMEIProdId, "noDiscount", "G4_01: Update product with variation, managed by IMEI and no discount"),
-//                generateTestObject(true, wvIMEIProdId, "noCost", "G4_02: Update product with variation, managed by IMEI and no cost"),
-//                generateTestObject(true, wvIMEIProdId, "hasDimension", "G4_03: Update product with variation, managed by IMEI and with dimension"),
-//                generateTestObject(true, wvIMEIProdId, "hasSEO", "G4_04: Update product with variation, managed by IMEI and with SEO"),
-//                generateTestObject(true, wvIMEIProdId, "randomPlatforms", "G4_05: Update product with variation, managed by IMEI and set random platform"),
-//                generateTestObject(true, wvIMEIProdId, "hasAttribution", "G4_06: Add attribution to product with variation, managed by IMEI"),
-//                generateTestObject(true, wvIMEIProdId, "inStock", "G4_07: Update product with variation, managed by IMEI and in stock"),
-//                generateTestObject(true, wvIMEIProdId, "addWholesalePrice", "G4_08: Add wholesale pricing to product with variation, managed by IMEI"),
-//                generateTestObject(true, wvIMEIProdId, "addConversionUnit", "G4_09: Add conversion unit to product with variation, managed by IMEI"),
-//                generateTestObject(true, wvIMEIProdId, "changeStatus", "G4_10: Change product's status with variation, managed by IMEI"),
-//                generateTestObject(true, wvIMEIProdId, "editTranslation", "G4_11: Add translation to product with variation, managed by IMEI"),
-//                generateTestObject(true, wvIMEIProdId, "isDelete", "G4_12: Delete product with variation, managed by IMEI")
+                generateTestObject(false, wpProdId, "noCost", "G1_02: Update product without variation, managed by Product and no cost"),
+                generateTestObject(false, wpProdId, "hasDimension", "G1_03: Update product without variation, managed by Product and with dimension"),
+                generateTestObject(false, wpProdId, "hasSEO", "G1_04: Update product without variation, managed by Product and with SEO"),
+                generateTestObject(false, wpProdId, "managedByLot", "G1_05: Update product without variation, managed by Product and manage by lot"),
+                generateTestObject(false, wpProdId, "hasAttribution", "G1_06: Add attribution to product without variation, managed by Product"),
+                generateTestObject(false, wpProdId, "randomPlatforms", "G1_07: Update product without variation, managed by Product with random platforms"),
+                generateTestObject(false, wpProdId, "inStock", "G1_08: Update product without variation, managed by Product and in stock"),
+                generateTestObject(false, wpProdId, "addWholesalePrice", "G1_09: Add wholesale pricing to product without variation, managed by Product"),
+                generateTestObject(false, wpProdId, "addConversionUnit", "G1_10: Add conversion unit to product without variation, managed by Product"),
+                generateTestObject(false, wpProdId, "changeStatus", "G1_11: Change product's status without variation, managed by Product"),
+                generateTestObject(false, wpProdId, "editTranslation", "G1_12: Add translation to product without variation, managed by Product"),
+                generateTestObject(false, wpProdId, "isDelete", "G1_13: Delete product without variation, managed by Product"),
+
+                // G2: Without variation, managed by IMEI
+                generateTestObject(false, wpIMEIProdId, "noDiscount", "G2_01: Update product without variation, managed by IMEI and no discount"),
+                generateTestObject(false, wpIMEIProdId, "noCost", "G2_02: Update product without variation, managed by IMEI and no cost"),
+                generateTestObject(false, wpIMEIProdId, "hasDimension", "G2_03: Update product without variation, managed by IMEI and with dimension"),
+                generateTestObject(false, wpIMEIProdId, "hasSEO", "G2_04: Update product without variation, managed by IMEI and with SEO"),
+                generateTestObject(false, wpIMEIProdId, "randomPlatforms", "G2_05: Update product without variation, managed by IMEI with random platforms"),
+                generateTestObject(false, wpIMEIProdId, "hasAttribution", "G2_06: Add attribution to product without variation, managed by IMEI"),
+                generateTestObject(false, wpIMEIProdId, "inStock", "G2_07: Update product without variation, managed by IMEI and in stock"),
+                generateTestObject(false, wpIMEIProdId, "addWholesalePrice", "G2_08: Add wholesale pricing to product without variation, managed by IMEI"),
+                generateTestObject(false, wpIMEIProdId, "addConversionUnit", "G2_09: Add conversion unit to product without variation, managed by IMEI"),
+                generateTestObject(false, wpIMEIProdId, "changeStatus", "G2_10: Change product's status without variation, managed by IMEI"),
+                generateTestObject(false, wpIMEIProdId, "editTranslation", "G2_11: Add translation to product without variation, managed by IMEI"),
+                generateTestObject(false, wpIMEIProdId, "isDelete", "G2_12: Delete product without variation, managed by IMEI"),
+
+                // G3: With variation, managed by Product
+                generateTestObject(true, wvProdId, "noDiscount", "G3_01: Update product with variation, managed by Product and no discount"),
+                generateTestObject(true, wvProdId, "noCost", "G3_02: Update product with variation, managed by Product and no cost"),
+                generateTestObject(true, wvProdId, "hasDimension", "G3_03: Update product with variation, managed by Product and with dimension"),
+                generateTestObject(true, wvProdId, "hasSEO", "G3_04: Update product with variation, managed by Product and with SEO"),
+                generateTestObject(true, wvProdId, "managedByLot", "G3_05: Update product with variation, managed by Product and manage by lot"),
+                generateTestObject(true, wvProdId, "hasAttribution", "G3_06: Add attribution to product with variation, managed by Product"),
+                generateTestObject(true, wvProdId, "randomPlatforms", "G3_07: Update product with variation, managed by Product and set random platform"),
+                generateTestObject(true, wvProdId, "inStock", "G3_08: Update product with variation, managed by Product and in stock"),
+                generateTestObject(true, wvProdId, "addWholesalePrice", "G3_09: Add wholesale pricing to product with variation, managed by Product"),
+                generateTestObject(true, wvProdId, "addConversionUnit", "G3_10: Add conversion unit to product with variation, managed by Product"),
+                generateTestObject(true, wvProdId, "changeStatus", "G3_11: Change product's status with variation, managed by Product"),
+                generateTestObject(true, wvProdId, "editTranslation", "G3_12: Add translation to product with variation, managed by Product"),
+                generateTestObject(true, wvProdId, "isDelete", "G3_13: Delete product with variation, managed by Product"),
+
+                // G4: With variation, managed by IMEI
+                generateTestObject(true, wvIMEIProdId, "noDiscount", "G4_01: Update product with variation, managed by IMEI and no discount"),
+                generateTestObject(true, wvIMEIProdId, "noCost", "G4_02: Update product with variation, managed by IMEI and no cost"),
+                generateTestObject(true, wvIMEIProdId, "hasDimension", "G4_03: Update product with variation, managed by IMEI and with dimension"),
+                generateTestObject(true, wvIMEIProdId, "hasSEO", "G4_04: Update product with variation, managed by IMEI and with SEO"),
+                generateTestObject(true, wvIMEIProdId, "randomPlatforms", "G4_05: Update product with variation, managed by IMEI and set random platform"),
+                generateTestObject(true, wvIMEIProdId, "hasAttribution", "G4_06: Add attribution to product with variation, managed by IMEI"),
+                generateTestObject(true, wvIMEIProdId, "inStock", "G4_07: Update product with variation, managed by IMEI and in stock"),
+                generateTestObject(true, wvIMEIProdId, "addWholesalePrice", "G4_08: Add wholesale pricing to product with variation, managed by IMEI"),
+                generateTestObject(true, wvIMEIProdId, "addConversionUnit", "G4_09: Add conversion unit to product with variation, managed by IMEI"),
+                generateTestObject(true, wvIMEIProdId, "changeStatus", "G4_10: Change product's status with variation, managed by IMEI"),
+                generateTestObject(true, wvIMEIProdId, "editTranslation", "G4_11: Add translation to product with variation, managed by IMEI"),
+                generateTestObject(true, wvIMEIProdId, "isDelete", "G4_12: Delete product with variation, managed by IMEI")
         };
     }
 

@@ -23,17 +23,17 @@ jobs:
 #          scripts: |
 #            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
 #            mvn test "-DsuiteFile=test_configs/web/seller/loginTest.xml"
-
-  Dashboard-CreateProduct:
-    runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.target_env }}
-    steps:
-      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
-        with:
-          test_name: "Dashboard-CreateProduct"
-          scripts: |
-            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/web/seller/create_product.xml"
+#
+#  Dashboard-CreateProduct:
+#    runs-on: ubuntu-latest
+#    environment: ${{ github.event.inputs.target_env }}
+#    steps:
+#      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+#        with:
+#          test_name: "Dashboard-CreateProduct"
+#          scripts: |
+#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+#            mvn test "-DsuiteFile=test_configs/web/seller/create_product.xml"
 #
 #  Dashboard-UpdateProduct:
 #    runs-on: ubuntu-latest
@@ -72,5 +72,24 @@ jobs:
 #          scripts: |
 #            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
 #            mvn test "-DsuiteFile=test_configs/web/buyer/product_detail.xml"
+            
+
+  IOS-GoSELLER-CreateProduct:
+    runs-on: macos-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - uses: ThangNguyen0495/create-ios-simulator@v1.0.0
+        id: retrieve_udid
+
+      - run: |
+          UDID=$(cat udid.txt)
+
+      - uses: ThangNguyen0495/execute-appium-ios-test@v1.0.0
+        with:
+          test_name: "IOS-GoSELLER-CreateProduct"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo 'iosSimulatorUdid=$UDID' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/ios/seller/IOSGoSELLERCreateProductTest.xml"
 
 

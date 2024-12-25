@@ -1,6 +1,7 @@
 package baseTest;
 
 import api.seller.login.APISellerLogin;
+import org.openqa.selenium.Credentials;
 import org.openqa.selenium.WebDriver;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
@@ -16,18 +17,8 @@ import java.net.URISyntaxException;
 @Listeners(ListenerUtils.class)
 public class BaseTest {
     public WebDriver driver;
-    public APISellerLogin.Credentials sellerCredentials;
-    public APISellerLogin.Credentials buyerCredentials;
-
-    /**
-     * Initializes test configurations, such as retrieving seller sellerCredentials.
-     * This method runs before all tests in the suite.
-     */
-    @BeforeSuite
-    public void getCredentials() {
-        this.sellerCredentials = PropertiesUtils.getSellerCredentials();
-        this.buyerCredentials = PropertiesUtils.getBuyerCredentials();
-    }
+    public APISellerLogin.Credentials sellerCredentials = PropertiesUtils.getSellerCredentials();
+    public APISellerLogin.Credentials buyerCredentials = PropertiesUtils.getBuyerCredentials();
 
     /**
      * Initializes the driver based on the given test type and platform.
@@ -93,15 +84,5 @@ public class BaseTest {
      */
     private void downloadAppFile(String appURL, String appPath) throws IOException {
         FileDownloadHelper.downloadFile(appURL, appPath);
-    }
-
-
-    /**
-     * Cleans up after the test suite by quitting the WebDriver instance.
-     * This method runs after all tests in the suite are completed.
-     */
-    @AfterSuite
-    void tearDown() {
-        if (driver != null) driver.quit();
     }
 }

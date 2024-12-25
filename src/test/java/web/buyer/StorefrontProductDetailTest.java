@@ -25,7 +25,7 @@ import java.util.List;
  * This class contains test cases for verifying product details on the storefront,
  * including various scenarios for products managed by Product or IMEI.
  */
-public class ProductDetailTest extends BaseTest {
+public class StorefrontProductDetailTest extends BaseTest {
     private int customerId;
     private APICreateProduct apiCreateProduct;
     private APICreateFlashSale apiCreateFlashSale;

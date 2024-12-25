@@ -2,10 +2,7 @@ package web.seller;
 
 import baseTest.BaseTest;
 import api.seller.supplier.APICreateSupplier;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import pages.web.seller.login.DashboardLoginPage;
 import pages.web.seller.suppliers.all_suppliers.BaseSupplierPage;
 import utility.PropertiesUtils;
@@ -35,6 +32,15 @@ public class DashboardSupplierTest extends BaseTest {
 
         // Initialize the BaseSupplierPage instance
         baseSupplierPage = new BaseSupplierPage(driver);
+    }
+
+    /**
+     * Cleans up after the test suite by quitting the WebDriver instance.
+     * This method runs after all tests in the suite are completed.
+     */
+    @AfterClass
+    void tearDown() {
+        if (driver != null) driver.quit();
     }
 
     /**
