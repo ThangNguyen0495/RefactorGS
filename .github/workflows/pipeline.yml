@@ -13,26 +13,14 @@ jobs:
     environment: ${{ github.event.inputs.target_env }}  # Pass the environment dynamically
     steps:
       - name: Test new configs
-        env:
-          CONFIG_FILES: ${{ secrets.ENV_FILES }}  # Access the secret ENV_FILES
-        run: |
-          # Write the secret to config.txt and display the content
-          echo "$CONFIG_FILES" > config.txt  # Write ENV_FILES to the file
-          cat config.txt  # Display the content of the file
-
-      - name: Upload Test Report
-        if: always()  # Ensure this runs even if the previous step fails
-        uses: actions/upload-artifact@v3
+#        env:
+#          CONFIG_FILES: ${{ secrets.ENV_FILES }}  # Access the secret ENV_FILES
+        uses: ThangNguyen0495/execute-selenium-test@v1.0.0
         with:
-          name: Configs  # Name of the artifact
-          path: config.txt  # Correct path to the file (use relative path)
-
-
-      #        uses: ThangNguyen0495/execute-selenium-test@v1.0.0
-      #        with:
-      #          test_name: "Dashboard-Login"
-      #          scripts: |
-      #            echo "$CONFIG_FILES" >> src/main/resources/config.properties > /dev/null 2>&1
-      #            mvn test "-DsuiteFile=test_configs/web/seller/loginTest.xml"
+          test_name: "Dashboard-Login"
+          scripts: |
+            echo "${{ secrets.ENV_FILES }}" > src/main/resources/config.properties
+#            echo "$CONFIG_FILES" >> src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/web/seller/loginTest.xml"
 
 
