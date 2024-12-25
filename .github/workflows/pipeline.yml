@@ -1,32 +1,81 @@
-name: Pipelines
+name: Pipeline
 
 on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 17 * * *'
   workflow_dispatch:
     inputs:
       target_env:
         description: "Target environment (e.g., STAG_VN)"
-        required: true
+        required: false
         default: "STAG_VN"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  Dashboard-Login:
-    runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.target_env }}  # Pass the environment dynamically
-    steps:
-      - name: Test new configs
-#        run: |
-#          echo '${{ secrets.ENV_FILES }}' > config.txt
-#
-#      - name: Upload Configs
-#        if: always()
-#        uses: actions/upload-artifact@v3
+#  Dashboard-Login:
+#    runs-on: ubuntu-latest
+#    environment: ${{ github.event.inputs.target_env }}
+#    steps:
+#      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
 #        with:
-#          name: Configsss
-#          path: config.txt
-        uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+#          test_name: "Dashboard-Login"
+#          scripts: |
+#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+#            mvn test "-DsuiteFile=test_configs/web/seller/loginTest.xml"
+
+  Dashboard-CreateProduct:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
         with:
-          test_name: "Dashboard-Login"
+          test_name: "Dashboard-CreateProduct"
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/web/seller/loginTest.xml"
+            mvn test "-DsuiteFile=test_configs/web/seller/create_product.xml"
+
+  Dashboard-UpdateProduct:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+        with:
+          test_name: "Dashboard-UpdateProduct"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/web/seller/update_product.xml"
+#
+#  Dashboard-ProductManagement:
+#    runs-on: ubuntu-latest
+#    environment: ${{ github.event.inputs.target_env }}
+#    needs:
+#      - Dashboard-CreateProduct
+#      - Dashboard-UpdateProduct
+#
+#    if: always()
+#    steps:
+#      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+#        with:
+#          test_name: "Dashboard-ProductManagement"
+#          scripts: |
+#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+#            mvn test "-DsuiteFile=test_configs/web/seller/product_management.xml"
+#
+#  Storefront-ProductDetail:
+#    runs-on: ubuntu-latest
+#    environment: ${{ github.event.inputs.target_env }}
+#    steps:
+#      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+#        with:
+#          test_name: "Storefront-ProductDetail"
+#          scripts: |
+#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+#            mvn test "-DsuiteFile=test_configs/web/buyer/product_detail.xml"
 
 
