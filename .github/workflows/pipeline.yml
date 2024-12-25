@@ -13,27 +13,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  Dashboard-Login:
-    runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.target_env }}
-    steps:
-      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
-        with:
-          test_name: "Dashboard-Login"
-          scripts: |
-            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/web/seller/loginTest.xml"
-
-#  Dashboard-CreateProduct:
+#  Dashboard-Login:
 #    runs-on: ubuntu-latest
 #    environment: ${{ github.event.inputs.target_env }}
 #    steps:
 #      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
 #        with:
-#          test_name: "Dashboard-CreateProduct"
+#          test_name: "Dashboard-Login"
 #          scripts: |
 #            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-#            mvn test "-DsuiteFile=test_configs/web/seller/create_product.xml"
+#            mvn test "-DsuiteFile=test_configs/web/seller/loginTest.xml"
+
+  Dashboard-CreateProduct:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+        with:
+          test_name: "Dashboard-CreateProduct"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/web/seller/create_product.xml"
 #
 #  Dashboard-UpdateProduct:
 #    runs-on: ubuntu-latest
