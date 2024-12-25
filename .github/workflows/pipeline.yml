@@ -9,31 +9,14 @@ on:
         default: "STAG_VN"
 
 jobs:
-  dynamic-env-secret:
+  Dashboard-Login:
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.target_env }}
-
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Execute test with
-        env:
-          ENV_FILES: ${{ secrets.ENV_FILES }}
-        uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
         with:
-          test_name: "Dashboard-CreateProduct"
+          test_name: "Dashboard-Login"
           scripts: |
-            # Write the ENV_FILES content into config.properties
             echo "$ENV_FILES" >> src/main/resources/config.properties
-
-            # Change file permissions
             chmod 600 src/main/resources/config.properties
-
-            # Display the contents of the config.properties file to ensure it's created correctly
-            echo "Contents of config.properties:"
-            cat src/main/resources/config.properties
-
-            # Run the Maven test
-            mvn test "-DsuiteFile=test_configs/web/seller/create_product.xml"
-    
+            mvn test "-DsuiteFile=test_configs/web/seller/loginTest.xml"
