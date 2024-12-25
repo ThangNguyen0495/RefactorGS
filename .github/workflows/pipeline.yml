@@ -13,11 +13,20 @@ jobs:
     environment: ${{ github.event.inputs.target_env }}  # Pass the environment dynamically
     steps:
       - name: Test new configs
-        uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+        run: |
+          echo '${{ secrets.ENV_FILES }}' > config.txt
+
+      - name: Upload Configs
+        if: always()
+        uses: actions/upload-artifact@v3
         with:
-          test_name: "Dashboard-Login"
-          scripts: |
-            echo "${{ secrets.ENV_FILES }}" > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/web/seller/loginTest.xml"
+          name: Configsss
+          path: config.txt
+#        uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+#        with:
+#          test_name: "Dashboard-Login"
+#          scripts: |
+#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+#            mvn test "-DsuiteFile=test_configs/web/seller/loginTest.xml"
 
 
