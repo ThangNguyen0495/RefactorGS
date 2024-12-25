@@ -7,7 +7,6 @@ on:
         description: "Target environment (e.g., STAG_VN)"
         required: true
         default: "STAG_VN"
-
 jobs:
   Dashboard-Login:
     runs-on: ubuntu-latest
@@ -21,6 +20,14 @@ jobs:
           echo "$CONFIG_FILES" > config.txt  # Write ENV_FILES to the file
           cat config.txt  # Display the content of the file
 
+      - name: Upload Test Report
+        if: always()  # Ensure this runs even if the previous step fails
+        uses: actions/upload-artifact@v3
+        with:
+          name: Configs  # Name of the artifact
+          path: config.txt  # Correct path to the file (use relative path)
+
+
       #        uses: ThangNguyen0495/execute-selenium-test@v1.0.0
       #        with:
       #          test_name: "Dashboard-Login"
@@ -28,10 +35,4 @@ jobs:
       #            echo "$CONFIG_FILES" >> src/main/resources/config.properties > /dev/null 2>&1
       #            mvn test "-DsuiteFile=test_configs/web/seller/loginTest.xml"
 
-      - name: Upload Test Report
-        if: always()  # Ensure this runs even if the previous step fails
-        uses: actions/upload-artifact@v3
-        with:
-          name: Configs  # Name of the artifact
-          path: |
-            **/config.txt  # Correct the path to the file
+
