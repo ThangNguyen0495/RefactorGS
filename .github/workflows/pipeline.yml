@@ -20,13 +20,8 @@ jobs:
         with:
           test_name: "Dashboard-Login"
           scripts: |
-            # Write the CONFIG_FILES content into the config.properties file
-            echo "$CONFIG_FILES" >> src/main/resources/config.properties
-            
-            # Change file permissions to ensure it's accessible only by the user
+            echo "$ENV_FILES" >> src/main/resources/config.properties
             chmod 600 src/main/resources/config.properties
-            
-            # Run the Maven test
             mvn test "-DsuiteFile=test_configs/web/seller/loginTest.xml"
 
       - name: Upload Test Report
@@ -34,4 +29,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Configs  # Name of the artifact
-          path: src/main/resources/config.properties  # Correct the path to the file
+          path: |
+            **/src/main/resources/config.properties  # Correct the path to the file
