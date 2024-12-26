@@ -59,7 +59,7 @@ public class IOSUtils {
      */
     public void allowPermission(String optionText) {
         try {
-            createCustomWait(1000).until(ExpectedConditions.alertIsPresent());
+            createCustomWait(3000).until(ExpectedConditions.alertIsPresent());
             HashMap<String, Object> args = new HashMap<>();
             args.put("action", "accept");
             args.put("buttonLabel", optionText);
@@ -73,10 +73,6 @@ public class IOSUtils {
      * Hides the keyboard if it is visible.
      */
     public void hideKeyboard() {
-//        Map<String, String> args = new HashMap<>();
-//        args.put("strategy", "pressKey");
-//        args.put("keyName", "Done");  // or "Return"
-//        driver.executeScript("mobile: hideKeyboard", args);
         By doneButtonLocator = By.xpath("//XCUIElementTypeButton[@name=\"Done\"]");
         WebUtils.retryUntil(5, 1000, "Can not hide keyboard",
                 () -> driver.findElements(doneButtonLocator).isEmpty(),

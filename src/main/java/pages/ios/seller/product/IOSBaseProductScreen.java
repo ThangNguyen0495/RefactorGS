@@ -1177,7 +1177,6 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
     public static class ProductDescriptionScreen {
 
         private final IOSUtils iosUtils;
-        private final WebDriver driver;
 
         // Locator for the description input field
         By loc_rtfDescription = By.xpath("//XCUIElementTypeTextField");
@@ -1191,7 +1190,6 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
          */
         public ProductDescriptionScreen(WebDriver driver) {
             this.iosUtils = new IOSUtils(driver);
-            this.driver = driver;
         }
 
         /**
@@ -1200,13 +1198,6 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
          * @param description the description text to be entered.
          */
         public void inputDescription(String description) {
-            // Get page source to trace why NoSuchElementException is thrown
-            try {
-                iosUtils.getElement(loc_rtfDescription);
-            } catch (Exception e) {
-                LogManager.getLogger().info(driver.getPageSource());
-            }
-
             // Input product description
             iosUtils.sendKeys(loc_rtfDescription, description);
 
