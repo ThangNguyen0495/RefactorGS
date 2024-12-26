@@ -102,6 +102,13 @@ public class DashboardLoginPage {
      * @return The current instance of `DashboardLoginPage`.
      */
     public DashboardLoginPage inputUsername(String username) {
+        // Must input then clear to get error message
+        if (username.isEmpty()) {
+            webUtils.sendKeys(loc_txtUsername, "a");
+            webUtils.sendKeys(loc_txtUsername, "");
+            return this;
+        }
+
         webUtils.sendKeys(loc_txtUsername, username);
         logger.info("Input '{}' into Username field.", username);
         return this;
@@ -114,6 +121,13 @@ public class DashboardLoginPage {
      * @return The current instance of `DashboardLoginPage`.
      */
     public DashboardLoginPage inputPassword(String password) {
+        // Must input then clear to get error message
+        if (password.isEmpty()) {
+            webUtils.sendKeys(loc_txtPassword, "a");
+            webUtils.sendKeys(loc_txtPassword, "");
+            return this;
+        }
+
         webUtils.sendKeys(loc_txtPassword, password);
         logger.info("Input '{}' into Password field.", password);
         return this;

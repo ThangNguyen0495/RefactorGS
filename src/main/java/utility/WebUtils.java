@@ -1004,6 +1004,10 @@ public class WebUtils {
         );
     }
 
+    private Select getDropdownSelect(By locator) {
+        return retryOnStaleElement(driver,() -> new Select(getElement(locator)));
+    }
+
     /**
      * Waits until a dropdown contains a specific option value.
      *
@@ -1011,11 +1015,11 @@ public class WebUtils {
      * @param value   The option value to wait for in the dropdown.
      * @throws TimeoutException If the dropdown does not contain the specified value within the wait time.
      */
-    private void waitUntilDropdownContainsValueThenGetItsText(By locator, String value) {
-        wait.until((ExpectedCondition<Boolean>) driver -> retryOnStaleElement(driver, () -> {
-            List<WebElement> options = new Select(getElement(locator)).getOptions();
-            return options.stream().anyMatch(option -> option.getAttribute("value").equals(value));
-        }));
+    private void waitUntilDropdownContainsValue(By locator, String value) {
+        wait.until((ExpectedCondition<Boolean>) driver ->
+                retryOnStaleElement(driver, () -> getDropdownSelect(locator).getOptions()
+                        .stream()
+                        .anyMatch(option -> option.getAttribute("value").equals(value))));
     }
 
     /**
@@ -1030,7 +1034,7 @@ public class WebUtils {
      */
     public void selectDropdownOptionByValue(By locator, String optionValue) {
         // Wait for the dropdown to contain the option value and retrieve its text
-        waitUntilDropdownContainsValueThenGetItsText(locator, optionValue);
+        waitUntilDropdownContainsValue(locator, optionValue);
 
         retryOnStaleElement(driver, () -> {
             try {
