@@ -34,15 +34,15 @@ jobs:
     needs: Web
     runs-on: ubuntu-latest
 
-  DashboardLogin:
+  Dashboard-Login:
     needs: Dashboard
     runs-on: ubuntu-latest
 
-  Products:
+  Dashboard-Products:
     needs: Dashboard
     runs-on: ubuntu-latest
 
-  Suppliers:
+  Dashboard-Suppliers:
     needs: Dashboard
     runs-on: ubuntu-latest
 
@@ -78,8 +78,8 @@ jobs:
 #    needs: App
 #    runs-on: ubuntu-latest
 
-  Dashboard-Login:
-    needs: DashboardLogin
+  Dashboard-LoginFeature:
+    needs: Dashboard-Login
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.target_env }}
     steps:
@@ -91,7 +91,7 @@ jobs:
             mvn test "-DsuiteFile=test_configs/web/seller/DashboardLoginTest.xml"
 
   Dashboard-CreateProduct:
-    needs: Products
+    needs: Dashboard-Products
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.target_env }}
     steps:
@@ -103,7 +103,7 @@ jobs:
             mvn test "-DsuiteFile=test_configs/web/seller/DashboardCreateProductTest.xml"
 
   Dashboard-UpdateProduct:
-    needs: Products
+    needs: Dashboard-Products
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.target_env }}
     steps:
@@ -131,7 +131,7 @@ jobs:
 #            mvn test "-DsuiteFile=test_configs/web/seller/DashboardProductManagementTest.xml"
 
   Dashboard-CreateAndUpdateSuppliers:
-    needs: Suppliers
+    needs: Dashboard-Suppliers
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.target_env }}
 
