@@ -85,7 +85,7 @@ jobs:
           UDID=$(cat udid.txt)
           echo "udid: $UDID"
           echo '${{ secrets.ENV_FILES }}' > config.txt
-          cat udid.txt >> config.txt
+          cat 'iosSimulatorUdid=$UDID' >> config.txt
           cat config.txt
 
 #      - uses: ThangNguyen0495/execute-appium-ios-test@v1.0.0
