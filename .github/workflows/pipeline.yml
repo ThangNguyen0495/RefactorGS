@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       target_env:
-        description: "Select the target environment (e.g., STAG_VN)"
+        description: "Select the target environment"
         required: true
         type: choice
         options:
@@ -19,7 +19,7 @@ on:
         default: "STAG_VN"
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.inputs.target_env }}
   cancel-in-progress: true
 
 jobs:
