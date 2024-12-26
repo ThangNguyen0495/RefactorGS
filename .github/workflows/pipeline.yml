@@ -88,10 +88,10 @@ jobs:
     runs-on: macos-latest
     environment: ${{ github.event.inputs.target_env }}
     steps:
-      - uses: ThangNguyen0495/create-ios-simulator@v1.0.0
-        id: retrieve_udid
+      - name: Create an iOS simulator
+        uses: ThangNguyen0495/create-ios-simulator@v1.0.0
 
-      - name: Save UDID to GitHub Environment
+      - name: Save simulator UDID to GitHub Environment
         run: |
           UDID=$(cat udid.txt)  
           echo "UDID=$UDID" >> $GITHUB_ENV

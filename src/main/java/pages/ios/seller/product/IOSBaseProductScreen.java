@@ -588,7 +588,7 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
             logger.info("Confirmed management by lot.");
         }
 
-        if (iosUtils.getListElement(loc_txtSearchBox).isEmpty()) {
+        if (iosUtils.getListElement(loc_txtSearchBox, 30_000).isEmpty()) {
             throw new RuntimeException("Can not create/update product.");
         }
 

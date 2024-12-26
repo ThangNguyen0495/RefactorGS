@@ -92,18 +92,25 @@ public class IOSUtils {
     /**
      * Retrieves a list of elements located by the specified locator.
      *
-     * @param locator The locator for the elements.
-     * @return A list of found WebElements.
+     * @param locator    The locator for the elements.
+     * @param waitMillis Optional wait time in milliseconds before attempting to find the elements. Default is 3000 ms.
+     * @return A list of found WebElements, or an empty list if none are found.
      */
-    public List<WebElement> getListElement(By locator) {
+    public List<WebElement> getListElement(By locator, int... waitMillis) {
+        int waitTime = (waitMillis.length > 0) ? waitMillis[0] : 3000;
+
         try {
-            createCustomWait(3000).until(ExpectedConditions.presenceOfElementLocated(locator));
+            // Wait for the presence of at least one element matching the locator
+            createCustomWait(waitTime).until(ExpectedConditions.presenceOfElementLocated(locator));
         } catch (TimeoutException ignored) {
+            // Timeout ignored; proceed to return an empty list if no elements are found
         }
 
-        return retryOnStaleElement(() -> driver.findElements(locator).isEmpty()
-                ? List.of()
-                : wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator)));
+        return retryOnStaleElement(() -> {
+            // Retrieve and return elements, or an empty list if none are found
+            List<WebElement> elements = driver.findElements(locator);
+            return elements.isEmpty() ? List.of() : wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
+        });
     }
 
     /**
