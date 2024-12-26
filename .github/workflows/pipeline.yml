@@ -81,19 +81,18 @@ jobs:
       - uses: ThangNguyen0495/create-ios-simulator@v1.0.0
         id: retrieve_udid
 
-      - run: |
-          UDID=$(cat udid.txt)
-          echo "udid: $UDID"
-          echo "${{ secrets.ENV_FILES }}" > config.txt
-          echo "iosSimulatorUdid=$UDID" >> config.txt
-          cat config.txt
+      - name: Save UDID to GitHub Environment
+        run: |
+          UDID=$(cat udid.txt)  # Read the UDID from udid.txt
+          echo "UDID=$UDID" >> $GITHUB_ENV  # Save it as a GitHub environment variable
 
       - uses: ThangNguyen0495/execute-appium-ios-test@v1.0.0
         with:
           test_name: "IOS-GoSELLER-CreateProduct"
           scripts: |
-            cat config.txt > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/ios/seller/IOSGoSELLERCreateProductTest.xml"
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
+            mvn test '-DsuiteFile=test_configs/ios/seller/IOSGoSELLERCreateProductTest.xml'
 
       - name: Upload Config Files
         if: always()
