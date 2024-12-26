@@ -23,45 +23,103 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-#  Dashboard-Login:
+  Platform:
+    runs-on: ubuntu-latest
+
+  Web:
+    needs: Platform
+    runs-on: ubuntu-lates
+
+  Dashboard:
+    needs: Web
+    runs-on: ubuntu-latest
+
+  DashboardLogin:
+    needs: Dashboard
+    runs-on: ubuntu-latest
+
+  Products:
+    needs: Dashboard
+    runs-on: ubuntu-latest
+
+  Suppliers:
+    needs: Dashboard
+    runs-on: ubuntu-latest
+
+  StoreFront:
+    needs: Web
+    runs-on: ubuntu-latest
+
+  App:
+    needs: Platform
+    runs-on: ubuntu-latest
+
+  Android-GoSELLER:
+    needs: App
+    runs-on: ubuntu-latest
+
+  Android-GoSELLER-Products:
+    needs: Android-GoSELLER
+    runs-on: ubuntu-latest
+
+  #  Android-GoBUYER:
+#    needs: App
 #    runs-on: ubuntu-latest
-#    environment: ${{ github.event.inputs.target_env }}
-#    steps:
-#      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
-#        with:
-#          test_name: "Dashboard-Login"
-#          scripts: |
-#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-#            mvn test "-DsuiteFile=test_configs/web/seller/loginTest.xml"
-#
-#  Dashboard-CreateProduct:
+
+  iOS-GoSELLER:
+    needs: App
+    runs-on: ubuntu-latest
+
+  iOS-GoSELLER-Products:
+    needs: iOS-GoSELLER
+    runs-on: ubuntu-latest
+
+#  iOS-GoBUYER:
+#    needs: App
 #    runs-on: ubuntu-latest
-#    environment: ${{ github.event.inputs.target_env }}
-#    steps:
-#      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
-#        with:
-#          test_name: "Dashboard-CreateProduct"
-#          scripts: |
-#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-#            mvn test "-DsuiteFile=test_configs/web/seller/create_product.xml"
-#
-#  Dashboard-UpdateProduct:
-#    runs-on: ubuntu-latest
-#    environment: ${{ github.event.inputs.target_env }}
-#    steps:
-#      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
-#        with:
-#          test_name: "Dashboard-UpdateProduct"
-#          scripts: |
-#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-#            mvn test "-DsuiteFile=test_configs/web/seller/update_product.xml"
-#
+
+  Dashboard-Login:
+    needs: DashboardLogin
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+        with:
+          test_name: "Dashboard-Login"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/web/seller/DashboardLoginTest.xml"
+
+  Dashboard-CreateProduct:
+    needs: Products
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+        with:
+          test_name: "Dashboard-CreateProduct"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/web/seller/DashboardCreateProductTest.xml"
+
+  Dashboard-UpdateProduct:
+    needs: Products
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+        with:
+          test_name: "Dashboard-UpdateProduct"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/web/seller/DashboardUpdateProductTest.xml"
+
 #  Dashboard-ProductManagement:
-#    runs-on: ubuntu-latest
-#    environment: ${{ github.event.inputs.target_env }}
 #    needs:
 #      - Dashboard-CreateProduct
 #      - Dashboard-UpdateProduct
+#    runs-on: ubuntu-latest
+#    environment: ${{ github.event.inputs.target_env }}
 #
 #    if: always()
 #    steps:
@@ -70,21 +128,60 @@ jobs:
 #          test_name: "Dashboard-ProductManagement"
 #          scripts: |
 #            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-#            mvn test "-DsuiteFile=test_configs/web/seller/product_management.xml"
-#
-#  Storefront-ProductDetail:
-#    runs-on: ubuntu-latest
-#    environment: ${{ github.event.inputs.target_env }}
-#    steps:
-#      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
-#        with:
-#          test_name: "Storefront-ProductDetail"
-#          scripts: |
-#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-#            mvn test "-DsuiteFile=test_configs/web/buyer/product_detail.xml"
+#            mvn test "-DsuiteFile=test_configs/web/seller/DashboardProductManagementTest.xml"
 
+  Dashboard-CreateAndUpdateSuppliers:
+    needs: Suppliers
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+
+    steps:
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+        with:
+          test_name: "Dashboard-Suppliers"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/web/seller/DashboardSupplierTest.xml"
+
+  Storefront-ProductDetail:
+    needs: StoreFront
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+        with:
+          test_name: "Storefront-ProductDetail"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/web/buyer/StorefrontProductDetailTest.xml"
+
+  Android-GoSELLER-CreateProduct:
+    needs: Android-GoSELLER-Products
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - uses: ThangNguyen0495/execute-appium-android-test@v1.0.0
+        with:
+          est_name: "Android-GoSELLER-CreateProduct"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/android/seller/AndroidGoSELLERCreateProductTest.xml"
+
+  Android-GoSELLER-UpdateProduct:
+    needs: Android-GoSELLER-Products
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - uses: ThangNguyen0495/execute-appium-android-test@v1.0.0
+        with:
+          est_name: "Android-GoSELLER-UpdateProduct"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/android/seller/AndroidGoSELLERUpdateProductTest.xml"
+  
 
   IOS-GoSELLER-CreateProduct:
+    needs: iOS-GoSELLER-Products
     runs-on: macos-latest
     environment: ${{ github.event.inputs.target_env }}
     steps:
@@ -103,4 +200,25 @@ jobs:
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
             mvn test '-DsuiteFile=test_configs/ios/seller/IOSGoSELLERCreateProductTest.xml'
+
+  IOS-GoSELLER-UpdateProduct:
+    needs: iOS-GoSELLER-Products
+    runs-on: macos-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - name: Create an iOS simulator
+        uses: ThangNguyen0495/create-ios-simulator@v1.0.0
+
+      - name: Save simulator UDID to GitHub Environment
+        run: |
+          UDID=$(cat udid.txt)  
+          echo "UDID=$UDID" >> $GITHUB_ENV
+
+      - uses: ThangNguyen0495/execute-appium-ios-test@v1.0.0
+        with:
+          test_name: "IOS-GoSELLER-UpdateProduct"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
+            mvn test '-DsuiteFile=test_configs/ios/seller/IOSGoSELLERUpdateProductTest.xml'
 
