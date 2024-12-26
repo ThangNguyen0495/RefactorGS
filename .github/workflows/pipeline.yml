@@ -25,6 +25,8 @@ concurrency:
 jobs:
   Platform:
     runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
 
   Web:
     needs: Platform
