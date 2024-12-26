@@ -29,54 +29,80 @@ jobs:
   Web:
     needs: Platform
     runs-on: ubuntu-lates
+    steps:
+      - run: echo "Init pipelines"
 
   Dashboard:
     needs: Web
     runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
 
   Dashboard-Login:
     needs: Dashboard
     runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
 
   Dashboard-Products:
     needs: Dashboard
     runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
 
   Dashboard-Suppliers:
     needs: Dashboard
     runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
 
   StoreFront:
     needs: Web
     runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
 
   App:
     needs: Platform
     runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
 
   Android-GoSELLER:
     needs: App
     runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
 
   Android-GoSELLER-Products:
     needs: Android-GoSELLER
     runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
 
   #  Android-GoBUYER:
 #    needs: App
 #    runs-on: ubuntu-latest
+#  steps:
+#    - run: echo "Init pipelines"
 
   iOS-GoSELLER:
     needs: App
     runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
 
   iOS-GoSELLER-Products:
     needs: iOS-GoSELLER
     runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
 
 #  iOS-GoBUYER:
 #    needs: App
 #    runs-on: ubuntu-latest
+#  steps:
+#    - run: echo "Init pipelines"
 
   Dashboard-LoginFeature:
     needs: Dashboard-Login
