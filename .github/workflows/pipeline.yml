@@ -190,7 +190,7 @@ jobs:
     steps:
       - uses: ThangNguyen0495/execute-appium-android-test@v1.0.0
         with:
-          est_name: "Android-GoSELLER-CreateProduct"
+          test_name: "Android-GoSELLER-CreateProduct"
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/android/seller/AndroidGoSELLERCreateProductTest.xml"
@@ -202,7 +202,7 @@ jobs:
     steps:
       - uses: ThangNguyen0495/execute-appium-android-test@v1.0.0
         with:
-          est_name: "Android-GoSELLER-UpdateProduct"
+          test_name: "Android-GoSELLER-UpdateProduct"
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/android/seller/AndroidGoSELLERUpdateProductTest.xml"
