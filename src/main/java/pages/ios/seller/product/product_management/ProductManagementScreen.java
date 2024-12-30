@@ -25,11 +25,8 @@ public class ProductManagementScreen extends ProductManagementElement {
     }
 
     public ProductManagementScreen navigateToProductManagementScreen() {
-        // Terminate app
-        ((IOSDriver) driver).terminateApp(sellerBundleId);
-
-        // Reopen app
-        ((IOSDriver) driver).activateApp(sellerBundleId);
+        // Relaunch app
+        iosUtils.relaunchApp(sellerBundleId);
 
         // Navigate to product management screen
         new HomeScreen(driver).navigateToProductManagementScreen();

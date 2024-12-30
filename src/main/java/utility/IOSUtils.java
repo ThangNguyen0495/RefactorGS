@@ -310,28 +310,6 @@ public class IOSUtils {
         });
     }
 
-//    /**
-//     * Sends the specified keys to the element located by the specified locator and index.
-//     * Clears the element's existing value before sending keys and hides the keyboard.
-//     *
-//     * @param locator The locator for the elements.
-//     * @param index   The index of the element in the list.
-//     * @param content The keys to send to the element.
-//     */
-//    public void sendKeys(By locator, int index, CharSequence content) {
-//        WebElement element = getElement(locator, index);
-//        clearAndSendKeys(element, content);
-//    }
-//
-//    private void clearAndSendKeys(WebElement element, CharSequence content) {
-//        retryOnStaleElement(() -> {
-//            element.clear();
-//            element.sendKeys(content);
-//            hideKeyboard();
-//            return null; // Returning null as this is a void action.
-//        });
-//    }
-
     /**
      * Retrieves the text of the element located by the specified locator.
      *

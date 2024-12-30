@@ -323,14 +323,7 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         // Hide remaining stock on online store config
         if (!Objects.equals(newProductInfo.getIsHideStock(), status))
             iosUtils.toggleCheckbox(loc_chkHideRemainingStock);
-//
-//        WebUtils.retryUntil(5, 1000, "Can not change hide remaining stock config.",
-//                () -> {
-//                    // Get current checkbox status
-//                    boolean status = iosUtils.isChecked(loc_chkHideRemainingStock);//(currentProductInfo == null) || currentProductInfo.isShowOutOfStock();
-//                    return Objects.equals(newProductInfo.getIsHideStock(), status);
-//                },
-//                () -> iosUtils.click(loc_chkHideRemainingStock));
+
         // Log
         logger.info("Hide remaining stock on online store config: {}", newProductInfo.getIsHideStock());
     }

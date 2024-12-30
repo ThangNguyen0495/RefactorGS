@@ -325,7 +325,7 @@ public class AndroidUtils {
      * @param screenActivity The activity name of the screen to wait for.
      */
     public void waitUntilScreenLoaded(String screenActivity) {
-        customWait(30000).until((ExpectedCondition<Boolean>) driver -> {
+        customWait(60_000).until((ExpectedCondition<Boolean>) driver -> {
             AndroidDriver androidDriver = (AndroidDriver) driver;
             assert androidDriver != null;
             return Objects.requireNonNull(androidDriver.currentActivity()).equals(screenActivity);
