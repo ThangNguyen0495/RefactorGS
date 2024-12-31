@@ -9,6 +9,7 @@ import api.seller.setting.APIGetStoreDefaultLanguage;
 import api.seller.setting.APIGetVATList;
 import api.seller.user_feature.APIGetUserFeature;
 import io.appium.java_client.AppiumBy;
+import io.appium.java_client.android.AndroidDriver;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,8 +38,7 @@ import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.openqa.selenium.By.xpath;
 import static utility.AndroidUtils.uiScrollResourceId;
 import static utility.AndroidUtils.uiScrollResourceIdInstance;
-import static utility.helper.ActivityHelper.sellerBundleId;
-import static utility.helper.ActivityHelper.sellerProductDetailActivity;
+import static utility.helper.ActivityHelper.*;
 
 
 public class AndroidBaseProductScreen extends BaseProductElement {
@@ -1082,7 +1082,12 @@ public class AndroidBaseProductScreen extends BaseProductElement {
             // Check product is managed by lot or not
             if (!productInfo.isLotAvailable() || productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
                 // Navigate to inventory screen
-                androidUtils.click(loc_btnInventory);
+                WebUtils.retryUntil(5, 1000, "Can not navigate to Inventory screen",
+                        () -> {
+                            System.out.println(((AndroidDriver) driver).currentActivity());
+                            return ((AndroidDriver) driver).currentActivity().equals(sellerProductBranchInventoryActivity);
+                        },
+                        () -> androidUtils.click(loc_btnInventory));
 
                 // Add variation stock
                 new InventoryScreen(driver).manageStock(isCreate, productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER"), branchInfos, variationValue, model.getBranches());

@@ -4,6 +4,9 @@
     <test name="[ANDROID][GoSELLER] Product Update Tests">
         <classes>
             <class name="android.seller.AndroidGoSELLERUpdateProductTest">
+                <methods>
+                    <include name="smokeTest"/>
+                </methods>
             </class>
         </classes>
     </test>

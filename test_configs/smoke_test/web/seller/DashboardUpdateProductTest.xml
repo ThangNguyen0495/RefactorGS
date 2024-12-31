@@ -3,7 +3,11 @@
 <suite name="ProductUpdateSuite">
     <test name="[Dashboard] Product Update Tests">
         <classes>
-            <class name="web.seller.DashboardUpdateProductTest"/>
+            <class name="web.seller.DashboardUpdateProductTest">
+                <methods>
+                    <include name="smokeTest"/>
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>

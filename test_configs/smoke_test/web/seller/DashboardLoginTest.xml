@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="Dashboard Login Tests Suite">
+    <test name="Dashboard Login Tests">
+        <classes>
+            <class name="web.seller.DashboardLoginTest">
+                <methods>
+                    <include name="LG01_LoginWithBlankFields"/>
+                    <include name="LG02_LoginWithInvalidPhoneFormat"/>
+                    <include name="LG03_LoginWithInvalidEmailFormat"/>
+                    <include name="LG04_LoginWithNonExistentAccount"/>
+                    <include name="LG05_LoginWithValidAccount"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>

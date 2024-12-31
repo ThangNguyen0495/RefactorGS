@@ -1,4 +1,4 @@
-name: Pipeline
+name: Smoke Pipeline
 
 on:
   workflow_dispatch:
@@ -23,13 +23,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  Platform:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Init pipelines"
-
   Web:
-    needs: Platform
     runs-on: ubuntu-latest
     steps:
       - run: echo "Init pipelines"
@@ -40,71 +34,12 @@ jobs:
     steps:
       - run: echo "Init pipelines"
 
+  # ...Dashboard/login
   Dashboard-Login:
     needs: Dashboard
     runs-on: ubuntu-latest
     steps:
       - run: echo "Init pipelines"
-
-  Dashboard-Products:
-    needs: Dashboard
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Init pipelines"
-
-  Dashboard-Suppliers:
-    needs: Dashboard
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Init pipelines"
-
-  StoreFront:
-    needs: Web
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Init pipelines"
-
-  App:
-    needs: Platform
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Init pipelines"
-
-  Android-GoSELLER:
-    needs: App
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Init pipelines"
-
-  Android-GoSELLER-Products:
-    needs: Android-GoSELLER
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Init pipelines"
-
-  #  Android-GoBUYER:
-#    needs: App
-#    runs-on: ubuntu-latest
-#  steps:
-#    - run: echo "Init pipelines"
-
-  iOS-GoSELLER:
-    needs: App
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Init pipelines"
-
-  iOS-GoSELLER-Products:
-    needs: iOS-GoSELLER
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Init pipelines"
-
-#  iOS-GoBUYER:
-#    needs: App
-#    runs-on: ubuntu-latest
-#  steps:
-#    - run: echo "Init pipelines"
 
   Dashboard-LoginFeature:
     needs: Dashboard-Login
@@ -116,7 +51,15 @@ jobs:
           test_name: "Dashboard-Login"
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/web/seller/DashboardLoginTest.xml"
+            mvn test "-DsuiteFile=test_configs/smoke_test/web/seller/DashboardLoginTest.xml"
+
+  # ...Dashboard/products
+  Dashboard-Products:
+    needs: Dashboard
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
+
 
   Dashboard-CreateProduct:
     needs: Dashboard-Products
@@ -128,7 +71,7 @@ jobs:
           test_name: "Dashboard-CreateProduct"
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/web/seller/DashboardCreateProductTest.xml"
+            mvn test "-DsuiteFile=test_configs/smoke_test/web/seller/DashboardCreateProductTest.xml"
 
   Dashboard-UpdateProduct:
     needs: Dashboard-Products
@@ -140,23 +83,30 @@ jobs:
           test_name: "Dashboard-UpdateProduct"
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/web/seller/DashboardUpdateProductTest.xml"
+            mvn test "-DsuiteFile=test_configs/smoke_test/web/seller/DashboardUpdateProductTest.xml"
 
-#  Dashboard-ProductManagement:
-#    needs:
-#      - Dashboard-CreateProduct
-#      - Dashboard-UpdateProduct
-#    runs-on: ubuntu-latest
-#    environment: ${{ github.event.inputs.target_env }}
-#
-#    if: always()
-#    steps:
-#      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
-#        with:
-#          test_name: "Dashboard-ProductManagement"
-#          scripts: |
-#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-#            mvn test "-DsuiteFile=test_configs/web/seller/DashboardProductManagementTest.xml"
+  #  Dashboard-ProductManagement:
+  #    needs:
+  #      - Dashboard-CreateProduct
+  #      - Dashboard-UpdateProduct
+  #    runs-on: ubuntu-latest
+  #    environment: ${{ github.event.inputs.target_env }}
+  #
+  #    if: always()
+  #    steps:
+  #      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+  #        with:
+  #          test_name: "Dashboard-ProductManagement"
+  #          scripts: |
+  #            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+  #            mvn test "-DsuiteFile=test_configs/smoke_test/web/seller/DashboardProductManagementTest.xml"
+
+  # ...Dashboard/suppliers
+  Dashboard-Suppliers:
+    needs: Dashboard
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
 
   Dashboard-CreateAndUpdateSuppliers:
     needs: Dashboard-Suppliers
@@ -169,7 +119,13 @@ jobs:
           test_name: "Dashboard-Suppliers"
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/web/seller/DashboardSupplierTest.xml"
+            mvn test "-DsuiteFile=test_configs/smoke_test/web/seller/DashboardSupplierTest.xml"
+  # ...Storefront
+  StoreFront:
+    needs: Web
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
 
   Storefront-ProductDetail:
     needs: StoreFront
@@ -181,11 +137,29 @@ jobs:
           test_name: "Storefront-ProductDetail"
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/web/buyer/StorefrontProductDetailTest.xml"
+            mvn test "-DsuiteFile=test_configs/smoke_test/web/buyer/StorefrontProductDetailTest.xml"      
+
+  Android:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
+
+  Android-GoSELLER:
+    needs: Android
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
+
+  # ...Android GoSELLER/products
+  Android-GoSELLER-Products:
+    needs: Android-GoSELLER
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
 
   Android-GoSELLER-CreateProduct:
     needs: Android-GoSELLER-Products
-    runs-on: ubuntu-latest
+    runs-on: macos-13
     environment: ${{ github.event.inputs.target_env }}
     steps:
       - uses: ThangNguyen0495/execute-appium-android-test@v1.0.0
@@ -193,11 +167,11 @@ jobs:
           test_name: "Android-GoSELLER-CreateProduct"
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/android/seller/AndroidGoSELLERCreateProductTest.xml"
+            mvn test "-DsuiteFile=test_configs/smoke_test/android/seller/AndroidGoSELLERCreateProductTest.xml"
 
   Android-GoSELLER-UpdateProduct:
     needs: Android-GoSELLER-Products
-    runs-on: ubuntu-latest
+    runs-on: macos-13
     environment: ${{ github.event.inputs.target_env }}
     steps:
       - uses: ThangNguyen0495/execute-appium-android-test@v1.0.0
@@ -205,8 +179,25 @@ jobs:
           test_name: "Android-GoSELLER-UpdateProduct"
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/android/seller/AndroidGoSELLERUpdateProductTest.xml"
-  
+            mvn test "-DsuiteFile=test_configs/smoke_test/android/seller/AndroidGoSELLERUpdateProductTest.xml"
+
+  iOS:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
+
+  iOS-GoSELLER:
+    needs: iOS
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
+
+  # ... iOS GoSELLER/products
+  iOS-GoSELLER-Products:
+    needs: iOS-GoSELLER
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
 
   IOS-GoSELLER-CreateProduct:
     needs: iOS-GoSELLER-Products
@@ -227,7 +218,7 @@ jobs:
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
-            mvn test '-DsuiteFile=test_configs/ios/seller/IOSGoSELLERCreateProductTest.xml'
+            mvn test '-DsuiteFile=test_configs/smoke_test/ios/seller/IOSGoSELLERCreateProductTest.xml'
 
   IOS-GoSELLER-UpdateProduct:
     needs: iOS-GoSELLER-Products
@@ -248,5 +239,5 @@ jobs:
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
-            mvn test '-DsuiteFile=test_configs/ios/seller/IOSGoSELLERUpdateProductTest.xml'
+            mvn test '-DsuiteFile=test_configs/smoke_test/ios/seller/IOSGoSELLERUpdateProductTest.xml'
 

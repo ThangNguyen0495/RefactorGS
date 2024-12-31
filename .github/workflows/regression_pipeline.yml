@@ -1,0 +1,252 @@
+name: Regression Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_env:
+        description: "Select the target environment"
+        required: true
+        type: choice
+        options:
+          - CA2_VN
+          - CA2_BIZ
+          - CA_VN
+          - CA_BIZ
+          - STAG_VN
+          - STAG_BIZ
+          - PROD_VN
+          - PROD_BIZ
+        default: "STAG_VN"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.inputs.target_env }}
+  cancel-in-progress: true
+
+jobs:
+  Platform:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
+
+  Web:
+    needs: Platform
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
+
+  Dashboard:
+    needs: Web
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
+
+  Dashboard-Login:
+    needs: Dashboard
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
+
+  Dashboard-Products:
+    needs: Dashboard
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
+
+  Dashboard-Suppliers:
+    needs: Dashboard
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
+
+  StoreFront:
+    needs: Web
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
+
+  App:
+    needs: Platform
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
+
+  Android-GoSELLER:
+    needs: App
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
+
+  Android-GoSELLER-Products:
+    needs: Android-GoSELLER
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
+
+  #  Android-GoBUYER:
+#    needs: App
+#    runs-on: ubuntu-latest
+#  steps:
+#    - run: echo "Init pipelines"
+
+  iOS-GoSELLER:
+    needs: App
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
+
+  iOS-GoSELLER-Products:
+    needs: iOS-GoSELLER
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
+
+#  iOS-GoBUYER:
+#    needs: App
+#    runs-on: ubuntu-latest
+#  steps:
+#    - run: echo "Init pipelines"
+
+  Dashboard-LoginFeature:
+    needs: Dashboard-Login
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+        with:
+          test_name: "Dashboard-Login"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/regression_test/web/seller/DashboardLoginTest.xml"
+
+  Dashboard-CreateProduct:
+    needs: Dashboard-Products
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+        with:
+          test_name: "Dashboard-CreateProduct"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/regression_test/web/seller/DashboardCreateProductTest.xml"
+
+  Dashboard-UpdateProduct:
+    needs: Dashboard-Products
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+        with:
+          test_name: "Dashboard-UpdateProduct"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/regression_test/web/seller/DashboardUpdateProductTest.xml"
+
+#  Dashboard-ProductManagement:
+#    needs:
+#      - Dashboard-CreateProduct
+#      - Dashboard-UpdateProduct
+#    runs-on: ubuntu-latest
+#    environment: ${{ github.event.inputs.target_env }}
+#
+#    if: always()
+#    steps:
+#      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+#        with:
+#          test_name: "Dashboard-ProductManagement"
+#          scripts: |
+#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+#            mvn test "-DsuiteFile=test_configs/regression_test/web/seller/DashboardProductManagementTest.xml"
+
+  Dashboard-CreateAndUpdateSuppliers:
+    needs: Dashboard-Suppliers
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+
+    steps:
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+        with:
+          test_name: "Dashboard-Suppliers"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/regression_test/web/seller/DashboardSupplierTest.xml"
+
+  Storefront-ProductDetail:
+    needs: StoreFront
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+        with:
+          test_name: "Storefront-ProductDetail"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/regression_test/web/buyer/StorefrontProductDetailTest.xml"
+
+  Android-GoSELLER-CreateProduct:
+    needs: Android-GoSELLER-Products
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - uses: ThangNguyen0495/execute-appium-android-test@v1.0.0
+        with:
+          test_name: "Android-GoSELLER-CreateProduct"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/regression_test/android/seller/AndroidGoSELLERCreateProductTest.xml"
+
+  Android-GoSELLER-UpdateProduct:
+    needs: Android-GoSELLER-Products
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - uses: ThangNguyen0495/execute-appium-android-test@v1.0.0
+        with:
+          test_name: "Android-GoSELLER-UpdateProduct"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/regression_test/android/seller/AndroidGoSELLERUpdateProductTest.xml"
+  
+
+  IOS-GoSELLER-CreateProduct:
+    needs: iOS-GoSELLER-Products
+    runs-on: macos-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - name: Create an iOS simulator
+        uses: ThangNguyen0495/create-ios-simulator@v1.0.0
+
+      - name: Save simulator UDID to GitHub Environment
+        run: |
+          UDID=$(cat udid.txt)  
+          echo "UDID=$UDID" >> $GITHUB_ENV
+
+      - uses: ThangNguyen0495/execute-appium-ios-test@v1.0.0
+        with:
+          test_name: "IOS-GoSELLER-CreateProduct"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
+            mvn test '-DsuiteFile=test_configs/regression_test/ios/seller/IOSGoSELLERCreateProductTest.xml'
+
+  IOS-GoSELLER-UpdateProduct:
+    needs: iOS-GoSELLER-Products
+    runs-on: macos-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - name: Create an iOS simulator
+        uses: ThangNguyen0495/create-ios-simulator@v1.0.0
+
+      - name: Save simulator UDID to GitHub Environment
+        run: |
+          UDID=$(cat udid.txt)  
+          echo "UDID=$UDID" >> $GITHUB_ENV
+
+      - uses: ThangNguyen0495/execute-appium-ios-test@v1.0.0
+        with:
+          test_name: "IOS-GoSELLER-UpdateProduct"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
+            mvn test '-DsuiteFile=test_configs/regression_test/ios/seller/IOSGoSELLERUpdateProductTest.xml'
+

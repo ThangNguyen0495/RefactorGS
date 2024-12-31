@@ -4,6 +4,9 @@
     <test name="[IOS][GoSELLER] Product Update Tests">
         <classes>
             <class name="ios.seller.IOSGoSELLERUpdateProductTest">
+                <methods>
+                    <include name="smokeTest"/>
+                </methods>
             </class>
         </classes>
     </test>

@@ -3,7 +3,11 @@
 <suite name="Product Creation Test Suite">
     <test name="[Dashboard] Product Creation Tests">
         <classes>
-            <class name="web.seller.DashboardCreateProductTest"/>
+            <class name="web.seller.DashboardCreateProductTest">
+                <methods>
+                    <include name="regressionTest"/>
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>

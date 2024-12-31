@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Product Update Test Suite">
+    <test name="[IOS][GoSELLER] Product Update Tests">
+        <classes>
+            <class name="ios.seller.IOSGoSELLERUpdateProductTest">
+                <methods>
+                    <include name="regressionTest"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>

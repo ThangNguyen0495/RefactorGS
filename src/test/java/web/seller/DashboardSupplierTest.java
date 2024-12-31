@@ -51,10 +51,10 @@ public class DashboardSupplierTest extends BaseTest {
     @DataProvider(name = "supplierTestCases")
     public Object[][] supplierTestCases() {
         return new Object[][]{
-                {true, false, "Create Vietnam Supplier"},
-                {false, false, "Create Foreign Supplier"},
-                {true, true, "Update Vietnam Supplier"},
-                {false, true, "Update Foreign Supplier"}
+                {"Create Vietnam Supplier", true, false},
+                {"Create Foreign Supplier", false, false},
+                {"Update Vietnam Supplier", true, true},
+                {"Update Foreign Supplier", false, true}
         };
     }
 

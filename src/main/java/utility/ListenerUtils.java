@@ -143,12 +143,12 @@ public class ListenerUtils implements ITestListener, ISuiteListener {
         if (result == null || extent == null) return;
 
         // Store testName globally
-        testName = (result.getParameters().length > 0)
-                ? result.getParameters()[result.getParameters().length - 1].toString()
-                : result.getMethod().getMethodName();
+        testName = result.getParameters()[0].toString();
 
         test = extent.createTest(testName);
-        logger.info("Test Started: {}", testName);
+
+        // Logger
+        logger.info("===== STEP =====> Test Started: {} ", testName);
     }
 
     /**

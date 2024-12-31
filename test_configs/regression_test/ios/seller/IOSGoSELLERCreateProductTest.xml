@@ -4,6 +4,9 @@
     <test name="[IOS][GoSELLER] Product Update Tests">
         <classes>
             <class name="ios.seller.IOSGoSELLERCreateProductTest">
+                <methods>
+                    <include name="regressionTest"/>
+                </methods>
             </class>
         </classes>
     </test>

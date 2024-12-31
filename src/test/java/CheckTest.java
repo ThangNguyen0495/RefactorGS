@@ -1,41 +1,44 @@
-import api.seller.supplier.APICreateSupplier;
-import org.openqa.selenium.WebDriver;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Listeners;
-import org.testng.annotations.Test;
-import pages.ios.seller.login.LoginScreen;
-import pages.web.seller.login.DashboardLoginPage;
-import pages.web.seller.suppliers.all_suppliers.BaseSupplierPage;
+import org.testng.Assert;
+import org.testng.annotations.*;
 import utility.ListenerUtils;
-import utility.PropertiesUtils;
-import utility.WebDriverManager;
 
+import java.util.Arrays;
+import java.util.List;
 
 @Listeners(ListenerUtils.class)
 public class CheckTest {
 
-    @Test
-    void t() {
-//        new DashboardLoginPage(driver).loginDashboardByJs(PropertiesUtils.getSellerCredentials());
-//        new BaseSupplierPage(driver)
-//                .fetchSupplierInformation(PropertiesUtils.getSellerCredentials(), true)
-//                .navigateToSupplierDetailPageByItsId(902)
-//                .createNewSupplier()
-//                .verifySupplierInformation();
-        new APICreateSupplier(PropertiesUtils.getSellerCredentials()).createThenGetSupplierId();
+    @DataProvider(name = "regressionTest")
+    Object[][] dataRegression() {
+        return new Object[][]{
+                {"Product1"},
+                {"Product2"},
+                {"Product3"},
+                {"Product4"},
+                {"Product5"},
+                {"Product6"}
+        };
     }
 
-    WebDriver driver;
-//
-//    @BeforeMethod
-//    void set() {
-//        driver = WebDriverManager.getWebDriver();
-//    }
-//
-//    @AfterMethod
-//    void clear() {
-//        driver.quit();
-//    }
+    @DataProvider(name = "smokeTest")
+    Object[][] dataSmoke() {
+        List<String> testNames = List.of("6");
 
+        // Get all test cases from the regression data provider and filter based on testNames
+        Object[][] allData = dataRegression();
+
+        return Arrays.stream(allData)
+                .filter(data -> testNames.stream().anyMatch(testName -> ((String) data[0]).contains(testName)))
+                .toArray(Object[][]::new);
+    }
+
+    @Test(dataProvider = "regressionTest")
+    void testRegression(String string) {
+        Assert.assertNotEquals(string, "Product6");
+    }
+
+    @Test(dataProvider = "smokeTest")
+    void testSmoke(String string) {
+        Assert.assertNotEquals(string, "Product6");
+    }
 }
