@@ -409,5 +409,6 @@ public class IOSUtils {
     public void relaunchApp(String bundleId) {
         ((IOSDriver) driver).terminateApp(bundleId);
         ((IOSDriver) driver).activateApp(bundleId);
+        logger.info("Relaunch app.");
     }
 }

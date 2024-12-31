@@ -2,6 +2,7 @@ package web.seller;
 
 import baseTest.BaseTest;
 import api.seller.supplier.APICreateSupplier;
+import org.apache.logging.log4j.LogManager;
 import org.testng.annotations.*;
 import pages.web.seller.login.DashboardLoginPage;
 import pages.web.seller.suppliers.all_suppliers.BaseSupplierPage;
@@ -66,9 +67,11 @@ public class DashboardSupplierTest extends BaseTest {
      * @param testName          A descriptive name for the test case.
      */
     @Test(dataProvider = "supplierTestCases")
-    private void testSupplierManagement(boolean isVietnamSupplier, boolean isUpdate, String testName) {
+    private void testSupplierManagement(String testName, boolean isVietnamSupplier, boolean isUpdate) {
+        LogManager.getLogger().info("Running test: {}", testName);
+
         // Handle supplier creation or update based on the test parameters
-        handleSupplier(isVietnamSupplier, isUpdate, testName);
+        handleSupplier(isVietnamSupplier, isUpdate);
     }
 
     /**
@@ -76,9 +79,8 @@ public class DashboardSupplierTest extends BaseTest {
      *
      * @param isVietnamSupplier Indicates whether the supplier is a Vietnam-based supplier.
      * @param isUpdate          Indicates whether the supplier is being updated.
-     * @param testName          A descriptive name for the test case, used for context in logs.
      */
-    private void handleSupplier(boolean isVietnamSupplier, boolean isUpdate, String testName) {
+    private void handleSupplier(boolean isVietnamSupplier, boolean isUpdate) {
         // Navigate to the appropriate supplier page based on the action type
         if (isUpdate) {
             int supplierId = new APICreateSupplier(PropertiesUtils.getSellerCredentials()).createThenGetSupplierId();
