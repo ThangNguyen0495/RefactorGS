@@ -234,8 +234,8 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         new ProductManagementScreen(driver).navigateToProductManagementScreen()
                 .navigateToProductDetailScreen(productName);
 
-        // Remove old variation if any
-        removeOldVariations();
+//        // Remove old variation if any
+//        removeOldVariations();
 
         // Log
         logger.info("Navigate to product detail screen");
@@ -516,7 +516,7 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
 
         // Navigate to Add/Edit variation
         WebUtils.retryUntil(5, 1000, "Can not change 'Variation' switch status",
-                () -> iosUtils.isChecked(loc_swVariation),
+                () -> iosUtils.getListElement(loc_swVariation).isEmpty(),
                 () -> iosUtils.click(loc_swVariation));
 
         iosUtils.click(loc_btnAddVariation);
@@ -524,7 +524,10 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         // Add/Edit variation
         var variationMap = VariationHelper.getVariationMap(APIGetProductDetail.getVariationName(newProductInfo, defaultLanguage),
                 APIGetProductDetail.getVariationValues(newProductInfo, defaultLanguage));
-        new VariationScreen(driver).addVariation(variationMap);
+
+        int numberOfVariations = (currentProductInfo != null) ? currentProductInfo.getModels().getFirst()
+                .getLabel().split("\\|").length : 1;
+        new VariationScreen(driver).addVariation(variationMap, numberOfVariations);
     }
 
 
@@ -1122,9 +1125,9 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
             return this;
         }
 
-        public void addVariation(Map<String, List<String>> variationMap) {
+        public void addVariation(Map<String, List<String>> variationMap, int numberOfVariations) {
             // Remove old variation
-            removeOldVariation(1);
+            removeOldVariation(numberOfVariations);
 
             // Add variation
             IntStream.range(0, variationMap.keySet().size()).forEachOrdered(groupIndex -> {
