@@ -2,6 +2,8 @@ package ios.seller;
 
 import api.seller.product.APICreateProduct;
 import baseTest.BaseTest;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.logging.log4j.LogManager;
 import org.testng.annotations.BeforeClass;
@@ -130,19 +132,19 @@ public class IOSGoSELLERUpdateProductTest extends BaseTest {
     }
 
     @Test(dataProvider = "regressionTestData", description = "Update product with varying attributes")
-    void regressionTest(boolean hasModel, int productId, boolean noDiscount, boolean noCostPrice,
-                        boolean hasDimension, boolean managedByLot, boolean randomPlatforms,
-                        boolean inStock, String testNam) {
-        updateProductTest(hasModel, productId, noDiscount, noCostPrice,
-                hasDimension, managedByLot, randomPlatforms, inStock, testNam);
+    void regressionTest(String testName, boolean hasModel, int productId, boolean noDiscount,
+                        boolean noCostPrice, boolean hasDimension, boolean managedByLot,
+                        boolean randomPlatforms, boolean inStock) {
+        updateProductTest(testName, hasModel, productId, noDiscount, noCostPrice,
+                hasDimension, managedByLot, randomPlatforms, inStock);
     }
 
     @Test(dataProvider = "smokeTestData", description = "Update product with varying attributes")
-    void smokeTest(boolean hasModel, int productId, boolean noDiscount, boolean noCostPrice,
-                   boolean hasDimension, boolean managedByLot, boolean randomPlatforms,
-                   boolean inStock, String testNam) {
-        updateProductTest(hasModel, productId, noDiscount, noCostPrice,
-                hasDimension, managedByLot, randomPlatforms, inStock, testNam);
+    void smokeTest(String testName, boolean hasModel, int productId, boolean noDiscount,
+                   boolean noCostPrice, boolean hasDimension, boolean managedByLot,
+                   boolean randomPlatforms, boolean inStock) {
+        updateProductTest(testName, hasModel, productId, noDiscount, noCostPrice,
+                hasDimension, managedByLot, randomPlatforms, inStock);
     }
 
 
@@ -159,9 +161,9 @@ public class IOSGoSELLERUpdateProductTest extends BaseTest {
      * @param inStock         Flag for stock availability.
      * @param testName        A descriptive name for the test case.
      */
-    void updateProductTest(boolean hasModel, int productId, boolean noDiscount, boolean noCostPrice,
+    void updateProductTest(String testName, boolean hasModel, int productId, boolean noDiscount, boolean noCostPrice,
                            boolean hasDimension, boolean managedByLot, boolean randomPlatforms,
-                           boolean inStock, String testName) {
+                           boolean inStock) {
 
         // Log the test case being executed
         LogManager.getLogger().info("Running test: {}", testName);

@@ -130,19 +130,19 @@ public class AndroidGoSELLERUpdateProductTest extends BaseTest {
     }
 
     @Test(dataProvider = "regressionTestData", description = "Update product with varying attributes")
-    void regressionTest(boolean hasModel, int productId, boolean noDiscount, boolean noCostPrice,
-                        boolean hasDimension, boolean managedByLot, boolean randomPlatforms,
-                        boolean inStock, String testNam) {
-        updateProductTest(hasModel, productId, noDiscount, noCostPrice,
-                hasDimension, managedByLot, randomPlatforms, inStock, testNam);
+    void regressionTest(String testName, boolean hasModel, int productId, boolean noDiscount,
+                        boolean noCostPrice, boolean hasDimension, boolean managedByLot,
+                        boolean randomPlatforms, boolean inStock) {
+        updateProductTest(testName, hasModel, productId, noDiscount, noCostPrice,
+                hasDimension, managedByLot, randomPlatforms, inStock);
     }
 
     @Test(dataProvider = "smokeTestData", description = "Update product with varying attributes")
-    void smokeTest(boolean hasModel, int productId, boolean noDiscount, boolean noCostPrice,
-                        boolean hasDimension, boolean managedByLot, boolean randomPlatforms,
-                        boolean inStock, String testNam) {
-        updateProductTest(hasModel, productId, noDiscount, noCostPrice,
-                hasDimension, managedByLot, randomPlatforms, inStock, testNam);
+    void smokeTest(String testName, boolean hasModel, int productId, boolean noDiscount,
+                   boolean noCostPrice, boolean hasDimension, boolean managedByLot,
+                   boolean randomPlatforms, boolean inStock) {
+        updateProductTest(testName, hasModel, productId, noDiscount, noCostPrice, hasDimension,
+                managedByLot, randomPlatforms, inStock);
     }
 
     /**
@@ -158,9 +158,9 @@ public class AndroidGoSELLERUpdateProductTest extends BaseTest {
      * @param inStock         Flag for stock availability.
      * @param testName        A descriptive name for the test case.
      */
-    void updateProductTest(boolean hasModel, int productId, boolean noDiscount, boolean noCostPrice,
+    void updateProductTest(String testName, boolean hasModel, int productId, boolean noDiscount, boolean noCostPrice,
                            boolean hasDimension, boolean managedByLot, boolean randomPlatforms,
-                           boolean inStock, String testName) {
+                           boolean inStock) {
 
         // Log the test case being executed
         LogManager.getLogger().info("Running test: {}", testName);
