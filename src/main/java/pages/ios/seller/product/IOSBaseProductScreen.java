@@ -484,7 +484,7 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
 
         // Navigate to Add/Edit variation
         WebUtils.retryUntil(5, 1000, "Can not change 'Variation' switch status",
-                () -> iosUtils.getListElement(loc_swVariation).isEmpty(),
+                () -> !iosUtils.getListElement(loc_btnAddVariation).isEmpty(),
                 () -> iosUtils.click(loc_swVariation));
 
         iosUtils.click(loc_btnAddVariation);
