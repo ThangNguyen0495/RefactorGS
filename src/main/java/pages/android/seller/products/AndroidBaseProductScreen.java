@@ -256,7 +256,10 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         androidUtils.pushFileToMobileDevices(imagePath);
 
         // Open select image popup
-        androidUtils.click(loc_icnUploadImages);
+        WebUtils.performAction("Open select image popup",
+                () -> androidUtils.click(loc_icnUploadImages),
+                () -> Assert.assertFalse(androidUtils.getListElement(loc_dlgSelectImages).isEmpty(), "Can not open select image popup"));
+//        androidUtils.click(loc_icnUploadImages);
 
         // Select images
         new SelectImagePopup(driver).selectImages();
@@ -323,11 +326,6 @@ public class AndroidBaseProductScreen extends BaseProductElement {
 
     private void hideRemainingStockOnOnlineStore() {
         // Get current checkbox status
-//        boolean status = (currentProductInfo != null) && currentProductInfo.getIsHideStock();
-//
-//        // Hide remaining stock on online store config
-//        if (!Objects.equals(newProductInfo.getIsHideStock(), status)) androidUtils.click(loc_chkHideRemainingStock);
-
         WebUtils.retryUntil(5, 1000, "Can not change hide remaining stock config.",
                 () -> {
                     // Get current checkbox status
@@ -485,47 +483,6 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         logger.info("Product do not have priority configure");
     }
 
-    private void removeOldVariations() {
-        // If product without model, skip
-        if (!currentProductInfo.isHasModel() || currentProductInfo.isLotAvailable()) {
-            return;
-        }
-
-        // remove variation
-        removeVariation();
-
-        // Navigate to product detail screen
-        navigateToProductDetailScreen(currentProductInfo.getId());
-
-        // log
-        logger.info("Remove old variation and navigate to product detail again");
-    }
-
-    private void removeVariation() {
-        // If product is managed by Lot, that is not allow to remove variation
-        if (currentProductInfo.isLotAvailable()) {
-            logger.info("Product that is managed by Lot, do not allow remove variation");
-            return;
-        }
-
-        // If product has variation, remove old variation
-        if (!currentProductInfo.getModels().isEmpty()) {
-            // Navigate to Add/Edit variation
-            androidUtils.click(loc_btnAddVariation);
-
-            // Get number of variation groups
-            int numberOfVariationGroups = currentProductInfo.getModels().getFirst()
-                    .getLabel().split("\\|").length;
-
-            // Remove all variations and save changes
-            new VariationScreen(driver).removeOldVariation(numberOfVariationGroups)
-                    .saveChanges();
-
-            // Save changes
-            androidUtils.click(loc_btnSave);
-        }
-    }
-
     private void addVariations() {
         if ((currentProductInfo != null) && currentProductInfo.isLotAvailable()) {
             logger.info("Product that is managed by Lot, do not allow add variation");
@@ -534,7 +491,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
 
         // Navigate to Add/Edit variation
         WebUtils.retryUntil(5, 1000, "Can not change 'Variation' switch status",
-                () -> androidUtils.isChecked(loc_swVariations),
+                () -> !androidUtils.getListElement(loc_btnAddVariation).isEmpty(),
                 () -> androidUtils.click(loc_swVariations));
 
         androidUtils.click(loc_btnAddVariation);
@@ -542,7 +499,10 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         // Add/Edit variation
         var variationMap = VariationHelper.getVariationMap(APIGetProductDetail.getVariationName(newProductInfo, defaultLanguage),
                 APIGetProductDetail.getVariationValues(newProductInfo, defaultLanguage));
-        new VariationScreen(driver).addVariation(variationMap);
+
+        int numberOfVariations = (currentProductInfo != null) ? currentProductInfo.getModels().getFirst()
+                .getLabel().split("\\|").length : 1;
+        new AndroidBaseProductScreen.VariationScreen(driver).addVariation(variationMap, numberOfVariations);
     }
 
 
@@ -803,9 +763,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         fetchProductInformation(isManagedByIMEI, hasVariation, branchStock);
 
         // For update operations, remove old variations
-        if (!isCreate) {
-            removeOldVariations();
-        } else {
+        if (isCreate) {
             selectManageInventory();
         }
 
@@ -1083,10 +1041,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
             if (!productInfo.isLotAvailable() || productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER")) {
                 // Navigate to inventory screen
                 WebUtils.retryUntil(5, 1000, "Can not navigate to Inventory screen",
-                        () -> {
-                            System.out.println(((AndroidDriver) driver).currentActivity());
-                            return ((AndroidDriver) driver).currentActivity().equals(sellerProductBranchInventoryActivity);
-                        },
+                        () -> ((AndroidDriver) driver).currentActivity().equals(sellerProductInventoryActivity),
                         () -> androidUtils.click(loc_btnInventory));
 
                 // Add variation stock
@@ -1143,15 +1098,6 @@ public class AndroidBaseProductScreen extends BaseProductElement {
             androidUtils = new AndroidUtils(driver);
         }
 
-        public VariationScreen removeOldVariation(int numOfVariationGroup) {
-            // Check number of variation groups
-            if (numOfVariationGroup <= 0) return this;
-
-            // Remove old variation
-            IntStream.range(0, numOfVariationGroup).forEach(ignored -> androidUtils.click(loc_btnRemoveVariationGroup));
-            return this;
-        }
-
         By loc_btnRemoveVariationGroup = androidUIAutomator(uiScrollResourceId.formatted("%s:id/ivDeleteVariation1".formatted(sellerBundleId)));
         By loc_btnAddVariation = androidUIAutomator(uiScrollResourceId.formatted("%s:id/tvAddVariation".formatted(sellerBundleId)));
         By loc_txtVariationName1 = androidUIAutomator(uiScrollResourceId.formatted("%s:id/edtVariation1Name".formatted(sellerBundleId)));
@@ -1162,9 +1108,17 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         By loc_btnAddVariationValue2 = androidUIAutomator(uiScrollResourceId.formatted("%s:id/ivAddValueForVariation2".formatted(sellerBundleId)));
         By loc_btnSave = androidUIAutomator(uiScrollResourceId.formatted("%s:id/ivActionBarIconRight".formatted(sellerBundleId)));
 
-        public void addVariation(Map<String, List<String>> variationMap) {
+        private void removeOldVariation(int numOfVariationGroups) {
+            // Check number of variation groups
+            if (numOfVariationGroups <= 0) return;
+
             // Remove old variation
-            removeOldVariation(1);
+            IntStream.range(0, numOfVariationGroups).forEach(ignored -> androidUtils.click(loc_btnRemoveVariationGroup));
+        }
+
+        public void addVariation(Map<String, List<String>> variationMap, int numberOfVariationGroups) {
+            // Remove old variation
+            removeOldVariation(numberOfVariationGroups);
 
             // Add variation
             IntStream.range(0, variationMap.keySet().size()).forEachOrdered(groupIndex -> {
@@ -1266,11 +1220,11 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         /**
          * Manages stock for branches by either adding or updating based on the operation.
          *
-         * @param isCreate       Indicates whether the operation is an update (false) or add (true).
-         * @param manageByIMEI   Indicates if the stock management uses IMEI.
-         * @param branchInfos    List of branch information from the API.
-         * @param variation      Variation information for IMEI management.
-         * @param branches       List of branches with their respective stock details.
+         * @param isCreate     Indicates whether the operation is an update (false) or add (true).
+         * @param manageByIMEI Indicates if the stock management uses IMEI.
+         * @param branchInfos  List of branch information from the API.
+         * @param variation    Variation information for IMEI management.
+         * @param branches     List of branches with their respective stock details.
          */
         public void manageStock(boolean isCreate, boolean manageByIMEI, List<APIGetBranchList.BranchInformation> branchInfos, String variation, List<ProductInformation.Branch> branches) {
             // Manage stock for each branch
@@ -1335,9 +1289,11 @@ public class AndroidBaseProductScreen extends BaseProductElement {
 
         By loc_btnSave = androidUIAutomator(uiScrollResourceId.formatted("%s:id/tvActionBarIconRight".formatted(sellerBundleId)));
         By loc_ddvSelectedBranch = androidUIAutomator(uiScrollResourceId.formatted("%s:id/tvFilterBranches".formatted(sellerBundleId)));
+
         By loc_lstBranches(int branchIndex) {
             return androidUIAutomator(uiScrollResourceIdInstance.formatted("%s:id/ivUnChecked".formatted(sellerBundleId), branchIndex));
         }
+
         By loc_lblActions = androidUIAutomator(uiScrollResourceId.formatted("%s:id/ivAction".formatted(sellerBundleId)));
         By loc_lblUpdatePriceActions = By.xpath("(//*[@* = '%s:id/title'])[1]".formatted(sellerBundleId));
         By loc_lblUpdateStockActions = By.xpath("(//*[@* = '%s:id/title'])[2]".formatted(sellerBundleId));
@@ -1422,6 +1378,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         WebDriver driver;
         AndroidUtils androidUtils;
         Logger logger = LogManager.getLogger();
+
         public AddIMEIScreen(WebDriver driver) {
             // Get driver
             this.driver = driver;

@@ -318,7 +318,13 @@ public class BaseProductPage extends BaseProductElement {
         List<WebElement> removeImageIcons = webUtils.getListElement(loc_icnRemoveImages);
         if (!removeImageIcons.isEmpty()) {
             IntStream.iterate(removeImageIcons.size() - 1, index -> index >= 0, index -> index - 1)
-                    .forEach(index -> webUtils.clickJS(loc_icnRemoveImages, index));
+                    .forEach(index -> {
+                        webUtils.clickJS(loc_icnRemoveImages, index);
+                        // Work-around with alt text issue
+                        if (!webUtils.getListElement(loc_dlgAltText_btnCancel).isEmpty()) {
+                            webUtils.click(loc_dlgAltText_btnCancel);
+                        }
+                    });
             logger.info("Removed existing product images.");
         }
     }
@@ -513,7 +519,7 @@ public class BaseProductPage extends BaseProductElement {
      * Sets the product priority.
      */
     void setPriority() {
-        webUtils.sendKeys(loc_txtPriority, String.valueOf(newProductInfo.getPriority()));
+        webUtils.sendKeys(loc_txtPriority, newProductInfo.getPriority());
         logger.info("Set product priority: {}", newProductInfo.getPriority());
     }
 
@@ -535,9 +541,8 @@ public class BaseProductPage extends BaseProductElement {
      * @param dimensionName    The name of the dimension for logging purposes.
      */
     private void setDimension(By dimensionLocator, int dimension, String dimensionName) {
-        String dimensionStr = String.valueOf(dimension);
-        webUtils.sendKeys(dimensionLocator, dimensionStr);
-        logger.info("Input {}: {}", dimensionName, dimensionStr);
+        webUtils.sendKeys(dimensionLocator, dimension);
+        logger.info("Input {}: {}", dimensionName, dimension);
     }
 
 
@@ -790,15 +795,15 @@ public class BaseProductPage extends BaseProductElement {
      */
     private void handlePriceForWithoutVariations() {
         // Input listing price
-        webUtils.sendKeys(loc_txtWithoutVariationListingPrice, String.valueOf(newProductInfo.getOrgPrice()));
+        webUtils.sendKeys(loc_txtWithoutVariationListingPrice, newProductInfo.getOrgPrice());
         logger.info("Listing price: {}", String.format("%,d", newProductInfo.getOrgPrice()));
 
         // Input selling price
-        webUtils.sendKeys(loc_txtWithoutVariationSellingPrice, String.valueOf(newProductInfo.getNewPrice()));
+        webUtils.sendKeys(loc_txtWithoutVariationSellingPrice, newProductInfo.getNewPrice());
         logger.info("Selling price: {}", String.format("%,d", newProductInfo.getNewPrice()));
 
         // Input cost price
-        webUtils.sendKeys(loc_txtWithoutVariationCostPrice, String.valueOf(newProductInfo.getCostPrice()));
+        webUtils.sendKeys(loc_txtWithoutVariationCostPrice, newProductInfo.getCostPrice());
         logger.info("Cost price: {}", String.format("%,d", newProductInfo.getCostPrice()));
     }
 
@@ -843,17 +848,17 @@ public class BaseProductPage extends BaseProductElement {
     private void inputVariationPrice(int varIndex, String variation) {
         // Input listing price
         long listingPrice = APIGetProductDetail.getVariationListingPrice(newProductInfo, varIndex);
-        webUtils.sendKeys(loc_dlgUpdatePrice_txtListingPrice, varIndex, String.valueOf(listingPrice));
+        webUtils.sendKeys(loc_dlgUpdatePrice_txtListingPrice, varIndex, listingPrice);
         logger.info("[{}] Listing price: {}.", variation, String.format("%,d", listingPrice));
 
         // Input selling price
         long sellingPrice = APIGetProductDetail.getVariationSellingPrice(newProductInfo, varIndex);
-        webUtils.sendKeys(loc_dlgUpdatePrice_txtSellingPrice, varIndex, String.valueOf(sellingPrice));
+        webUtils.sendKeys(loc_dlgUpdatePrice_txtSellingPrice, varIndex, sellingPrice);
         logger.info("[{}] Selling price: {}.", variation, String.format("%,d", sellingPrice));
 
         // Input cost price
         long costPrice = APIGetProductDetail.getVariationCostPrice(newProductInfo, varIndex);
-        webUtils.sendKeys(loc_dlgUpdatePrice_txtCostPrice, varIndex, String.valueOf(costPrice));
+        webUtils.sendKeys(loc_dlgUpdatePrice_txtCostPrice, varIndex, costPrice);
         logger.info("[{}] Cost price: {}.", variation, String.format("%,d", costPrice));
     }
 
@@ -969,7 +974,7 @@ public class BaseProductPage extends BaseProductElement {
 
         // Get the maximum stock to be updated
         int maximumBranchStock = APIGetProductDetail.getMaximumBranchStockForModel(newProductInfo, modelId);
-        webUtils.sendKeys(loc_dlgUpdateStock_txtStockValue, String.valueOf(maximumBranchStock + 1));
+        webUtils.sendKeys(loc_dlgUpdateStock_txtStockValue, maximumBranchStock + 1);
 
         // Input stock quantities for each branch
         updateBranchStockForModel(modelId);
@@ -994,7 +999,7 @@ public class BaseProductPage extends BaseProductElement {
 
             // Update or add stock for each branch
             if (!webUtils.getListElement(loc_dlgUpdateStock_txtBranchStock(activeBranchNames.get(branchIndex))).isEmpty()) {
-                webUtils.sendKeys(loc_dlgUpdateStock_txtBranchStock(activeBranchNames.get(branchIndex)), String.valueOf(stock));
+                webUtils.sendKeys(loc_dlgUpdateStock_txtBranchStock(activeBranchNames.get(branchIndex)), stock);
                 logger.info("{}[{}] Updated stock: {}", variationName, activeBranchNames.get(branchIndex), stock);
             } else {
                 logger.info("{}[{}] Added stock: {}", variationName, activeBranchNames.get(branchIndex), stock);
@@ -1112,7 +1117,7 @@ public class BaseProductPage extends BaseProductElement {
         IntStream.range(0, activeBranchNames.size()).forEach(brIndex -> {
             // Get stock for the current branch and input it
             int stock = APIGetProductDetail.getStockByModelAndBranch(newProductInfo, null, activeBranchIds.get(brIndex));
-            webUtils.sendKeys(loc_txtWithoutVariationBranchStock(activeBranchNames.get(brIndex)), String.valueOf(stock));
+            webUtils.sendKeys(loc_txtWithoutVariationBranchStock(activeBranchNames.get(brIndex)), stock);
             logger.info("[Create][{}] Input stock: {}", activeBranchNames.get(brIndex), stock);
         });
         logger.info("[Create]Complete stock creation for Normal product.");

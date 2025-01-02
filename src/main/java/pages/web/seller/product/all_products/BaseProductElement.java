@@ -7,6 +7,7 @@ public class BaseProductElement {
     protected final By loc_txtProductName = By.cssSelector("input#productName");
     protected final By loc_txaProductDescription = By.cssSelector("div.fr-wrapper > div");
     protected final By loc_icnRemoveImages = By.cssSelector(".image-widget__btn-remove");
+    protected final By loc_dlgAltText_btnCancel = By.cssSelector(".product-image .button__cancel-modal-image");
     protected final By imgUploads = By.xpath("//input[@type = 'file']");
     protected final By loc_ddvSelectedVAT = By.cssSelector(".form-group .uik-select__valueWrapper");
     protected final By loc_ddvNoVAT = By.xpath("//*[@class = 'uik-select__optionContent']/div[text()='Không áp dụng thuế'] | //*[@class = 'uik-select__optionContent']/div[text()='Tax does not apply']");

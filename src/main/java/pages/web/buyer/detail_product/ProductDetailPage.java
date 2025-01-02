@@ -588,7 +588,7 @@ public class ProductDetailPage {
      */
     private void setQuantityWithRetries(int minQuantity) {
         for (int attempt = 1; attempt <= 5; attempt++) {
-            webUtils.sendKeys(loc_txtQuantity, String.valueOf(minQuantity));
+            webUtils.sendKeys(loc_txtQuantity, minQuantity);
 
             if (webUtils.getValue(loc_txtQuantity).equals(String.valueOf(minQuantity))) {
                 return;

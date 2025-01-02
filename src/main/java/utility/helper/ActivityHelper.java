@@ -11,6 +11,7 @@ public class ActivityHelper {
     public final static String sellerProductMgmtActivity = "com.mediastep.gosellseller.modules.product_management.ProductManagementActivity";
     public final static String sellerProductDetailActivity = "com.mediastep.gosellseller.modules.upload_product.CreateProductActivity";
     public final static String sellerProductBranchInventoryActivity = "com.mediastep.gosellseller.modules.upload_product.inventory";
+    public final static String sellerProductInventoryActivity = "com.mediastep.gosellseller.modules.upload_product.inventory.InventoryActivity";
 
     // Buyer
     public final static String buyerBundleId = PropertiesUtils.getBuyerBundleId();

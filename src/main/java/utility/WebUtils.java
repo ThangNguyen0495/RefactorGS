@@ -493,7 +493,7 @@ public class WebUtils {
      * @param locator The By locator.
      * @param content The content to be sent.
      */
-    public void sendKeys(By locator, CharSequence content) {
+    public void sendKeys(By locator, Object content) {
         sendKeys(locator, 0, content);
     }
 
@@ -504,18 +504,30 @@ public class WebUtils {
      * @param index   The index of the element in the list.
      * @param content The content to be sent.
      */
-    public void sendKeys(By locator, int index, CharSequence content) {
+    public void sendKeys(By locator, int index, Object content) {
         // Ensure that at least one element is found
         Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to sendKeys.");
 
-        retryUntil(5, 0, "Cannot input to field after 5 attempts",
-                () -> elementTextMatches(locator, index, content),
-                () -> {
-                    clear(locator, index);
-                    click(locator, index);
-                    retryOnStaleElement(driver, () -> retrySendKeysOnElementNotInteractable(locator, index, content));
-                    clickOutOfTextBox(locator, index);
-                });
+        clear(locator, index);
+        click(locator, index);
+        retryOnStaleElement(driver, () -> retrySendKeysOnElementNotInteractable(locator, index, getContent(content)));
+        clickOutOfTextBox(locator, index);
+    }
+
+    /**
+     * Converts the given content into a CharSequence.
+     *
+     * @param content The input content, which could be a CharSequence or any other Object.
+     * @return The content as a CharSequence. If the content is null, returns an empty string.
+     */
+    private CharSequence getContent(Object content) {
+        if (content == null) {
+            return ""; // Return an empty string if content is null
+        }
+        if (content instanceof CharSequence) {
+            return (CharSequence) content; // Directly return if already a CharSequence
+        }
+        return content.toString(); // Convert other objects to String
     }
 
     /**

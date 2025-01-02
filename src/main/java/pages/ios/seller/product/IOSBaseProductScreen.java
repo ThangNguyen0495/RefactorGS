@@ -476,38 +476,6 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         logger.info("Product do not have priority configure");
     }
 
-    private void removeOldVariations() {
-        // If product without model, skip
-        if (!currentProductInfo.isHasModel() || currentProductInfo.isLotAvailable()) {
-            return;
-        }
-
-        // remove variation
-        removeVariation();
-
-        // Navigate to product detail screen
-        navigateToProductDetailScreen(currentProductInfo.getId());
-
-        // log
-        logger.info("Remove old variation and navigate to product detail again");
-    }
-
-    private void removeVariation() {
-        // Navigate to Add/Edit variation
-        iosUtils.click(loc_btnAddVariation);
-
-        // Get number of variation groups
-        int numberOfVariationGroups = currentProductInfo.getModels().getFirst()
-                .getLabel().split("\\|").length;
-
-        // Remove all variations and save changes
-        new VariationScreen(driver).removeOldVariation(numberOfVariationGroups)
-                .saveChanges();
-
-        // Save changes
-        iosUtils.click(loc_btnSave);
-    }
-
     private void addVariations() {
         if ((currentProductInfo != null) && currentProductInfo.isLotAvailable()) {
             logger.info("Product that is managed by Lot, do not allow add variation");
@@ -1116,13 +1084,12 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         By loc_btnAddVariation = By.xpath("//*[XCUIElementTypeImage[@name=\"ic-plus\"]]/XCUIElementTypeButton");
         By loc_btnSave = By.xpath("//XCUIElementTypeButton[@name=\"icon checked white\"]");
 
-        public VariationScreen removeOldVariation(int numOfVariationGroup) {
+        private void removeOldVariation(int numOfVariationGroup) {
             // Check number of variation groups
-            if (numOfVariationGroup <= 0) return this;
+            if (numOfVariationGroup <= 0) return;
 
             // Remove old variation
             IntStream.range(0, numOfVariationGroup).forEach(ignored -> iosUtils.click(loc_btnRemoveVariationGroup));
-            return this;
         }
 
         public void addVariation(Map<String, List<String>> variationMap, int numberOfVariations) {
