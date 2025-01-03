@@ -14,8 +14,6 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
-import pages.android.seller.login.LoginScreen;
-import pages.web.seller.login.DashboardLoginPage;
 import utility.PropertiesUtils;
 import utility.WebUtils;
 import utility.helper.ProductHelper;
@@ -27,7 +25,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static api.seller.user_feature.APIGetUserFeature.*;
-import static api.seller.user_feature.APIGetUserFeature.hasGoPOS;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 
 public class BaseProductPage extends BaseProductElement {
@@ -733,9 +730,6 @@ public class BaseProductPage extends BaseProductElement {
      * @param attIndex The index of the attribution.
      */
     private void inputAttributionDetails(int attIndex) {
-//        retryActionWithAlertHandling(() -> webUtils.sendKeys(loc_txtAttributionName, attIndex, newProductInfo.getItemAttributes().get(attIndex).getAttributeName()));
-//        retryActionWithAlertHandling(() -> webUtils.sendKeys(loc_txtAttributionValue, attIndex, newProductInfo.getItemAttributes().get(attIndex).getAttributeValue()));
-
         webUtils.sendKeys(loc_txtAttributionName, attIndex, newProductInfo.getItemAttributes().get(attIndex).getAttributeName());
         webUtils.sendKeys(loc_txtAttributionValue, attIndex, newProductInfo.getItemAttributes().get(attIndex).getAttributeValue());
         if (newProductInfo.getItemAttributes().get(attIndex).getIsDisplay()) {
@@ -889,7 +883,7 @@ public class BaseProductPage extends BaseProductElement {
             // Add IMEI numbers for the branch's stock
             IntStream.range(0, stock).mapToObj(imeiIndex -> generateIMEI(variationValue, activeBranchNames.get(branchIndex), imeiIndex))
                     .forEach(imei -> {
-                        webUtils.sendKeys(loc_dlgAddIMEI_txtAddIMEI(activeBranchNames.get(branchIndex)), imei);
+                        webUtils.sendKeysToTagInput(loc_dlgAddIMEI_txtAddIMEI(activeBranchNames.get(branchIndex)), imei);
                         logger.info("Input IMEI: {}", imei.replace("\n", ""));
                     });
 
@@ -1311,7 +1305,7 @@ public class BaseProductPage extends BaseProductElement {
         webUtils.click(loc_btnSave);
 
         // Ensure the success notification popup appears and close it
-        Assert.assertFalse(webUtils.getListElement(loc_dlgSuccessNotification, 60_000).isEmpty(), isUpdate ? "[Create product] Cannot create product." : "[Update product] Cannot update product.");
+        Assert.assertFalse(webUtils.getListElement(loc_dlgSuccessNotification, 60_000).isEmpty(), isUpdate ? "[Update product] Cannot update product." : "[Create product] Cannot create product.");
         webUtils.click(loc_dlgNotification_btnClose);
 
         // Log that the process is waiting for the save action to complete
@@ -1379,6 +1373,9 @@ public class BaseProductPage extends BaseProductElement {
      * Configures wholesale pricing for a product based on its information.
      */
     public void configWholesaleProduct() {
+        // Get latest product information
+        fetchProductInformation(currentProductInfo.getId());
+
         // Navigate to the wholesale product page and obtain the page object
         WholesaleProductPage wholesalePage = navigateToWholesaleProductPage(driver, currentProductInfo);
 

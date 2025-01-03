@@ -1,9 +1,12 @@
 package web.seller;
 
-import baseTest.BaseTest;
 import api.seller.supplier.APICreateSupplier;
+import baseTest.BaseTest;
 import org.apache.logging.log4j.LogManager;
-import org.testng.annotations.*;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 import pages.web.seller.login.DashboardLoginPage;
 import pages.web.seller.suppliers.all_suppliers.BaseSupplierPage;
 import utility.PropertiesUtils;
@@ -67,7 +70,7 @@ public class DashboardSupplierTest extends BaseTest {
      * @param testName          A descriptive name for the test case.
      */
     @Test(dataProvider = "supplierTestCases")
-    private void testSupplierManagement(String testName, boolean isVietnamSupplier, boolean isUpdate) {
+    void testSupplierManagement(String testName, boolean isVietnamSupplier, boolean isUpdate) {
         LogManager.getLogger().info("Running test: {}", testName);
 
         // Handle supplier creation or update based on the test parameters

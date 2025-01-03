@@ -1,10 +1,7 @@
 package baseTest;
 
 import api.seller.login.APISellerLogin;
-import org.openqa.selenium.Credentials;
 import org.openqa.selenium.WebDriver;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Listeners;
 import utility.ListenerUtils;
 import utility.PropertiesUtils;
@@ -26,8 +23,8 @@ public class BaseTest {
      *
      * @param testType The type of the test (SELLER or BUYER).
      * @param platform The platform to run the test on (WEB, ANDROID, IOS).
-     * @throws IOException If there is an error in downloading the app file.
-     * @throws URISyntaxException If the URL of the app is malformed.
+     * @throws IOException              If there is an error in downloading the app file.
+     * @throws URISyntaxException       If the URL of the app is malformed.
      * @throws IllegalArgumentException If an unsupported platform is provided.
      */
     public void initDriver(String testType, String platform) throws IOException, URISyntaxException {

@@ -319,8 +319,7 @@ public class WebUtils {
      */
     private static void handleAlert(WebDriver driver) {
         try {
-            Alert alert = driver.switchTo().alert();
-            alert.dismiss();
+            driver.switchTo().alert().dismiss();
             logger.debug("Alert dismissed.");
         } catch (NoAlertPresentException ignored) {
             // No alert was present, nothing to dismiss
@@ -346,7 +345,7 @@ public class WebUtils {
         }
 
         // Retrieve all elements matching the locator
-        return executeWithAlertHandling(driver, () -> wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator)));
+        return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
     }
 
     /**
@@ -356,7 +355,7 @@ public class WebUtils {
      * @return The WebElement.
      */
     public WebElement getElement(By locator) {
-        return retryOnStaleElement(driver, () -> wait.until(ExpectedConditions.presenceOfElementLocated(locator)));
+        return getElement(locator, 0);
     }
 
     /**
@@ -403,7 +402,7 @@ public class WebUtils {
      */
     public void click(By locator, int index) {
         // Ensure that at least one element is found
-        Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to click.");
+        elementToBeClickable(locator, index);
 
         // Highlight the element by adding a red border
         highlightElement(locator, index);
@@ -489,9 +488,14 @@ public class WebUtils {
 
     /**
      * Sends keys to a WebElement located by the specified locator.
+     * <p>
+     * This method is intended for use with basic input fields where the entered
+     * value remains visible in the input field. It retries the operation up to 5 times
+     * if the element is stale or not interactable.
      *
-     * @param locator The By locator.
-     * @param content The content to be sent.
+     * @param locator The {@link By} locator of the input field.
+     * @param content The content to be sent. Can be a {@link String} or any object
+     *                that can be converted to a string.
      */
     public void sendKeys(By locator, Object content) {
         sendKeys(locator, 0, content);
@@ -499,15 +503,51 @@ public class WebUtils {
 
     /**
      * Sends keys to a WebElement located by the specified locator and index.
+     * <p>
+     * This method is intended for use with basic input fields where the entered
+     * value remains visible in the input field. It retries the operation up to 5 times
+     * if the element is stale or not interactable.
      *
-     * @param locator The By locator.
-     * @param index   The index of the element in the list.
-     * @param content The content to be sent.
+     * @param locator The {@link By} locator of the input field.
+     * @param index   The index of the element in the list of elements matching the locator.
+     * @param content The content to be sent. Can be a {@link String} or any object
+     *                that can be converted to a string.
      */
     public void sendKeys(By locator, int index, Object content) {
-        // Ensure that at least one element is found
-        Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to sendKeys.");
+        retryUntil(5, 0, "Cannot input to field after 5 attempts",
+                () -> elementTextMatches(locator, index, getContent(content)),
+                () -> {
+                    clear(locator, index);
+                    click(locator, index);
+                    retryOnStaleElement(driver, () -> retrySendKeysOnElementNotInteractable(locator, index, getContent(content)));
+                    clickOutOfTextBox(locator, index);
+                });
+    }
 
+    /**
+     * Sends keys to a tag input field located by the specified locator and handles tag creation.
+     * <p>
+     *
+     * @param locator The By locator.
+     * @param content The content to be sent.
+     */
+    public void sendKeysToTagInput(By locator, Object content) {
+        sendKeysToTagInput(locator, 0, content);
+    }
+
+    /**
+     * Sends keys to a tag input field located by the specified locator and handles tag creation.
+     * <p>
+     * This method is specifically for tag input fields, where each entered value is
+     * converted into a tag or chip upon pressing Enter. It directly performs the input
+     * without retry mechanisms.
+     *
+     * @param locator The {@link By} locator of the tag input field.
+     * @param index   The index of the element in case multiple elements match the locator.
+     * @param content The content to be added as a tag. Can be a {@link String} or any object
+     *                that can be converted to a string.
+     */
+    public void sendKeysToTagInput(By locator, int index, Object content) {
         clear(locator, index);
         click(locator, index);
         retryOnStaleElement(driver, () -> retrySendKeysOnElementNotInteractable(locator, index, getContent(content)));
@@ -582,6 +622,7 @@ public class WebUtils {
     }
 
     private String getElementValue(By locator, int index) {
+        waitElementVisible(locator, index);
         var text = getText(locator, index);
         if (!text.isEmpty()) {
             return text; // Return early if text is not empty
@@ -643,9 +684,6 @@ public class WebUtils {
      * @param content The file path to be uploaded.
      */
     public void uploads(By locator, int index, CharSequence content) {
-        // Ensure that at least one element is found
-        Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to upload files.");
-
         retryOnStaleElement(driver, () -> getElement(locator, index).sendKeys(content));
     }
 
@@ -666,9 +704,6 @@ public class WebUtils {
      * @return The text of the WebElement.
      */
     public String getText(By locator, int index) {
-        // Ensure that at least one element is found
-        Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to getText.");
-
         return retryOnStaleElement(driver, () -> {
             waitVisibilityOfElementLocated(locator);
             return getElement(locator, index).getText();
@@ -705,8 +740,6 @@ public class WebUtils {
      * @return The attribute value.
      */
     public String getAttribute(By locator, int index, String attribute) {
-        // Ensure that at least one element is found
-        Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to getAttribute.");
         return retryOnStaleElement(driver, () -> {
             waitVisibilityOfElementLocated(locator);
             return getElement(locator, index).getAttribute(attribute);
@@ -765,9 +798,6 @@ public class WebUtils {
      * @return True if the element is selected, false otherwise.
      */
     public boolean isCheckedJS(By locator, int index) {
-        // Ensure that at least one element is found
-        Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to check checkbox state.");
-
         return retryOnStaleElement(driver, () ->
                 (boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", getElement(locator, index))
         );
@@ -791,9 +821,6 @@ public class WebUtils {
      * @return True if the element is disabled, false otherwise.
      */
     public Boolean isDisabledJS(By locator, int index) {
-        // Ensure that at least one element is found
-        Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to check its state.");
-
         return retryOnStaleElement(driver, () ->
                 (Boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].disabled", getElement(locator, index))
         );
@@ -1017,21 +1044,18 @@ public class WebUtils {
     }
 
     private Select getDropdownSelect(By locator) {
-        return retryOnStaleElement(driver,() -> new Select(getElement(locator)));
+        return retryOnStaleElement(driver, () -> new Select(getElement(locator)));
     }
 
     /**
      * Waits until a dropdown contains a specific option value.
      *
-     * @param locator The {@link By} locator to identify the dropdown element.
-     * @param value   The option value to wait for in the dropdown.
+     * @param value The option value to wait for in the dropdown.
      * @throws TimeoutException If the dropdown does not contain the specified value within the wait time.
      */
-    private void waitUntilDropdownContainsValue(By locator, String value) {
-        wait.until((ExpectedCondition<Boolean>) driver ->
-                retryOnStaleElement(driver, () -> getDropdownSelect(locator).getOptions()
-                        .stream()
-                        .anyMatch(option -> option.getAttribute("value").equals(value))));
+    private void waitUntilDropdownContainsValue(String value) {
+        String optionXpath = "//option[@value = '%s']".formatted(value);
+        getElement(By.xpath(optionXpath));
     }
 
     /**
@@ -1046,18 +1070,14 @@ public class WebUtils {
      */
     public void selectDropdownOptionByValue(By locator, String optionValue) {
         // Wait for the dropdown to contain the option value and retrieve its text
-        waitUntilDropdownContainsValue(locator, optionValue);
+        waitUntilDropdownContainsValue(optionValue);
 
         retryOnStaleElement(driver, () -> {
             try {
                 // Select the option by value
-                new Select(getElement(locator)).selectByValue(optionValue);
-
-                // Find the selected option and log its text
-                retryOnStaleElement(driver, () -> {
-                    WebElement selectedOption = new Select(getElement(locator)).getFirstSelectedOption();
-                    logger.info("Selected option: {} with value: {}", selectedOption.getText(), optionValue);
-                });
+                retryUntil(5, 1000, "Can not select value '%s'".formatted(optionValue),
+                        () -> new Select(getElement(locator)).getFirstSelectedOption().getAttribute("value").equals(optionValue),
+                        () -> new Select(getElement(locator)).selectByValue(optionValue));
             } catch (NoSuchElementException e) {
                 // If the value is not found, throw an exception with a descriptive message
                 throw new NoSuchElementException("Option with value '" + optionValue + "' not found in dropdown.", e);

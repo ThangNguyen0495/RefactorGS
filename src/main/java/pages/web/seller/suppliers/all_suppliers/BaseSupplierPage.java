@@ -6,6 +6,7 @@ import api.seller.supplier.APIGetSupplierList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 import utility.CountryUtils;
 import utility.PropertiesUtils;
@@ -59,8 +60,11 @@ public class BaseSupplierPage extends BaseSupplierElement {
      * Navigates to the page where a new supplier can be created.
      */
     public void navigateToCreateSupplierPage() {
-        driver.get("%s/supplier/create".formatted(PropertiesUtils.getDomain()));
-        logger.info("Navigated to create supplier page.");
+        webUtils.executeWithAlertHandling(() -> {
+            driver.get("%s/supplier/create".formatted(PropertiesUtils.getDomain()));
+            logger.info("Navigated to create supplier page.");
+        });
+
     }
 
     /**
@@ -70,9 +74,11 @@ public class BaseSupplierPage extends BaseSupplierElement {
      * @param supplierId The unique identifier of the supplier whose details are to be viewed or edited.
      */
     public void navigateToSupplierDetailPageByItsId(int supplierId) {
-        driver.get("%s/supplier/edit/%d".formatted(PropertiesUtils.getDomain(), supplierId));
-        logger.info("Navigated to supplier detail page, id: {}.", supplierId);
-    }
+        webUtils.executeWithAlertHandling(() -> {
+            driver.get("%s/supplier/edit/%d".formatted(PropertiesUtils.getDomain(), supplierId));
+            logger.info("Navigated to supplier detail page, id: {}.", supplierId);
+        });
+       }
 
     /**
      * Inputs the supplier's name into the corresponding text field.
@@ -272,7 +278,8 @@ public class BaseSupplierPage extends BaseSupplierElement {
         saveChanges();
 
         // Ensure the supplier creation was successful
-        Assert.assertFalse(webUtils.getListElement(loc_dlgToastSuccess).isEmpty(),
+        webUtils.waitForCondition(ExpectedConditions.urlContains("/supplier/list"), 30_000);
+        Assert.assertTrue(driver.getCurrentUrl().contains("/supplier/list"),
                 "Cannot create/update supplier.");
 
         return this;

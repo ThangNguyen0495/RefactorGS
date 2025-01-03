@@ -1,7 +1,9 @@
 package api.others;
 
 import api.seller.login.APISellerLogin;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import utility.APIUtils;
 
 import java.util.List;
@@ -21,6 +23,8 @@ public class APIGetProvinces {
     }
 
     @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class Province {
         private String code;
         private String inCountry;
@@ -49,6 +53,7 @@ public class APIGetProvinces {
      */
     public Province randomProvince(String countryCode) {
         var cities = getProvinces(countryCode);
+        if (cities.isEmpty()) return new Province(countryCode + "-OTHER", "", "");
         return cities.get(nextInt(cities.size()));
     }
 }

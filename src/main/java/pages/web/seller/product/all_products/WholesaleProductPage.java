@@ -108,7 +108,6 @@ public class WholesaleProductPage {
     }
 
     // Main Methods
-
     /**
      * Configures wholesale pricing for products without variations.
      */
@@ -153,7 +152,7 @@ public class WholesaleProductPage {
         // For each selected variation, configure wholesale pricing
         IntStream.range(0, numberOfWholesaleProduct).forEach(index -> {
             // Retrieve the variation's label value
-            String value = webUtils.getText(loc_lblVariationValue).replace(",", "");
+            String value = webUtils.getText(loc_lblVariationValue, index).replace(",", "");
 
             // Find the index of the variation in the variation values list
             int varIndex = variationValues.indexOf(value);
@@ -167,8 +166,9 @@ public class WholesaleProductPage {
             logger.info("[{}] Input 'Buy From' quantity: {}.", value, buyFrom);
 
             // Calculate and input the price per item based on the variation's selling price
+            System.out.printf("%,d%n", APIGetProductDetail.getVariationSellingPrice(productInfo, varIndex));
             long pricePerItem = calculatePricePerItem(APIGetProductDetail.getVariationSellingPrice(productInfo, varIndex));
-            webUtils.sendKeys(loc_txtPricePerItem, index, String.valueOf(pricePerItem));
+            webUtils.sendKeys(loc_txtPricePerItem, index, pricePerItem);
             logger.info("[{}] Input price per item: {}.", value, String.format("%,d", pricePerItem));
 
             // Select a segment for the variation

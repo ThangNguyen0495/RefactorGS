@@ -161,7 +161,8 @@ public class DashboardUpdateProductTest extends BaseTest {
      */
     @DataProvider(name = "smokeTestData")
     Object[][] smokeTestData() {
-        List<String> testNames = List.of("G1_01: Update product without variation, managed by Product and no discount",
+        List<String> testNames = List.of(
+                "G1_01: Update product without variation, managed by Product and no discount",
                 "G1_05: Update product without variation, managed by Product and manage by lot",
                 "G1_09: Add wholesale pricing to product without variation, managed by Product",
                 "G2_01: Update product without variation, managed by IMEI and no discount",
@@ -170,7 +171,8 @@ public class DashboardUpdateProductTest extends BaseTest {
                 "G3_05: Update product with variation, managed by Product and manage by lot",
                 "G3_09: Add wholesale pricing to product with variation, managed by Product",
                 "G4_01: Update product with variation, managed by IMEI and no discount",
-                "G4_08: Add wholesale pricing to product with variation, managed by IMEI");
+                "G4_08: Add wholesale pricing to product with variation, managed by IMEI"
+        );
 
         // Get all test cases from the regression data provider and filter based on testNames
         Object[][] allData = regressionTestData();

@@ -1,7 +1,9 @@
 package api.others;
 
 import api.seller.login.APISellerLogin;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import utility.APIUtils;
 
 import java.util.List;
@@ -21,6 +23,8 @@ public class APIGetWards {
     }
 
     @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class Ward {
         private int id;
         private String code;
@@ -39,6 +43,7 @@ public class APIGetWards {
 
     public Ward randomWard(String districtCode) {
         var districts = getWards(districtCode);
+        if (districts.isEmpty()) return new Ward(0, districtCode.split("-")[0] + "-OTHER", "", "", 0);
         return districts.get(nextInt(districts.size()));
     }
 }
