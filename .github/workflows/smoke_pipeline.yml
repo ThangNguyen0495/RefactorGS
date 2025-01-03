@@ -159,7 +159,7 @@ jobs:
 
   Android-GoSELLER-CreateProduct:
     needs: Android-GoSELLER-Products
-    runs-on: macos-13
+    runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.target_env }}
     steps:
       - uses: ThangNguyen0495/execute-appium-android-test@v1.0.0
@@ -171,7 +171,7 @@ jobs:
 
   Android-GoSELLER-UpdateProduct:
     needs: Android-GoSELLER-Products
-    runs-on: macos-13
+    runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.target_env }}
     steps:
       - uses: ThangNguyen0495/execute-appium-android-test@v1.0.0
