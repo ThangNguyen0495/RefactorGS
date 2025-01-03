@@ -256,10 +256,9 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         androidUtils.pushFileToMobileDevices(imagePath);
 
         // Open select image popup
-        WebUtils.performAction("Open select image popup",
-                () -> androidUtils.click(loc_icnUploadImages),
-                () -> Assert.assertFalse(androidUtils.getListElement(loc_dlgSelectImages).isEmpty(), "Can not open select image popup"));
-//        androidUtils.click(loc_icnUploadImages);
+        WebUtils.retryUntil(5, 1000, "Can not open select image popup",
+                () -> !androidUtils.getListElement(loc_dlgSelectImages).isEmpty(),
+                () -> androidUtils.click(loc_icnUploadImages));
 
         // Select images
         new SelectImagePopup(driver).selectImages();
@@ -567,6 +566,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
 
         // If product are updated, check information after updating
         // Get product ID
+        WebUtils.sleep(5000);
         int productId = new APIGetProductList(this.credentials)
                 .searchProductIdByName(this.newProductInfo.getName());
         this.newProductInfo.setId(productId);
