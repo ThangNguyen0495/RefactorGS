@@ -156,7 +156,7 @@ public class AndroidUtils {
                 "Cannot find element", // Error message on failure
                 () -> {
                     // Attempt to locate the element while handling stale element exceptions
-                    WebElement element = WebUtils.retryOnStaleElement(driver, () -> {
+                    WebElement element = WebUtils.retryOnStaleElement(() -> {
                         closeNotificationScreen(); // Close notification screen
                         return wait.until(ExpectedConditions.presenceOfElementLocated(locator)); // Locate the element
                     });

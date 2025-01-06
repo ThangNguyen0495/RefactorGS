@@ -60,11 +60,8 @@ public class BaseSupplierPage extends BaseSupplierElement {
      * Navigates to the page where a new supplier can be created.
      */
     public void navigateToCreateSupplierPage() {
-        webUtils.executeWithAlertHandling(() -> {
-            driver.get("%s/supplier/create".formatted(PropertiesUtils.getDomain()));
-            logger.info("Navigated to create supplier page.");
-        });
-
+        driver.get("%s/supplier/create".formatted(PropertiesUtils.getDomain()));
+        logger.info("Navigated to create supplier page.");
     }
 
     /**
@@ -74,11 +71,9 @@ public class BaseSupplierPage extends BaseSupplierElement {
      * @param supplierId The unique identifier of the supplier whose details are to be viewed or edited.
      */
     public void navigateToSupplierDetailPageByItsId(int supplierId) {
-        webUtils.executeWithAlertHandling(() -> {
-            driver.get("%s/supplier/edit/%d".formatted(PropertiesUtils.getDomain(), supplierId));
-            logger.info("Navigated to supplier detail page, id: {}.", supplierId);
-        });
-       }
+        driver.get("%s/supplier/edit/%d".formatted(PropertiesUtils.getDomain(), supplierId));
+        logger.info("Navigated to supplier detail page, id: {}.", supplierId);
+    }
 
     /**
      * Inputs the supplier's name into the corresponding text field.

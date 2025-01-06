@@ -298,7 +298,7 @@ public class IOSUtils {
             throw new IllegalArgumentException("Content to send cannot be null.");
         }
 
-        WebUtils.retryOnStaleElement(driver, () -> {
+        WebUtils.retryOnStaleElement(() -> {
             getElement(locator, index).clear();
 
             if (content instanceof CharSequence) {

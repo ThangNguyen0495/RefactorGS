@@ -11,8 +11,10 @@ import api.seller.user_feature.APIGetUserFeature;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.*;
-import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import utility.PropertiesUtils;
 import utility.WebUtils;
@@ -243,11 +245,9 @@ public class BaseProductPage extends BaseProductElement {
      * @return The current instance of ProductPage for method chaining.
      */
     public BaseProductPage navigateToCreateProductPage() {
-        return WebUtils.executeWithAlertHandling(driver, () -> {
-            driver.get("%s/product/create".formatted(PropertiesUtils.getDomain()));
-            logger.info("Navigated to create product page.");
-            return this;
-        });
+        driver.get("%s/product/create".formatted(PropertiesUtils.getDomain()));
+        logger.info("Navigated to create product page.");
+        return this;
     }
 
 
@@ -273,12 +273,10 @@ public class BaseProductPage extends BaseProductElement {
      * @param productId The ID of the product to navigate to.
      */
     private void navigateToProductPage(int productId) {
-        webUtils.executeWithAlertHandling(() -> {
-            driver.navigate().refresh();
-            driver.get("%s/product/edit/%s".formatted(PropertiesUtils.getDomain(), productId));
-            driver.navigate().refresh();
-            logger.info("Navigated to product update page, productId: {}", productId);
-        });
+        driver.navigate().refresh();
+        driver.get("%s/product/edit/%s".formatted(PropertiesUtils.getDomain(), productId));
+        driver.navigate().refresh();
+        logger.info("Navigated to product update page, productId: {}", productId);
     }
 
     /**
@@ -687,41 +685,6 @@ public class BaseProductPage extends BaseProductElement {
 
         // Input details for each new attribution
         IntStream.range(0, numOfAttributes).forEach(this::inputAttributionDetails);
-    }
-
-    /**
-     * Checks if an alert is present and dismisses it.
-     *
-     * @return true if an alert was present and dismissed, false otherwise.
-     */
-    private boolean dismissIfAlertPresent() {
-        try {
-            // Wait for alert and dismiss it if present
-            var alert = webUtils.getWait(5_000).until(ExpectedConditions.alertIsPresent());
-            if (alert != null) {
-                alert.dismiss();
-            }
-        } catch (TimeoutException ignored) {
-        }
-        return true;
-    }
-
-    /**
-     * Retries the provided action, skipping an alert if it appears during execution.
-     *
-     * @param action the action to be performed.
-     */
-    private void retryActionWithAlertHandling(Runnable action) {
-        WebUtils.retryUntil(
-                5,
-                1000,
-                "Unable to complete the action after 5 retries",
-                this::dismissIfAlertPresent,
-                () -> {
-                    action.run();
-                    return null;
-                }
-        );
     }
 
     /**

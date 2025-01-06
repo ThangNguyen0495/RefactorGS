@@ -198,21 +198,15 @@ public class WebUtils {
      * @throws IllegalArgumentException If the condition is null or timeout is not valid.
      */
     public <T> T waitForCondition(ExpectedCondition<T> condition, int... timeoutInMillis) {
-        return executeWithAlertHandling(driver, () -> {
-            try {
-                // Wait for the condition to be met
-                return getWait(timeoutInMillis).until(condition);
-            } catch (TimeoutException e) {
-                // Log that the condition was not met within the timeout
-                logger.info("Timeout waiting for condition: {}", condition);
-            } catch (UnhandledAlertException e) {
-                try {
-                    driver.switchTo().alert().dismiss();
-                } catch (NoAlertPresentException ignored) {
-                }
-            }
-            return null;
-        });
+        try {
+            // Wait for the condition to be met
+            return getWait(timeoutInMillis).until(condition);
+        } catch (TimeoutException e) {
+            // Log that the condition was not met within the timeout
+            logger.info("Timeout waiting for condition: {}", condition);
+        }
+
+        return null;
     }
 
     /**
@@ -239,14 +233,12 @@ public class WebUtils {
      * @param <T>    The return type of the action.
      * @return The result of the action.
      */
-    public static <T> T retryOnStaleElement(WebDriver driver, Supplier<T> action) {
-        return executeWithAlertHandling(driver, () -> {
-            try {
-                return action.get();
-            } catch (StaleElementReferenceException ignored) {
-                return action.get();
-            }
-        });
+    public static <T> T retryOnStaleElement(Supplier<T> action) {
+        try {
+            return action.get();
+        } catch (StaleElementReferenceException ignored) {
+            return action.get();
+        }
     }
 
     /**
@@ -259,8 +251,8 @@ public class WebUtils {
      * @param action The action to be executed and retried if needed.
      * @throws RuntimeException if the action repeatedly fails due to a StaleElementReferenceException.
      */
-    public static void retryOnStaleElement(WebDriver driver, Runnable action) {
-        retryOnStaleElement(driver, () -> {
+    public static void retryOnStaleElement(Runnable action) {
+        retryOnStaleElement(() -> {
             action.run(); // Execute the Runnable action
             return null;  // Return null as Runnable has no return type
         });
@@ -276,54 +268,13 @@ public class WebUtils {
         JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
 
         // Highlight the element with a red border
-        retryOnStaleElement(driver, () -> jsExecutor.executeScript("arguments[0].style.border = '2px solid red'", getElement(locator, index)));
+        retryOnStaleElement(() -> jsExecutor.executeScript("arguments[0].style.border = '2px solid red'", getElement(locator, index)));
 
         // Remove the border after a short delay for visual confirmation
-        getWait(1000).until(_ -> retryOnStaleElement(driver, () -> {
+        getWait(1000).until(_ -> retryOnStaleElement(() -> {
             jsExecutor.executeScript("arguments[0].style.border = ''", getElement(locator, index));
             return true;
         }));
-    }
-
-    /**
-     * Executes the given action, dismissing any alert if it appears during execution.
-     *
-     * @param action the action to perform, returning a result of type T.
-     * @param <T>    the type of result returned by the action.
-     * @return the result of the action.
-     */
-    public static <T> T executeWithAlertHandling(WebDriver driver, Supplier<T> action) {
-        try {
-            return action.get(); // Try to execute the action
-        } catch (UnhandledAlertException e) {
-            handleAlert(driver); // Handle unexpected alert
-            return action.get(); // Retry the action once after dismissing the alert
-        }
-    }
-
-    /**
-     * Executes the given action, dismissing any alert if it appears during execution.
-     *
-     * @param action the action to perform, which does not return a result.
-     * @throws RuntimeException if the action fails after handling an alert.
-     */
-    public void executeWithAlertHandling(Runnable action) {
-        executeWithAlertHandling(driver, () -> {
-            action.run(); // Wrap the Runnable in a Supplier
-            return null;  // Return null since Runnable doesn't produce a result
-        });
-    }
-
-    /**
-     * Dismisses an alert if present.
-     */
-    private static void handleAlert(WebDriver driver) {
-        try {
-            driver.switchTo().alert().dismiss();
-            logger.debug("Alert dismissed.");
-        } catch (NoAlertPresentException ignored) {
-            // No alert was present, nothing to dismiss
-        }
     }
 
     /**
@@ -336,6 +287,8 @@ public class WebUtils {
     public List<WebElement> getListElement(By locator, int... milliseconds) {
         // Determine the wait time, using the provided timeout or defaulting to 3000 ms
         int waitTime = (milliseconds.length != 0) ? milliseconds[0] : 3000;
+
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('awareMode', '0')");
 
         // Wait for the presence of at least one element matching the locator
         var result = waitForCondition(ExpectedConditions.presenceOfElementLocated(locator), waitTime);
@@ -366,7 +319,8 @@ public class WebUtils {
      * @return The WebElement.
      */
     public WebElement getElement(By locator, int index) {
-        return retryOnStaleElement(driver, () -> wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator)).get(index));
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('awareMode', '0')");
+        return retryOnStaleElement(() -> wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator)).get(index));
     }
 
     /**
@@ -411,7 +365,7 @@ public class WebUtils {
         waitElementVisible(locator, index);
 
         // Retry to click the element
-        retryOnStaleElement(driver, () -> retryOnClickIntercepted(locator, index));
+        retryOnStaleElement(() -> retryOnClickIntercepted(locator, index));
     }
 
     /**
@@ -469,7 +423,7 @@ public class WebUtils {
         highlightElement(locator, index);
 
         // Retry click element by JavaScripts
-        retryOnStaleElement(driver, () -> {
+        retryOnStaleElement(() -> {
             // Perform click using JavaScript
             ((JavascriptExecutor) driver).executeScript("arguments[0].click()", getElement(locator, index));
         });
@@ -483,7 +437,7 @@ public class WebUtils {
      * @param index   The index of the element in the list.
      */
     private void clickOutOfTextBox(By locator, int index) {
-        retryOnStaleElement(driver, () -> ((JavascriptExecutor) driver).executeScript("arguments[0].blur();", getElement(locator, index)));
+        retryOnStaleElement(() -> ((JavascriptExecutor) driver).executeScript("arguments[0].blur();", getElement(locator, index)));
     }
 
     /**
@@ -519,7 +473,7 @@ public class WebUtils {
                 () -> {
                     clear(locator, index);
                     click(locator, index);
-                    retryOnStaleElement(driver, () -> retrySendKeysOnElementNotInteractable(locator, index, getContent(content)));
+                    retryOnStaleElement(() -> retrySendKeysOnElementNotInteractable(locator, index, getContent(content)));
                     clickOutOfTextBox(locator, index);
                 });
     }
@@ -550,7 +504,7 @@ public class WebUtils {
     public void sendKeysToTagInput(By locator, int index, Object content) {
         clear(locator, index);
         click(locator, index);
-        retryOnStaleElement(driver, () -> retrySendKeysOnElementNotInteractable(locator, index, getContent(content)));
+        retryOnStaleElement(() -> retrySendKeysOnElementNotInteractable(locator, index, getContent(content)));
         clickOutOfTextBox(locator, index);
     }
 
@@ -684,7 +638,7 @@ public class WebUtils {
      * @param content The file path to be uploaded.
      */
     public void uploads(By locator, int index, CharSequence content) {
-        retryOnStaleElement(driver, () -> getElement(locator, index).sendKeys(content));
+        retryOnStaleElement(() -> getElement(locator, index).sendKeys(content));
     }
 
     /**
@@ -704,7 +658,7 @@ public class WebUtils {
      * @return The text of the WebElement.
      */
     public String getText(By locator, int index) {
-        return retryOnStaleElement(driver, () -> {
+        return retryOnStaleElement(() -> {
             waitVisibilityOfElementLocated(locator);
             return getElement(locator, index).getText();
         });
@@ -728,7 +682,7 @@ public class WebUtils {
      * @return The value of the WebElement.
      */
     public String getValue(By locator, int index) {
-        return retryOnStaleElement(driver, () -> getAttribute(locator, index, "value"));
+        return retryOnStaleElement(() -> getAttribute(locator, index, "value"));
     }
 
     /**
@@ -740,7 +694,7 @@ public class WebUtils {
      * @return The attribute value.
      */
     public String getAttribute(By locator, int index, String attribute) {
-        return retryOnStaleElement(driver, () -> {
+        return retryOnStaleElement(() -> {
             waitVisibilityOfElementLocated(locator);
             return getElement(locator, index).getAttribute(attribute);
         });
@@ -774,9 +728,9 @@ public class WebUtils {
                     String elementText = getElementValue(locator, index);
                     CharSequence[] clearChars = new CharSequence[elementText.length()];
                     Arrays.fill(clearChars, Keys.BACK_SPACE);
-                    retryOnStaleElement(driver, () -> getElement(locator, index).sendKeys(clearChars));
+                    retryOnStaleElement(() -> getElement(locator, index).sendKeys(clearChars));
                     Arrays.fill(clearChars, Keys.DELETE);
-                    retryOnStaleElement(driver, () -> getElement(locator, index).sendKeys(clearChars));
+                    retryOnStaleElement(() -> getElement(locator, index).sendKeys(clearChars));
                 });
     }
 
@@ -798,7 +752,7 @@ public class WebUtils {
      * @return True if the element is selected, false otherwise.
      */
     public boolean isCheckedJS(By locator, int index) {
-        return retryOnStaleElement(driver, () ->
+        return retryOnStaleElement(() ->
                 (boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].checked", getElement(locator, index))
         );
     }
@@ -821,7 +775,7 @@ public class WebUtils {
      * @return True if the element is disabled, false otherwise.
      */
     public Boolean isDisabledJS(By locator, int index) {
-        return retryOnStaleElement(driver, () ->
+        return retryOnStaleElement(() ->
                 (Boolean) ((JavascriptExecutor) driver).executeScript("return arguments[0].disabled", getElement(locator, index))
         );
     }
@@ -846,7 +800,7 @@ public class WebUtils {
      */
     public void removeElement(By locator) {
         if (getElement(locator) != null) {
-            retryOnStaleElement(driver, () -> ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", getElement(locator)));
+            retryOnStaleElement(() -> ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", getElement(locator)));
         }
     }
 
@@ -915,7 +869,7 @@ public class WebUtils {
      * @param locator The locator of the element.
      */
     public void waitVisibilityOfElementLocated(By locator) {
-        retryOnStaleElement(driver, () -> wait.until(ExpectedConditions.visibilityOfElementLocated(locator)));
+        retryOnStaleElement(() -> wait.until(ExpectedConditions.visibilityOfElementLocated(locator)));
     }
 
     /**
@@ -924,7 +878,7 @@ public class WebUtils {
      * @param locator The locator of the element.
      */
     public void waitInvisibilityOfElementLocated(By locator) {
-        retryOnStaleElement(driver, () -> wait.until(ExpectedConditions.invisibilityOfElementLocated(locator)));
+        retryOnStaleElement(() -> wait.until(ExpectedConditions.invisibilityOfElementLocated(locator)));
     }
 
     /**
@@ -943,7 +897,7 @@ public class WebUtils {
         }
 
         // Wait until the element becomes clickable
-        retryOnStaleElement(driver, () -> wait.until(ExpectedConditions.elementToBeClickable(getElement(locator, index))));
+        retryOnStaleElement(() -> wait.until(ExpectedConditions.elementToBeClickable(getElement(locator, index))));
     }
 
     /**
@@ -962,7 +916,7 @@ public class WebUtils {
         }
 
         // Wait until the element becomes clickable
-        retryOnStaleElement(driver, () -> wait.until(ExpectedConditions.visibilityOf(getElement(locator, index))));
+        retryOnStaleElement(() -> wait.until(ExpectedConditions.visibilityOf(getElement(locator, index))));
     }
 
     /**
@@ -1044,7 +998,7 @@ public class WebUtils {
     }
 
     private Select getDropdownSelect(By locator) {
-        return retryOnStaleElement(driver, () -> new Select(getElement(locator)));
+        return retryOnStaleElement(() -> new Select(getElement(locator)));
     }
 
     /**
@@ -1072,7 +1026,7 @@ public class WebUtils {
         // Wait for the dropdown to contain the option value and retrieve its text
         waitUntilDropdownContainsValue(optionValue);
 
-        retryOnStaleElement(driver, () -> {
+        retryOnStaleElement(() -> {
             try {
                 // Select the option by value
                 retryUntil(5, 1000, "Can not select value '%s'".formatted(optionValue),
