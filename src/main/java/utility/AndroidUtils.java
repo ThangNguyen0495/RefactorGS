@@ -142,34 +142,31 @@ public class AndroidUtils {
     }
 
     /**
-     * Retrieves a single element located by the specified locator.
-     * Closes the notification screen before and after finding the element.
-     * If the element is not fully visible, retries up to 5 times to locate it again.
+     * Attempts to locate and retrieve a single element based on the specified locator.
+     * Ensures the element is fully visible before returning it.
      *
-     * @param locator The locator for the element (e.g., UiAutomator locator).
-     * @return The fully visible WebElement.
+     * @param locator The {@link By} locator used to identify the element.
+     * @return The fully visible {@link WebElement}.
      * @throws RuntimeException If the element cannot be made fully visible after 5 retries.
      */
     private WebElement getElement(By locator) {
-        int retries = 0;
+        return WebUtils.retryUntil(
+                5, // Maximum retries
+                1000, // Delay between retries in milliseconds
+                "Cannot find element", // Error message on failure
+                () -> {
+                    // Attempt to locate the element while handling stale element exceptions
+                    WebElement element = WebUtils.retryOnStaleElement(driver, () -> {
+                        closeNotificationScreen(); // Close notification screen
+                        return wait.until(ExpectedConditions.presenceOfElementLocated(locator)); // Locate the element
+                    });
 
-        // Retry until the element is fully visible or the retry limit is reached
-        while (retries < 5) {
-            WebElement element = WebUtils.retryOnStaleElement(driver, () -> {
-                closeNotificationScreen();
-                return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
-            });
-
-            // If the element is fully visible, return it
-            if (isElementFullyVisible(element)) {
-                return element;
-            }
-
-            retries++;
-        }
-
-        // Throw an exception if the element is still not fully visible
-        throw new RuntimeException("Failed to make element fully visible after 5 retries.");
+                    // Check if the element is fully visible
+                    return isElementFullyVisible(element);
+                },
+                // Fallback action in case retries fail
+                () -> wait.until(ExpectedConditions.presenceOfElementLocated(locator))
+        );
     }
 
     /**

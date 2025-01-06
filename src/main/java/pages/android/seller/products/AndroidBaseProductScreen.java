@@ -257,7 +257,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
 
         // Open select image popup
         WebUtils.retryUntil(5, 1000, "Can not open select image popup",
-                () -> !androidUtils.getListElement(loc_dlgSelectImages).isEmpty(),
+                () -> androidUtils.getListElement(loc_icnUploadImages).isEmpty(),
                 () -> androidUtils.click(loc_icnUploadImages));
 
         // Select images
