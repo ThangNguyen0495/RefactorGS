@@ -53,7 +53,7 @@ public class APIGetProvinces {
      */
     public Province randomProvince(String countryCode) {
         var cities = getProvinces(countryCode);
-        if (cities.isEmpty()) return new Province(countryCode + "-OTHER", "", "");
+        if (cities.isEmpty()) return new Province(countryCode + "-OTHER", "Other", "Other");
         return cities.get(nextInt(cities.size()));
     }
 }

@@ -8,7 +8,6 @@ import api.seller.setting.APIGetBranchList;
 import api.seller.setting.APIGetStoreDefaultLanguage;
 import api.seller.setting.APIGetVATList;
 import api.seller.user_feature.APIGetUserFeature;
-import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
@@ -33,11 +32,11 @@ import java.util.Objects;
 import java.util.stream.IntStream;
 
 import static api.seller.user_feature.APIGetUserFeature.*;
-import static io.appium.java_client.AppiumBy.androidUIAutomator;
+import static java.lang.String.format;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.openqa.selenium.By.xpath;
-import static utility.AndroidUtils.uiScrollResourceId;
-import static utility.AndroidUtils.uiScrollResourceIdInstance;
+import static utility.AndroidUtils.getSellerLocatorByResourceId;
+import static utility.AndroidUtils.getSellerLocatorByResourceIdAndInstance;
 import static utility.helper.ActivityHelper.*;
 
 
@@ -257,7 +256,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
 
         // Open select image popup
         WebUtils.retryUntil(5, 1000, "Can not open select image popup",
-                () -> androidUtils.getListElement(loc_icnUploadImages).isEmpty(),
+                () -> androidUtils.getListElement(loc_icnUploadImages, 1000).isEmpty(),
                 () -> androidUtils.click(loc_icnUploadImages));
 
         // Select images
@@ -292,17 +291,17 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         // Input listing price
         long listingPrice = newProductInfo.getOrgPrice();
         androidUtils.sendKeys(loc_txtWithoutVariationListingPrice, listingPrice);
-        logger.info("Input without variation listing price: {}", String.format("%,d", listingPrice));
+        logger.info("Input without variation listing price: {}", format("%,d", listingPrice));
 
         // Input selling price
         long sellingPrice = newProductInfo.getNewPrice();
         androidUtils.sendKeys(loc_txtWithoutVariationSellingPrice, sellingPrice);
-        logger.info("Input without variation selling price: {}", String.format("%,d", sellingPrice));
+        logger.info("Input without variation selling price: {}", format("%,d", sellingPrice));
 
         // Input cost price
         long costPrice = newProductInfo.getCostPrice();
         androidUtils.sendKeys(loc_txtWithoutVariationCostPrice, costPrice);
-        logger.info("Input without variation cost price: {}", String.format("%,d", costPrice));
+        logger.info("Input without variation cost price: {}", format("%,d", costPrice));
     }
 
     private void inputWithoutVariationSKU() {
@@ -596,11 +595,11 @@ public class AndroidBaseProductScreen extends BaseProductElement {
 
         // Check product name
         Assert.assertEquals(actualProductInfo.getName(), this.newProductInfo.getName(),
-                String.format("Product name must be '%s', but found '%s'", this.newProductInfo.getName(), actualProductInfo.getName()));
+                format("Product name must be '%s', but found '%s'", this.newProductInfo.getName(), actualProductInfo.getName()));
 
         // Check product description, stripping HTML tags
         Assert.assertEquals(actualProductInfo.getDescription().replaceAll("<.*?>", ""), this.newProductInfo.getDescription(),
-                String.format("Product description must be '%s', but found '%s'", this.newProductInfo.getDescription(), actualProductInfo.getDescription()));
+                format("Product description must be '%s', but found '%s'", this.newProductInfo.getDescription(), actualProductInfo.getDescription()));
 
         // Check listing price
         var expectedOrgPrice = this.newProductInfo.isHasModel()
@@ -865,14 +864,12 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         private final AndroidUtils androidUtils;
 
         // Locator for the image list, used to find and select images on the popup.
-        private final By loc_lstImages = androidUIAutomator(
-                String.format(AndroidUtils.uiScrollResourceId, String.format("%s:id/tvSelectIndex", sellerBundleId))
-        );
+        private final By loc_lstImages =
+                AndroidUtils.getSellerLocatorByResourceId("%s:id/tvSelectIndex");
 
         // Locator for the save button, used to confirm and save the image selection.
-        private final By loc_btnSave = androidUIAutomator(
-                String.format(AndroidUtils.uiScrollResourceId, String.format("%s:id/fragment_choose_photo_dialog_btn_choose", sellerBundleId))
-        );
+        private final By loc_btnSave =
+                AndroidUtils.getSellerLocatorByResourceId("%s:id/fragment_choose_photo_dialog_btn_choose");
 
         /**
          * Constructor for the SelectImagePopup class.
@@ -912,18 +909,18 @@ public class AndroidBaseProductScreen extends BaseProductElement {
             androidUtils = new AndroidUtils(driver);
         }
 
-        By loc_btnSave = androidUIAutomator(uiScrollResourceId.formatted("%s:id/tvActionBarIconRight".formatted(sellerBundleId)));
-        By loc_btnSelectImage = xpath("//android.widget.FrameLayout[*[@resource-id = '%s:id/rlSelectImages']]".formatted(sellerBundleId));
-        By loc_txtVariationName = androidUIAutomator(uiScrollResourceId.formatted("%s:id/edtVersionName".formatted(sellerBundleId)));
-        By loc_chkReuseProductDescription = androidUIAutomator(uiScrollResourceId.formatted("%s:id/ivUseProductDescription".formatted(sellerBundleId)));
-        By loc_btnVariationDescription = androidUIAutomator(uiScrollResourceId.formatted("%s:id/tvVariationDescription".formatted(sellerBundleId)));
+        By loc_btnSave = getSellerLocatorByResourceId("%s:id/tvActionBarIconRight");
+        By loc_btnSelectImage = xpath("//android.widget.FrameLayout[*[@resource-id = '%s:id/rlSelectImages']]");
+        By loc_txtVariationName = getSellerLocatorByResourceId("%s:id/edtVersionName");
+        By loc_chkReuseProductDescription = getSellerLocatorByResourceId("%s:id/ivUseProductDescription");
+        By loc_btnVariationDescription = getSellerLocatorByResourceId("%s:id/tvVariationDescription");
         By loc_txtVariationListingPrice = By.xpath("//*[@*= '%s:id/edtVariationOrgPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(sellerBundleId, sellerBundleId));
         By loc_txtVariationSellingPrice = By.xpath("//*[@*= '%s:id/edtVariationNewPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(sellerBundleId, sellerBundleId));
         By loc_txtVariationCostPrice = By.xpath("//*[@*= '%s:id/edtVariationCostPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(sellerBundleId, sellerBundleId));
-        By loc_txtVariationSKU = androidUIAutomator(uiScrollResourceId.formatted("%s:id/edtSKU".formatted(sellerBundleId)));
-        By loc_txtVariationBarcode = androidUIAutomator(uiScrollResourceId.formatted("%s:id/edtBarcode".formatted(sellerBundleId)));
-        By loc_btnInventory = androidUIAutomator(uiScrollResourceId.formatted("%s:id/clInventoryContainer".formatted(sellerBundleId)));
-        By loc_btnDeactivate = androidUIAutomator(uiScrollResourceId.formatted("%s:id/tvActiveDeactive".formatted(sellerBundleId)));
+        By loc_txtVariationSKU = getSellerLocatorByResourceId("%s:id/edtSKU");
+        By loc_txtVariationBarcode = getSellerLocatorByResourceId("%s:id/edtBarcode");
+        By loc_btnInventory = getSellerLocatorByResourceId("%s:id/clInventoryContainer");
+        By loc_btnDeactivate = getSellerLocatorByResourceId("%s:id/tvActiveDeactive");
 
         public ProductVariationScreen getVariationInformation(List<APIGetBranchList.BranchInformation> branchInfos, int variationIndex, APIGetProductDetail.ProductInformation productInfo) {
             // Get branch information
@@ -1005,17 +1002,17 @@ public class AndroidBaseProductScreen extends BaseProductElement {
             // Input listing price
             long listingPrice = model.getOrgPrice();
             androidUtils.sendKeys(loc_txtVariationListingPrice, String.valueOf(listingPrice));
-            logger.info("Input variation listing price: {}", String.format("%,d", listingPrice));
+            logger.info("Input variation listing price: {}", format("%,d", listingPrice));
 
             // Input selling price
             long sellingPrice = model.getNewPrice();
             androidUtils.sendKeys(loc_txtVariationSellingPrice, String.valueOf(sellingPrice));
-            logger.info("Input variation selling price: {}", String.format("%,d", sellingPrice));
+            logger.info("Input variation selling price: {}", format("%,d", sellingPrice));
 
             // Input cost price
             long costPrice = model.getCostPrice();
             androidUtils.sendKeys(loc_txtVariationCostPrice, String.valueOf(costPrice));
-            logger.info("Input variation cost price: {}", String.format("%,d", costPrice));
+            logger.info("Input variation cost price: {}", format("%,d", costPrice));
         }
 
         void updateVariationSKU() {
@@ -1098,15 +1095,15 @@ public class AndroidBaseProductScreen extends BaseProductElement {
             androidUtils = new AndroidUtils(driver);
         }
 
-        By loc_btnRemoveVariationGroup = androidUIAutomator(uiScrollResourceId.formatted("%s:id/ivDeleteVariation1".formatted(sellerBundleId)));
-        By loc_btnAddVariation = androidUIAutomator(uiScrollResourceId.formatted("%s:id/tvAddVariation".formatted(sellerBundleId)));
-        By loc_txtVariationName1 = androidUIAutomator(uiScrollResourceId.formatted("%s:id/edtVariation1Name".formatted(sellerBundleId)));
-        By loc_txtVariationValue1 = androidUIAutomator(uiScrollResourceId.formatted("%s:id/edtInputImeiSerialNumberValue".formatted(sellerBundleId)));
-        By loc_btnAddVariationValue1 = androidUIAutomator(uiScrollResourceId.formatted("%s:id/ivAddNewImeiSerialNumber".formatted(sellerBundleId)));
-        By loc_txtVariationName2 = androidUIAutomator(uiScrollResourceId.formatted("%s:id/edtVariation2Name".formatted(sellerBundleId)));
-        By loc_txtVariationValue2 = androidUIAutomator(uiScrollResourceId.formatted("%s:id/edtVariation2Value".formatted(sellerBundleId)));
-        By loc_btnAddVariationValue2 = androidUIAutomator(uiScrollResourceId.formatted("%s:id/ivAddValueForVariation2".formatted(sellerBundleId)));
-        By loc_btnSave = androidUIAutomator(uiScrollResourceId.formatted("%s:id/ivActionBarIconRight".formatted(sellerBundleId)));
+        By loc_btnRemoveVariationGroup = getSellerLocatorByResourceId("%s:id/ivDeleteVariation1");
+        By loc_btnAddVariation = getSellerLocatorByResourceId("%s:id/tvAddVariation");
+        By loc_txtVariationName1 = getSellerLocatorByResourceId("%s:id/edtVariation1Name");
+        By loc_txtVariationValue1 = getSellerLocatorByResourceId("%s:id/edtInputImeiSerialNumberValue");
+        By loc_btnAddVariationValue1 = getSellerLocatorByResourceId("%s:id/ivAddNewImeiSerialNumber");
+        By loc_txtVariationName2 = getSellerLocatorByResourceId("%s:id/edtVariation2Name");
+        By loc_txtVariationValue2 = getSellerLocatorByResourceId("%s:id/edtVariation2Value");
+        By loc_btnAddVariationValue2 = getSellerLocatorByResourceId("%s:id/ivAddValueForVariation2");
+        By loc_btnSave = getSellerLocatorByResourceId("%s:id/ivActionBarIconRight");
 
         private void removeOldVariation(int numOfVariationGroups) {
             // Check number of variation groups
@@ -1169,9 +1166,8 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         private final By locTxtContent = By.xpath("//android.widget.EditText");
 
         // Locator for the save button
-        private final By locBtnSave = AppiumBy.androidUIAutomator(
-                AndroidUtils.uiScrollResourceId.formatted("%s:id/ivActionBarIconRight".formatted(ActivityHelper.sellerBundleId))
-        );
+        private final By locBtnSave =
+                AndroidUtils.getSellerLocatorByResourceId("%s:id/ivActionBarIconRight");
 
         /**
          * Constructor for the ProductDescriptionScreen class.
@@ -1208,14 +1204,14 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         }
 
         By loc_txtBranchStock(int branchIndex) {
-            return androidUIAutomator(uiScrollResourceIdInstance.formatted("%s:id/edtStock".formatted(sellerBundleId), branchIndex));
+            return getSellerLocatorByResourceIdAndInstance("%s:id/edtStock", branchIndex);
         }
 
-        By loc_btnSave = androidUIAutomator(uiScrollResourceId.formatted("%s:id/tvActionBarIconRight".formatted(sellerBundleId)));
-        By loc_dlgUpdateStock = androidUIAutomator(uiScrollResourceId.formatted("%s:id/tabLayoutUpdateStockType".formatted(sellerBundleId)));
-        By loc_dlgUpdateStock_tabChange = By.xpath("(//*[@* = '%s:id/tabLayoutUpdateStockType']//android.widget.TextView)[2]".formatted(sellerBundleId));
-        By loc_dlgUpdateStock_txtQuantity = androidUIAutomator(uiScrollResourceId.formatted("%s:id/edtStock".formatted(sellerBundleId)));
-        By loc_dlgUpdateStock_btnOK = androidUIAutomator(uiScrollResourceId.formatted("%s:id/tvUpdateStock".formatted(sellerBundleId)));
+        By loc_btnSave = getSellerLocatorByResourceId("%s:id/tvActionBarIconRight");
+        By loc_dlgUpdateStock = getSellerLocatorByResourceId("%s:id/tabLayoutUpdateStockType");
+        By loc_dlgUpdateStock_tabChange = By.xpath("(//*[@* = '%s:id/tabLayoutUpdateStockType']//android.widget.TextView)[2]");
+        By loc_dlgUpdateStock_txtQuantity = getSellerLocatorByResourceId("%s:id/edtStock");
+        By loc_dlgUpdateStock_btnOK = getSellerLocatorByResourceId("%s:id/tvUpdateStock");
 
         /**
          * Manages stock for branches by either adding or updating based on the operation.
@@ -1287,22 +1283,22 @@ public class AndroidBaseProductScreen extends BaseProductElement {
             androidUtils = new AndroidUtils(driver);
         }
 
-        By loc_btnSave = androidUIAutomator(uiScrollResourceId.formatted("%s:id/tvActionBarIconRight".formatted(sellerBundleId)));
-        By loc_ddvSelectedBranch = androidUIAutomator(uiScrollResourceId.formatted("%s:id/tvFilterBranches".formatted(sellerBundleId)));
+        By loc_btnSave = getSellerLocatorByResourceId("%s:id/tvActionBarIconRight");
+        By loc_ddvSelectedBranch = getSellerLocatorByResourceId("%s:id/tvFilterBranches");
 
         By loc_lstBranches(int branchIndex) {
-            return androidUIAutomator(uiScrollResourceIdInstance.formatted("%s:id/ivUnChecked".formatted(sellerBundleId), branchIndex));
+            return getSellerLocatorByResourceIdAndInstance("%s:id/ivUnChecked", branchIndex);
         }
 
-        By loc_lblActions = androidUIAutomator(uiScrollResourceId.formatted("%s:id/ivAction".formatted(sellerBundleId)));
-        By loc_lblUpdatePriceActions = By.xpath("(//*[@* = '%s:id/title'])[1]".formatted(sellerBundleId));
-        By loc_lblUpdateStockActions = By.xpath("(//*[@* = '%s:id/title'])[2]".formatted(sellerBundleId));
+        By loc_lblActions = getSellerLocatorByResourceId("%s:id/ivAction");
+        By loc_lblUpdatePriceActions = By.xpath("(//*[@* = '%s:id/title'])[1]");
+        By loc_lblUpdateStockActions = By.xpath("(//*[@* = '%s:id/title'])[2]");
         By loc_dlgUpdatePrice_txtListingPrice = By.xpath("//*[@* = '%s:id/edtOrgPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(sellerBundleId, sellerBundleId));
         By loc_dlgUpdatePrice_txtSellingPrice = By.xpath("//*[@* = '%s:id/edtNewPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(sellerBundleId, sellerBundleId));
-        By loc_dlgUpdatePrice_btnOK = androidUIAutomator(uiScrollResourceId.formatted("%s:id/tvOK".formatted(sellerBundleId)));
-        By loc_dlgUpdateStock_tabChange = By.xpath("(//*[@* = '%s:id/tabLayoutUpdateStockType']//android.widget.TextView)[2]".formatted(sellerBundleId));
-        By loc_dlgUpdateStock_txtQuantity = androidUIAutomator(uiScrollResourceId.formatted("%s:id/edtStock".formatted(sellerBundleId)));
-        By loc_dlgUpdateStock_btnOK = androidUIAutomator(uiScrollResourceId.formatted("%s:id/tvUpdateStock".formatted(sellerBundleId)));
+        By loc_dlgUpdatePrice_btnOK = getSellerLocatorByResourceId("%s:id/tvOK");
+        By loc_dlgUpdateStock_tabChange = By.xpath("(//*[@* = '%s:id/tabLayoutUpdateStockType']//android.widget.TextView)[2]");
+        By loc_dlgUpdateStock_txtQuantity = getSellerLocatorByResourceId("%s:id/edtStock");
+        By loc_dlgUpdateStock_btnOK = getSellerLocatorByResourceId("%s:id/tvUpdateStock");
 
         public void bulkUpdatePrice(long listingPrice, long sellingPrice) {
             // Open list actions
@@ -1313,11 +1309,11 @@ public class AndroidBaseProductScreen extends BaseProductElement {
 
             // Input listing price
             androidUtils.sendKeys(loc_dlgUpdatePrice_txtListingPrice, String.valueOf(listingPrice));
-            logger.info("Bulk listing price: {}", String.format("%,d", listingPrice));
+            logger.info("Bulk listing price: {}", format("%,d", listingPrice));
 
             // Input selling price
             androidUtils.sendKeys(loc_dlgUpdatePrice_txtSellingPrice, String.valueOf(sellingPrice));
-            logger.info("Bulk selling price: {}", String.format("%,d", sellingPrice));
+            logger.info("Bulk selling price: {}", format("%,d", sellingPrice));
 
             // Save changes
             androidUtils.click(loc_dlgUpdatePrice_btnOK);
@@ -1388,10 +1384,10 @@ public class AndroidBaseProductScreen extends BaseProductElement {
             androidUtils = new AndroidUtils(driver);
         }
 
-        By loc_icnRemoveIMEI = androidUIAutomator(uiScrollResourceId.formatted("%s:id/ivDeleteIcon".formatted(sellerBundleId)));
-        By loc_txtIMEI = androidUIAutomator(uiScrollResourceId.formatted("%s:id/edtInputImeiSerialNumberValue".formatted(sellerBundleId)));
-        By loc_btnAdd = androidUIAutomator(uiScrollResourceId.formatted("%s:id/ivAddNewImeiSerialNumber".formatted(sellerBundleId)));
-        By loc_btnSave = androidUIAutomator(uiScrollResourceId.formatted("%s:id/tvActionBarIconRight".formatted(sellerBundleId)));
+        By loc_icnRemoveIMEI = getSellerLocatorByResourceId("%s:id/ivDeleteIcon");
+        By loc_txtIMEI = getSellerLocatorByResourceId("%s:id/edtInputImeiSerialNumberValue");
+        By loc_btnAdd = getSellerLocatorByResourceId("%s:id/ivAddNewImeiSerialNumber");
+        By loc_btnSave = getSellerLocatorByResourceId("%s:id/tvActionBarIconRight");
 
         public void addIMEI(int quantity, String branchName, String variation) {
             // Remove old IMEI

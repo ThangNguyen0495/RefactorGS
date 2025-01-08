@@ -181,6 +181,34 @@ jobs:
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/smoke_test/android/seller/AndroidGoSELLERUpdateProductTest.xml"
 
+  # ... Android GoSELLER/suppliers
+  Android-GoSELLER-Suppliers:
+    needs: Android-GoSELLER
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
+
+  Android-GoSELLER-CreateAndUpdateSuppliers:
+    needs: Android-GoSELLER-Suppliers
+    runs-on: macos-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - name: Create an iOS simulator
+        uses: ThangNguyen0495/create-ios-simulator@v1.0.0
+
+      - name: Save simulator UDID to GitHub Environment
+        run: |
+          UDID=$(cat udid.txt)  
+          echo "UDID=$UDID" >> $GITHUB_ENV
+
+      - uses: ThangNguyen0495/execute-appium-ios-test@v1.0.0
+        with:
+          test_name: "Android-GoSELLER-Suppliers"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
+            mvn test '-DsuiteFile=test_configs/smoke_test/android/seller/AndroidGoSELLERSupplierTest.xml'
+
   iOS:
     runs-on: ubuntu-latest
     steps:
@@ -194,13 +222,13 @@ jobs:
 
   # ... iOS GoSELLER/products
   iOS-GoSELLER-Products:
-    needs: iOS-GoSELLER
+    needs: IOS-GoSELLER
     runs-on: ubuntu-latest
     steps:
       - run: echo "Init pipelines"
 
   IOS-GoSELLER-CreateProduct:
-    needs: iOS-GoSELLER-Products
+    needs: IOS-GoSELLER-Products
     runs-on: macos-latest
     environment: ${{ github.event.inputs.target_env }}
     steps:
@@ -219,9 +247,9 @@ jobs:
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
             mvn test '-DsuiteFile=test_configs/smoke_test/ios/seller/IOSGoSELLERCreateProductTest.xml'
-#
+
   IOS-GoSELLER-UpdateProduct:
-    needs: iOS-GoSELLER-Products
+    needs: IOS-GoSELLER-Products
     runs-on: macos-latest
     environment: ${{ github.event.inputs.target_env }}
     steps:
@@ -240,3 +268,31 @@ jobs:
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
             mvn test '-DsuiteFile=test_configs/smoke_test/ios/seller/IOSGoSELLERUpdateProductTest.xml'
+
+  # ... iOS GoSELLER/suppliers
+  IOS-GoSELLER-Suppliers:
+    needs: iOS-GoSELLER
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Init pipelines"
+
+  IOS-GoSELLER-CreateAndUpdateSuppliers:
+    needs: IOS-GoSELLER-Suppliers
+    runs-on: macos-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - name: Create an iOS simulator
+        uses: ThangNguyen0495/create-ios-simulator@v1.0.0
+
+      - name: Save simulator UDID to GitHub Environment
+        run: |
+          UDID=$(cat udid.txt)  
+          echo "UDID=$UDID" >> $GITHUB_ENV
+
+      - uses: ThangNguyen0495/execute-appium-ios-test@v1.0.0
+        with:
+          test_name: "IOS-GoSELLER-Suppliers"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
+            mvn test '-DsuiteFile=test_configs/smoke_test/ios/seller/IOSGoSELLERSupplierTest.xml'

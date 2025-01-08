@@ -6,9 +6,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import utility.AndroidUtils;
 
-import static io.appium.java_client.AppiumBy.androidUIAutomator;
-import static utility.AndroidUtils.uiScrollResourceId;
-import static utility.AndroidUtils.uiScrollResourceIdInstance;
+import static utility.AndroidUtils.getSellerLocatorByResourceId;
+import static utility.AndroidUtils.getSellerLocatorByResourceIdAndInstance;
 import static utility.helper.ActivityHelper.sellerBundleId;
 
 public class FilterScreen {
@@ -24,19 +23,23 @@ public class FilterScreen {
         androidUtils = new AndroidUtils(driver);
     }
 
-    By loc_btnReset = androidUIAutomator(uiScrollResourceId.formatted("%s:id/btnReset".formatted(sellerBundleId)));
+    By loc_btnReset = getSellerLocatorByResourceId("%s:id/btnReset");
+
     By loc_btnFilterByStatus(int actionsIndex) {
-        return androidUIAutomator(uiScrollResourceIdInstance.formatted("%s:id/tag_container".formatted(sellerBundleId), actionsIndex));
+        return getSellerLocatorByResourceIdAndInstance("%s:id/tag_container", actionsIndex);
     }
+
     By loc_btnFilterByChannel(int actionsIndex) {
-        return androidUIAutomator(uiScrollResourceIdInstance.formatted("%s:id/tag_container".formatted(sellerBundleId), actionsIndex + 4));
+        return getSellerLocatorByResourceIdAndInstance("%s:id/tag_container", actionsIndex + 4);
     }
+
     By loc_btnFilterByPlatform(int actionsIndex) {
-        return androidUIAutomator(uiScrollResourceIdInstance.formatted("%s:id/tag_container".formatted(sellerBundleId), actionsIndex + 7));
+        return getSellerLocatorByResourceIdAndInstance("%s:id/tag_container", actionsIndex + 7);
     }
-    By loc_btnSeeAllBranches = androidUIAutomator(uiScrollResourceId.formatted("%s:id/btnSeeAllBranches".formatted(sellerBundleId)));
-    By loc_btnSeeAllCollections = androidUIAutomator(uiScrollResourceId.formatted("%s:id/btnSeeAllCollections".formatted(sellerBundleId)));
-    By loc_btnApply = androidUIAutomator(uiScrollResourceId.formatted("%s:id/btnApply".formatted(sellerBundleId)));
+
+    By loc_btnSeeAllBranches = getSellerLocatorByResourceId("%s:id/btnSeeAllBranches");
+    By loc_btnSeeAllCollections = getSellerLocatorByResourceId("%s:id/btnSeeAllCollections");
+    By loc_btnApply = getSellerLocatorByResourceId("%s:id/btnApply");
 
     public void filterByStatus(String status) {
         // Reset all filters
@@ -63,9 +66,9 @@ public class FilterScreen {
 
         // Select channel
         switch (channel) {
-            case "LAZADA" -> androidUtils.click( loc_btnFilterByChannel( 1));
-            case "SHOPEE" -> androidUtils.click( loc_btnFilterByChannel( 2));
-            default -> androidUtils.click( loc_btnFilterByChannel( 0));
+            case "LAZADA" -> androidUtils.click(loc_btnFilterByChannel(1));
+            case "SHOPEE" -> androidUtils.click(loc_btnFilterByChannel(2));
+            default -> androidUtils.click(loc_btnFilterByChannel(0));
         }
 
         // Apply filter
@@ -82,8 +85,8 @@ public class FilterScreen {
         // Select platform
         switch (platform) {
             case "WEB" -> androidUtils.click(loc_btnFilterByPlatform(1));
-            case "APP" -> androidUtils.click(loc_btnFilterByPlatform( 2));
-            case "IN_STORE" -> androidUtils.click(loc_btnFilterByPlatform( 3));
+            case "APP" -> androidUtils.click(loc_btnFilterByPlatform(2));
+            case "IN_STORE" -> androidUtils.click(loc_btnFilterByPlatform(3));
             case "NONE" -> androidUtils.click(loc_btnFilterByPlatform(4));
             default -> androidUtils.click(loc_btnFilterByPlatform(0));
         }

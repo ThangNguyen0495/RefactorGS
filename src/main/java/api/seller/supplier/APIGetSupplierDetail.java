@@ -39,6 +39,13 @@ public class APIGetSupplierDetail {
         private long totalBalance;
         private String debtPaymentStatus;
         private String responsibleStaffName;
+
+        // Additional field (not contains in response)
+        private String countryName;
+        private String vietnamCityName;
+        private String vietnamDistrictName;
+        private String vietnamWardName;
+        private String foreignProvinceName;
     }
 
 

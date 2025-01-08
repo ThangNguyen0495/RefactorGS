@@ -4,7 +4,9 @@ import api.others.APIGetDistricts;
 import api.others.APIGetProvinces;
 import api.others.APIGetWards;
 import api.seller.login.APISellerLogin;
+import api.seller.setting.APIGetStaffList;
 import utility.CountryUtils;
+import utility.PropertiesUtils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -12,6 +14,7 @@ import java.time.LocalDateTime;
 import static api.seller.supplier.APIGetSupplierDetail.SupplierInformation;
 
 public class SupplierHelper {
+    private static final String langKey = PropertiesUtils.getLangKey();
 
     /**
      * Generates supplier information based on provided credentials and country preference.
@@ -25,6 +28,7 @@ public class SupplierHelper {
 
         // Determine country details
         String countryName = isVNSupplier ? "Vietnam" : CountryUtils.randomCountry();
+        supplierInfo.setCountryName(langKey.equals("vi") && isVNSupplier ? "Việt Nam" : countryName);
         supplierInfo.setCountryCode(CountryUtils.getCountryCode(countryName));
 
         // Generate base attributes
@@ -39,6 +43,11 @@ public class SupplierHelper {
         supplierInfo.setAddress("Address %s".formatted(currentDateTime));
         supplierInfo.setDescription("Description %s".formatted(currentDateTime));
 
+        // Responsible staff
+        var staff = new APIGetStaffList(credentials).randomStaff();
+        supplierInfo.setResponsibleStaff(staff.getId() == 0 ? "" : String.valueOf(staff.getId()));
+        supplierInfo.setResponsibleStaffName(staff.getName());
+
         // Province: Random based on countryCode
         var province = new APIGetProvinces(credentials).randomProvince(supplierInfo.getCountryCode());
         String provinceCode = province.getCode();
@@ -46,11 +55,13 @@ public class SupplierHelper {
 
         // Handle Vietnam-specific details
         if (isVNSupplier) {
+            supplierInfo.setVietnamCityName(langKey.equals("vi") ? province.getInCountry() : province.getOutCountry());
             populateVietnamSpecificAttributes(credentials, supplierInfo, provinceCode);
             return supplierInfo;
         }
 
         // Handle foreign country-specific details
+        supplierInfo.setForeignProvinceName(langKey.equals("vi") ? province.getInCountry() : province.getOutCountry());
         populateForeignSpecificAttributes(supplierInfo, provinceCode);
         return supplierInfo;
     }
@@ -67,7 +78,9 @@ public class SupplierHelper {
         var ward = new APIGetWards(credentials).randomWard(district.getCode());
 
         supplierInfo.setDistrict(district.getCode());
+        supplierInfo.setVietnamDistrictName(langKey.equals("vi") ? district.getInCountry() : district.getOutCountry());
         supplierInfo.setWard(ward.getCode());
+        supplierInfo.setVietnamWardName(langKey.equals("vi") ? ward.getInCountry() : ward.getOutCountry());
         supplierInfo.setAddress2(""); // Address2 not used for Vietnam
         supplierInfo.setCityName(""); // City not used for Vietnam
         supplierInfo.setZipCode("");  // Zip code not used for Vietnam

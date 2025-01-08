@@ -44,4 +44,12 @@ public class HomeScreen extends HomeElement{
         // Log
         logger.info("Navigate product management screen");
     }
+
+    public void navigateToSupplierManagementScreen() {
+        // Click supplier management icon
+        iosUtils.click(loc_icnSupplierManagement);
+
+        // Log
+        logger.info("Navigate to supplier management screen");
+    }
 }

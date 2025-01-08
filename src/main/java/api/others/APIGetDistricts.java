@@ -34,6 +34,7 @@ public class APIGetDistricts {
     }
 
     public List<District> getDistricts(String provinceCode) {
+        if (provinceCode.isEmpty()) return List.of();
         String path = "/catalogservices/api/city/%s/districts".formatted(provinceCode);
         return new APIUtils().get(path, loginInfo.getAccessToken())
                 .then().statusCode(200)
@@ -43,7 +44,7 @@ public class APIGetDistricts {
 
     public District randomDistrict(String provinceCode) {
         var districts = getDistricts(provinceCode);
-        if (districts.isEmpty()) return new District(0, provinceCode.split("-")[0] + "-OTHER", "", "", "");
+        if (districts.isEmpty()) return new District(0, "", "", "", "");
         return districts.get(nextInt(districts.size()));
     }
 }

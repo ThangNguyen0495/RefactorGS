@@ -234,9 +234,6 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         new ProductManagementScreen(driver).navigateToProductManagementScreen()
                 .navigateToProductDetailScreen(productName);
 
-//        // Remove old variation if any
-//        removeOldVariations();
-
         // Log
         logger.info("Navigate to product detail screen");
 

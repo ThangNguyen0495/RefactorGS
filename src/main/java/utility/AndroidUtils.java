@@ -1,5 +1,6 @@
 package utility;
 
+import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.Activity;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.nativekey.AndroidKey;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static io.appium.java_client.AppiumBy.androidUIAutomator;
+import static utility.helper.ActivityHelper.sellerBundleId;
 
 /**
  * Provides utility functions for interacting with Android devices in an Appium-based
@@ -32,15 +34,22 @@ import static io.appium.java_client.AppiumBy.androidUIAutomator;
 public class AndroidUtils {
 
     private static final Logger logger = LogManager.getLogger(AndroidUtils.class);
+    public static By getSellerLocatorByResourceId(String resourceId) {
+        return AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\"))".formatted(resourceId.formatted(sellerBundleId)));
+    }
 
-    public static final String uiScrollResourceId =
-            "new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\"))";
-    public static final String uiScrollResourceIdInstance =
-            "new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\").instance(%d))";
-    public static final String uiScrollText =
-            "new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().text(\"%s\"))";
-    public static final String uiScrollPartText =
-            "new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().textContains(\"%s\"))";
+    public static By getSellerLocatorByResourceIdAndInstance(String resourceId, int index) {
+        return AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\").instance(%d))".formatted(resourceId.formatted(sellerBundleId), index));
+    }
+
+    public static By getLocatorByText(String text) {
+        return AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().text(\"%s\"))".formatted(text));
+    }
+
+    public static By getLocatorByPartialText(String partialText) {
+        return  AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().textContains(\"%s\"))".formatted(partialText));
+    }
+
 
     private final WebDriver driver;
     private final WebDriverWait wait;
@@ -124,16 +133,18 @@ public class AndroidUtils {
     }
 
     /**
-     * Retrieves a list of elements located by the specified locator.
-     * Closes the notification screen before and after finding elements.
+     * Retrieves a list of web elements identified by the locator.
+     * It waits for the elements to be present before retrieving them.
      *
-     * @param locator The locator for the elements.
-     * @return A list of found WebElements.
+     * @param locator The locator to find the elements.
+     * @return A list of web elements.
      */
-    public List<WebElement> getListElement(By locator) {
+    public List<WebElement> getListElement(By locator, int... milliseconds) {
+        // Determine the wait time, using the provided timeout or defaulting to 3000 ms
+        int waitTime = (milliseconds.length != 0) ? milliseconds[0] : 3000;
         try {
             closeNotificationScreen();
-            customWait(3000).until(ExpectedConditions.presenceOfElementLocated(locator));
+            customWait(waitTime).until(ExpectedConditions.presenceOfElementLocated(locator));
         } catch (TimeoutException ignored) {
         }
 
@@ -149,7 +160,7 @@ public class AndroidUtils {
      * @return The fully visible {@link WebElement}.
      * @throws RuntimeException If the element cannot be made fully visible after 5 retries.
      */
-    private WebElement getElement(By locator) {
+    public WebElement getElement(By locator) {
         return WebUtils.retryUntil(
                 5, // Maximum retries
                 1000, // Delay between retries in milliseconds

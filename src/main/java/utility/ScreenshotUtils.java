@@ -58,6 +58,7 @@ public class ScreenshotUtils {
     }
 
     // Define the constant paths for the images
+
     /**
      * Takes a screenshot of a specific WebElement and saves it to the 'element_image' folder.
      *
@@ -113,6 +114,7 @@ public class ScreenshotUtils {
         // Calculate match percentage
         float matchPercentage = (float) matchingPixels / totalPixels;
 
+        LogManager.getLogger().info("Matches percentage: %s".formatted(matchPercentage * 100));
         // Return true if all pixels in the overlapping area match
         return matchPercentage >= 0.75;
     }

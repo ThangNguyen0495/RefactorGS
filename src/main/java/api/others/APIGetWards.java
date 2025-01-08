@@ -34,6 +34,7 @@ public class APIGetWards {
     }
 
     public List<Ward> getWards(String districtCode) {
+        if (districtCode.isEmpty()) return List.of();
         String path = "/catalogservices/api/district/%s/wards".formatted(districtCode);
         return new APIUtils().get(path, loginInfo.getAccessToken())
                 .then().statusCode(200)
@@ -43,7 +44,7 @@ public class APIGetWards {
 
     public Ward randomWard(String districtCode) {
         var districts = getWards(districtCode);
-        if (districts.isEmpty()) return new Ward(0, districtCode.split("-")[0] + "-OTHER", "", "", 0);
+        if (districts.isEmpty()) return new Ward(0, "", "", "", 0);
         return districts.get(nextInt(districts.size()));
     }
 }

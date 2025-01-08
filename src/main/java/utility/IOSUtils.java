@@ -400,6 +400,18 @@ public class IOSUtils {
         });
     }
 
+    public boolean isElementFullyVisible(By locator) {
+        Rectangle rect = getElement(locator).getRect();
+        int screenHeight = driver.manage().window().getSize().getHeight();
+
+
+        System.out.println(rect.y + " " + rect.height);
+
+        System.out.println(screenHeight);
+
+        // Check if the element is fully visible within the screen's height
+        return rect.y >= 0 && (rect.y + rect.height) <= screenHeight;
+    }
 
     /**
      * Relaunches the app by terminating and then activating it again.
