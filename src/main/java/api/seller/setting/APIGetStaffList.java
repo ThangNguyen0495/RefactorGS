@@ -8,7 +8,6 @@ import utility.APIUtils;
 
 import java.util.List;
 
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
 
 public class APIGetStaffList {
     private final APISellerLogin.LoginInformation loginInfo;

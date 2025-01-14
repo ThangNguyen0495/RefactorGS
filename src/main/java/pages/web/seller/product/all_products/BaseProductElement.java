@@ -16,7 +16,6 @@ public class BaseProductElement {
         return By.xpath("//*[@class = 'uik-select__optionContent']/div[text()='%s']".formatted(vatName));
     }
 
-    protected final By loc_dlgUpdateSKU = By.cssSelector(".product-multiple-branch-sku_editor_modal");
     protected final By loc_txtWithoutVariationSKU = By.cssSelector("#productSKU,[class *=--n2] > div:nth-child(3) .align-items-center > span");
     protected final By loc_ddlManageInventory = By.cssSelector("#manageInventory");
     protected final By loc_ddvManageInventoryByIMEI = By.cssSelector("[value=\"IMEI_SERIAL_NUMBER\"]");
@@ -100,13 +99,10 @@ public class BaseProductElement {
     protected final By loc_btnDeleteVariation = By.cssSelector(".d-none .product-form-variation-selector__btn-delete");
     protected final By loc_lblVariations = By.cssSelector("[class $= --n1] > .gs-widget:nth-child(4) > .gs-widget__header > h3");
     protected final By loc_chkAddWholesalePricing = By.cssSelector(".uik-checkbox__wrapper > [name='enabledListing']");
-    protected final By loc_btnConfigureWholesalePricing = By.xpath("//label/*[@name = 'enabledListing']//ancestor::div[contains(@class,'gs-widget__header')]/following-sibling::div//button");
     protected final By loc_chkAddConversionUnit = By.cssSelector(".uik-checkbox__wrapper > [name='conversionUnitCheckbox']");
     protected final By loc_btnConfigureAddConversionUnit = By.xpath("//div[div/label/input[@name=\"conversionUnitCheckbox\"]]/following-sibling::div//button");
     protected final By loc_dlgConfirm_btnOK = By.cssSelector(".modal-footer .gs-button__green");
     protected final By loc_lblEditTranslation = By.xpath("(//*[text() = 'Sửa bản dịch' or text() = 'Edit Translation'])[1]/parent::div/parent::button");
     protected final By loc_ttlUpdatePrice = By.cssSelector(".modal-title");
-    protected final By loc_ttlUpdateSKU = By.cssSelector(".modal-title");
-    protected final By loc_lblSEOSetting = By.xpath("//div[contains(@class, ' seo-editor')]//div/h3");
 
 }

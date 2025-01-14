@@ -62,7 +62,7 @@ public class SupplierHelper {
 
         // Handle foreign country-specific details
         supplierInfo.setForeignProvinceName(langKey.equals("vi") ? province.getInCountry() : province.getOutCountry());
-        populateForeignSpecificAttributes(supplierInfo, provinceCode);
+        populateForeignSpecificAttributes(supplierInfo);
         return supplierInfo;
     }
 
@@ -90,9 +90,8 @@ public class SupplierHelper {
      * Populates attributes specific to foreign country suppliers.
      *
      * @param supplierInfo SupplierInformation object to populate.
-     * @param provinceCode The code of the selected province.
      */
-    private static void populateForeignSpecificAttributes(SupplierInformation supplierInfo, String provinceCode) {
+    private static void populateForeignSpecificAttributes(SupplierInformation supplierInfo) {
         LocalDateTime currentDateTime = LocalDateTime.now();
         long epochMillis = Instant.now().toEpochMilli();
 
