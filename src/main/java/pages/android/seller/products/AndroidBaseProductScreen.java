@@ -561,7 +561,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         androidUtils.waitUntilScreenLoaded(ActivityHelper.sellerProductMgmtActivity);
 
         // Logger
-        LogManager.getLogger().info("===== STEP =====> [VerifyProductInformation] START... ");
+        logger.info("Waiting for product is created successfully");
 
         // If product are updated, check information after updating
         // Get product ID
@@ -572,9 +572,6 @@ public class AndroidBaseProductScreen extends BaseProductElement {
 
         // Validate after create
         if (productId == 0) Assert.fail("Can not find product after created");
-
-        // Logger
-        LogManager.getLogger().info("===== STEP =====> [VerifyProductInformation] DONE!!! ");
     }
 
     /**
@@ -584,7 +581,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
      */
     public void verifyProductInformation() {
         // Log the start of the product information verification process
-        logger.info("===== STEP =====> [VerifyProductInfo] START... ");
+        logger.info("Verify product information");
 
         // Get productID
         int productId = (this.currentProductInfo == null) ? this.newProductInfo.getId() : this.currentProductInfo.getId();
@@ -734,9 +731,6 @@ public class AndroidBaseProductScreen extends BaseProductElement {
                     "Variation values must be '%s', but found '%s'".formatted(expectedVariationValues, actualVariationValues));
         }
 
-        // Log the completion of the product information verification process
-        logger.info("===== STEP =====> [VerifyProductInfo] END!!! ");
-
         // Reset default flags
         resetAllVariables();
     }
@@ -750,13 +744,11 @@ public class AndroidBaseProductScreen extends BaseProductElement {
      * @param branchStock     Branch stock quantities.
      */
     public void manageProduct(boolean isCreate, boolean isManagedByIMEI, boolean hasVariation, int... branchStock) {
+        // Log
+        logger.info("Start the process of creating/updating product");
+
         // Select product images
         selectProductImages();
-
-        // Determine operation type
-        String operationType = isCreate ? "Create" : "Update";
-        String productType = hasVariation ? "VariationProduct" : "WithoutVariationProduct";
-        LogManager.getLogger().info("===== STEP =====> [{}{}] START... ", operationType, productType);
 
         // Fetch product information
         fetchProductInformation(isManagedByIMEI, hasVariation, branchStock);
@@ -788,9 +780,6 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         modifyShippingInformation();
         modifyProductSellingPlatform();
         modifyPriority();
-
-        // Logger
-        LogManager.getLogger().info("===== STEP =====> [{}{}] DONE!!! ", operationType, productType);
 
         // Save changes
         saveChanges();

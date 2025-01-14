@@ -8,6 +8,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import pages.android.seller.login.LoginScreen;
 import pages.android.seller.products.AndroidBaseProductScreen;
+import pages.ios.seller.home.HomeScreen;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -29,6 +30,8 @@ public class AndroidGoSELLERCreateProductTest extends BaseTest {
     @BeforeClass
     void setup() throws IOException, URISyntaxException {
         initDriver("SELLER", "ANDROID");
+        // Change application language
+        new HomeScreen(driver).changeApplicationLanguage();
         new LoginScreen(driver).performLogin(sellerCredentials);
         productScreen = new AndroidBaseProductScreen(driver).fetchInformation();
     }

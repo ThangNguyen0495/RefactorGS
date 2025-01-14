@@ -8,7 +8,6 @@ import api.seller.setting.APIGetBranchList;
 import api.seller.setting.APIGetStoreDefaultLanguage;
 import api.seller.setting.APIGetVATList;
 import api.seller.user_feature.APIGetUserFeature;
-import io.appium.java_client.ios.IOSDriver;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,10 +23,7 @@ import utility.helper.ProductHelper;
 import utility.helper.VariationHelper;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static api.seller.user_feature.APIGetUserFeature.*;
@@ -211,11 +207,8 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
     }
 
     public IOSBaseProductScreen navigateToCreateProductScreen() {
-        // Terminate app
-        ((IOSDriver) driver).terminateApp(sellerBundleId);
-
-        // Reopen app
-        ((IOSDriver) driver).activateApp(sellerBundleId);
+        // Relaunch app
+        iosUtils.relaunchApp(sellerBundleId);
 
         // Navigate to create product screen
         new HomeScreen(driver).navigateToCreateProductScreen();
@@ -384,10 +377,12 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
     }
 
     private void modifyShippingInformation() {
-        // Update shipping status
-        WebUtils.retryUntil(5, 1000, "Can not change Shipping switch status",
-                () -> iosUtils.isChecked(loc_swShipping),
-                () -> iosUtils.click(loc_swShipping));
+        // Enables the shipping switch
+//        WebUtils.retryUntil(5, 1000, "Can not change Shipping switch status",
+//                () -> iosUtils.isChecked(loc_swShipping),
+//                () -> iosUtils.click(loc_swShipping));
+        iosUtils.toggleCheckbox(loc_swShipping);
+        logger.info("Enables shipping switch");
 
         // Add product weight
         int weight = newProductInfo.getShippingInfo().getWeight();
@@ -554,7 +549,7 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         }
 
         // Logger
-        LogManager.getLogger().info("===== STEP =====> [VerifyProductInformation] START... ");
+        LogManager.getLogger().info("Waiting for product is created/updated successfully.");
 
         // If product are updated, check information after updating
         // Get product ID
@@ -564,9 +559,6 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
 
         // Validate after create
         if (productId == 0) Assert.fail("Can not find product after created");
-
-        // Logger
-        LogManager.getLogger().info("===== STEP =====> [VerifyProductInformation] DONE!!! ");
     }
 
     /**
@@ -576,7 +568,7 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
      */
     public void verifyProductInformation() {
         // Log the start of the product information verification process
-        logger.info("===== STEP =====> [VerifyProductInfo] START... ");
+        logger.info("Verify product information");
 
         // Get productID
         int productId = (this.currentProductInfo == null) ? this.newProductInfo.getId() : this.currentProductInfo.getId();
@@ -726,9 +718,6 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
                     "Variation values must be '%s', but found '%s'".formatted(expectedVariationValues, actualVariationValues));
         }
 
-        // Log the completion of the product information verification process
-        logger.info("===== STEP =====> [VerifyProductInfo] END!!! ");
-
         // Reset default flags
         resetAllVariables();
     }
@@ -742,10 +731,8 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
      * @param branchStock     Branch stock quantities.
      */
     public void manageProduct(boolean isCreate, boolean isManagedByIMEI, boolean hasVariation, int... branchStock) {
-        // Determine operation type
-        String operationType = isCreate ? "Create" : "Update";
-        String productType = hasVariation ? "VariationProduct" : "WithoutVariationProduct";
-        LogManager.getLogger().info("===== STEP =====> [{}{}] START... ", operationType, productType);
+        // Log
+        logger.info("Start the process of creating/updating product");
 
         // Fetch product information
         fetchProductInformation(isManagedByIMEI, hasVariation, branchStock);
@@ -780,9 +767,6 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         modifyShippingInformation();
         modifyProductSellingPlatform();
         modifyPriority();
-
-        // Logger
-        LogManager.getLogger().info("===== STEP =====> [{}{}] DONE!!! ", operationType, productType);
 
         // Save changes
         saveChanges();
@@ -899,17 +883,16 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
 
         By loc_btnSave = By.xpath("//XCUIElementTypeButton[@name=\"icon checked white\"]");
         By loc_icnVariationImage = By.xpath("//*[XCUIElementTypeImage[@name=\"icon_selected_image_default\"]]/XCUIElementTypeButton");
-        By loc_txtVariationName = By.xpath("//XCUIElementTypeStaticText[@name=\"Product version name *\"]//following-sibling::XCUIElementTypeTextField");
-        By loc_chkReuseProductDescription = By.xpath("//XCUIElementTypeStaticText[@name=\"Reuse the product description\"]//preceding-sibling::XCUIElementTypeOther");
-        By loc_btnVariationDescription = By.xpath("//XCUIElementTypeStaticText[@name=\"Input product description\"]/preceding-sibling::XCUIElementTypeButton");
-        By loc_txtVariationListingPrice = By.xpath("(//XCUIElementTypeStaticText[@name=\"Selling price\"]//following-sibling::*//XCUIElementTypeTextField)[1]");
-        By loc_txtVariationSellingPrice = By.xpath("(//XCUIElementTypeStaticText[@name=\"Selling price\"]//following-sibling::*//XCUIElementTypeTextField)[2]");
-        By loc_txtVariationCostPrice = By.xpath("//XCUIElementTypeStaticText[@name=\"Cost price\"]//following-sibling::*//XCUIElementTypeTextField");
-        By loc_btnEditVariationSKU = By.xpath("//XCUIElementTypeStaticText[@name=\"Edit\"]");
-        By loc_txtVariationSKU = By.xpath("//XCUIElementTypeStaticText[@name=\"SKU\"]//following-sibling::XCUIElementTypeTextField");
-        By loc_txtVariationBarcode = By.xpath("//XCUIElementTypeStaticText[@name=\"Barcode\"]//following-sibling::XCUIElementTypeTextField");
+        By loc_txtVariationName = By.xpath("//XCUIElementTypeStaticText[@name=\"Product version name *\" or @name=\"Tên mẫu mã sản phẩm *\"]//following-sibling::XCUIElementTypeTextField");
+        By loc_chkReuseProductDescription = By.xpath("//XCUIElementTypeStaticText[@name=\"Reuse the product description\" or @name=\"Nội dung giống mô tả sản phẩm\"]//preceding-sibling::XCUIElementTypeOther");
+        By loc_btnVariationDescription = By.xpath("//XCUIElementTypeStaticText[@name=\"Input product description\" or @name=\"Thay đổi mô tả sản phẩm\"]/preceding-sibling::XCUIElementTypeButton");
+        By loc_txtVariationListingPrice = By.xpath("(//XCUIElementTypeStaticText[@name=\"Selling price\" or @name=\"Giá bán\"]//following-sibling::*//XCUIElementTypeTextField)[1]");
+        By loc_txtVariationSellingPrice = By.xpath("(//XCUIElementTypeStaticText[@name=\"Selling price\" or @name=\"Giá bán\"]//following-sibling::*//XCUIElementTypeTextField)[2]");
+        By loc_txtVariationCostPrice = By.xpath("//XCUIElementTypeStaticText[@name=\"Cost price\" or @name=\"Giá gốc\"]//following-sibling::*//XCUIElementTypeTextField");
+        By loc_txtVariationSKU = By.xpath("//XCUIElementTypeStaticText[@name=\"SKU\" or name = \"Mã SKU\"]//following-sibling::XCUIElementTypeTextField");
+        By loc_txtVariationBarcode = By.xpath("//XCUIElementTypeStaticText[@name=\"Barcode\" or @name=\"Mã vạch\"]//following-sibling::XCUIElementTypeTextField");
         By loc_icnInventory = By.xpath("//XCUIElementTypeImage[@name=\"icon_inventory\"]/preceding-sibling::XCUIElementTypeButton");
-        By loc_btnDeactivate = By.xpath("//XCUIElementTypeButton[contains(@name, \"ctivate\")]");
+        By loc_btnDeactivate = By.xpath("//XCUIElementTypeButton[contains(@name, \"ctivate\") or @name=\"Ngừng bán\"] or @name=\"Bán ngay\"]");
 
         public ProductVariationScreen getVariationInformation(List<APIGetBranchList.BranchInformation> branchInfos, int variationIndex, ProductInformation productInfo) {
             // Get branch information
@@ -1183,7 +1166,7 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         }
 
         By loc_dlgUpdateStock_tabChange = By.xpath("//XCUIElementTypeStaticText[@name=\"CHANGE\"]");
-        By loc_dlgUpdateStock_txtQuantity = By.xpath("//XCUIElementTypeStaticText[@name=\"Input quantity\"]/preceding-sibling::*/XCUIElementTypeTextField");
+        By loc_dlgUpdateStock_txtQuantity = By.xpath("//XCUIElementTypeStaticText[@name=\"Input quantity\" or @name=\"Nhập số lượng\"]/preceding-sibling::*/XCUIElementTypeTextField");
         By loc_dlgUpdateStock_btnOK = By.xpath("//XCUIElementTypeButton[@name=\"OK\"]");
 
         /**
@@ -1263,16 +1246,16 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
             return By.xpath("//XCUIElementTypeStaticText[@name=\"%s\"]/preceding-sibling::XCUIElementTypeOther".formatted(branchName));
         }
 
-        By loc_icnActions = By.xpath("//XCUIElementTypeStaticText[@name=\"Action\"]//preceding-sibling::XCUIElementTypeButton");
-        By loc_ddvUpdatePriceActions = By.xpath("//XCUIElementTypeStaticText[@name=\"Update price\"]//preceding-sibling::XCUIElementTypeButton");
-        By loc_ddvUpdateStockActions = By.xpath("//XCUIElementTypeStaticText[@name=\"Update stock\"]//preceding-sibling::XCUIElementTypeButton");
+        By loc_icnActions = By.xpath("//XCUIElementTypeStaticText[@name=\"Action\" or @name=\"Thao tác\"]//preceding-sibling::XCUIElementTypeButton");
+        By loc_ddvUpdatePriceActions = By.xpath("//XCUIElementTypeStaticText[@name=\"Update price\" or @name = \"Cập nhật giá bán\"]//preceding-sibling::XCUIElementTypeButton");
+        By loc_ddvUpdateStockActions = By.xpath("//XCUIElementTypeStaticText[@name=\"Update stock\" or @name=\"Cập nhật kho hàng\"]//preceding-sibling::XCUIElementTypeButton");
 
-        By loc_dlgUpdatePrice_txtListingPrice = By.xpath("//XCUIElementTypeStaticText[@name=\"Selling price\"]//following-sibling::XCUIElementTypeOther[1]//XCUIElementTypeTextField");
-        By loc_dlgUpdatePrice_txtSellingPrice = By.xpath("//XCUIElementTypeStaticText[@name=\"Selling price\"]//following-sibling::XCUIElementTypeOther[2]//XCUIElementTypeTextField");
+        By loc_dlgUpdatePrice_txtListingPrice = By.xpath("//XCUIElementTypeStaticText[@name=\"Selling price\" or @name=\"Giá bán\"]//following-sibling::XCUIElementTypeOther[1]//XCUIElementTypeTextField");
+        By loc_dlgUpdatePrice_txtSellingPrice = By.xpath("//XCUIElementTypeStaticText[@name=\"Selling price\" or @name=\"Giá bán\"]//following-sibling::XCUIElementTypeOther[2]//XCUIElementTypeTextField");
         By loc_dlgUpdatePrice_btnOK = By.xpath("//XCUIElementTypeButton[@name=\"OK\"]");
 
-        By loc_dlgUpdateStock_tabChange = By.xpath("//XCUIElementTypeButton[@name=\"CHANGE\"]");
-        By loc_dlgUpdateStock_txtQuantity = By.xpath("//XCUIElementTypeStaticText[@name=\"Input quantity\"]/preceding-sibling::*/XCUIElementTypeTextField");
+        By loc_dlgUpdateStock_tabChange = By.xpath("//XCUIElementTypeButton[@name=\"CHANGE\" or @name=\"THAY ĐỔI\"]");
+        By loc_dlgUpdateStock_txtQuantity = By.xpath("//XCUIElementTypeStaticText[@name=\"Input quantity\" or @name=\"Nhập số lượng\"]/preceding-sibling::*/XCUIElementTypeTextField");
         By loc_dlgUpdateStock_btnOK = By.xpath("//XCUIElementTypeButton[@name=\"OK\"]");
 
         public void bulkUpdatePrice(long listingPrice, long sellingPrice) {
@@ -1361,7 +1344,7 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
 
         By loc_btnSave = By.xpath("//XCUIElementTypeButton[@name=\"icon checked white\"]");
         By loc_icnRemoveIMEI = By.xpath("//XCUIElementTypeScrollView/XCUIElementTypeOther[1]/XCUIElementTypeOther[2]//XCUIElementTypeButton/XCUIElementTypeStaticText");
-        By loc_txtIMEI = By.xpath("//XCUIElementTypeTextField[@value=\"Input IMEI/Serial number\"]");
+        By loc_txtIMEI = By.xpath("//XCUIElementTypeTextField[@value=\"Input IMEI/Serial number\" or @value=\"Nhập số IMEI/Serial\"]");
         By loc_btnAdd = By.xpath("//XCUIElementTypeImage[@name = \"icon_plus-white\"]");
 
         public void addIMEI(int quantity, String branchName, String variation) {

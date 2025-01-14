@@ -51,7 +51,7 @@ public class APIGetWholesaleInformation {
      */
     public WholesaleInformation getWholesaleInformation(int itemId, int customerId, Integer modelId) {
         // Logger
-        LogManager.getLogger().info("===== STEP =====> [GetWholesaleProduct] itemId: {}, customerId: {}, modelId: {}", itemId, customerId, modelId);
+        LogManager.getLogger().info("Get wholesale product information, itemId: {}, customerId: {}, modelId: {}", itemId, customerId, modelId);
 
         // Build the API path
         String apiPath = "/itemservice/api/item/wholesale-pricing/get-list-store-front/%d/%d/GOSELL?userId=%d&modelId=%s"

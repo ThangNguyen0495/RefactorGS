@@ -17,7 +17,8 @@ import utility.helper.SupplierHelper;
 import java.util.Optional;
 
 import static utility.AndroidUtils.getSellerLocatorByResourceId;
-import static utility.helper.ActivityHelper.*;
+import static utility.helper.ActivityHelper.sellerBundleId;
+import static utility.helper.ActivityHelper.sellerCreateSupplierActivity;
 
 public class AndroidBaseSupplierScreen {
     private final WebDriver driver;
@@ -151,7 +152,7 @@ public class AndroidBaseSupplierScreen {
     private void selectCountry() {
         String countryName = supplierInfo.getCountryName();
         androidUtils.click(loc_ddvSelectedCountry);
-        new CountryPopup(driver).selectCountry(countryName);
+        new PopupHandler(driver).selectItem(countryName);
         logger.info("Select country: {}", countryName);
     }
 
@@ -172,7 +173,7 @@ public class AndroidBaseSupplierScreen {
     private void selectVietnamCity() {
         String cityName = supplierInfo.getVietnamCityName();
         androidUtils.click(loc_lblSelectedVietnamCity);
-        new VietnamCityPopup(driver).selectVietnamCity(cityName);
+        new PopupHandler(driver).selectItem(cityName);
 
         logger.info("Select city: {}", cityName);
     }
@@ -183,7 +184,7 @@ public class AndroidBaseSupplierScreen {
     private void selectVietnamDistrict() {
         String districtName = supplierInfo.getVietnamDistrictName();
         androidUtils.click(loc_lblSelectedVietnamDistrict);
-        new VietnamDistrictPopup(driver).selectVietnamDistrict(districtName);
+        new PopupHandler(driver).selectItem(districtName);
         logger.info("Select district: {}", districtName);
     }
 
@@ -193,7 +194,7 @@ public class AndroidBaseSupplierScreen {
     private void selectVietnamWard() {
         String wardName = supplierInfo.getVietnamWardName();
         androidUtils.click(loc_lblSelectedVietnamWard);
-        new VietnamWardPopup(driver).selectVietnamWard(wardName);
+        new PopupHandler(driver).selectItem(wardName);
         logger.info("Select ward: {}", wardName);
     }
 
@@ -232,7 +233,7 @@ public class AndroidBaseSupplierScreen {
     private void selectForeignProvince() {
         String provinceName = supplierInfo.getForeignProvinceName();
         androidUtils.click(loc_lblSelectedForeignProvince);
-        new ForeignProvincePopup(driver).selectForeignProvince(provinceName);
+        new PopupHandler(driver).selectItem(provinceName);
         logger.info("Select province: {}", provinceName);
     }
 
@@ -378,7 +379,7 @@ public class AndroidBaseSupplierScreen {
                 "Zipcode does not match.");
         Assert.assertEquals(actualSupplierInfo.getDescription(), supplierInfo.getDescription(),
                 "Description does not match.");
-        Assert.assertEquals(actualSupplierInfo.getResponsibleStaffName(), supplierInfo.getResponsibleStaffName(),
+        Assert.assertEquals(actualSupplierInfo.getResponsibleStaff(), supplierInfo.getResponsibleStaff(),
                 "Responsible staff does not match.");
 
         logger.info("Supplier information verification completed.");
@@ -412,7 +413,7 @@ public class AndroidBaseSupplierScreen {
          * @return a By object representing the XPath for the dropdown value
          */
         private By getDropdownValueLocator(String text) {
-            return By.xpath("(//*[contains(@text,'%s')])[last()]".formatted(text));
+            return By.xpath("(//*[contains(@text,\"%s\")])[last()]".formatted(text));
         }
 
         /**
@@ -431,96 +432,6 @@ public class AndroidBaseSupplierScreen {
             }
 
             LogManager.getLogger().info("Select item: {}", itemName);
-        }
-    }
-
-    /**
-     * Handles interactions with the Country selection popup.
-     */
-    private static class CountryPopup extends PopupHandler {
-        public CountryPopup(WebDriver driver) {
-            super(driver);
-        }
-
-        /**
-         * Selects a country by name.
-         *
-         * @param countryName the name of the country to select
-         */
-        public void selectCountry(String countryName) {
-            selectItem(countryName);
-        }
-    }
-
-    /**
-     * Handles interactions with the Vietnam City selection popup.
-     */
-    private static class VietnamCityPopup extends PopupHandler {
-        public VietnamCityPopup(WebDriver driver) {
-            super(driver);
-        }
-
-        /**
-         * Selects a city by name.
-         *
-         * @param cityName the name of the city to select
-         */
-        public void selectVietnamCity(String cityName) {
-            selectItem(cityName);
-        }
-    }
-
-    /**
-     * Handles interactions with the Vietnam District selection popup.
-     */
-    private static class VietnamDistrictPopup extends PopupHandler {
-        public VietnamDistrictPopup(WebDriver driver) {
-            super(driver);
-        }
-
-        /**
-         * Selects a district by name.
-         *
-         * @param districtName the name of the district to select
-         */
-        public void selectVietnamDistrict(String districtName) {
-            selectItem(districtName);
-        }
-    }
-
-    /**
-     * Handles interactions with the Vietnam Ward selection popup.
-     */
-    private static class VietnamWardPopup extends PopupHandler {
-        public VietnamWardPopup(WebDriver driver) {
-            super(driver);
-        }
-
-        /**
-         * Selects a ward by name.
-         *
-         * @param wardName the name of the ward to select
-         */
-        public void selectVietnamWard(String wardName) {
-            selectItem(wardName);
-        }
-    }
-
-    /**
-     * Handles interactions with the Foreign Province selection popup.
-     */
-    private static class ForeignProvincePopup extends PopupHandler {
-        public ForeignProvincePopup(WebDriver driver) {
-            super(driver);
-        }
-
-        /**
-         * Selects a foreign province by name.
-         *
-         * @param provinceName the name of the foreign province to select
-         */
-        public void selectForeignProvince(String provinceName) {
-            selectItem(provinceName);
         }
     }
 }

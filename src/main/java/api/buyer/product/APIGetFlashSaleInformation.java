@@ -58,7 +58,7 @@ public class APIGetFlashSaleInformation {
      */
     public FlashSaleInformation getFlashSaleInformation(int itemId, Integer modelId) {
         // Logger
-        LogManager.getLogger().info("===== STEP =====> [GetFlashSale] itemId: {}, modelId: {}", itemId, modelId);
+        LogManager.getLogger().info("Create flash sale campaign, itemId: {}, modelId: {}", itemId, modelId);
 
         // Build API path
         String apiPath = "/itemservice/api/campaigns/product/%d?modelId=%s".formatted(itemId, modelId != null ? modelId : "");

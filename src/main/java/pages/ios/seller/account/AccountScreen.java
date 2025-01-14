@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import utility.IOSUtils;
+import utility.PropertiesUtils;
 
 public class AccountScreen {
     WebDriver driver;
@@ -20,8 +21,11 @@ public class AccountScreen {
         iosUtils = new IOSUtils(driver);
     }
 
-    By loc_icnLogout = By.xpath("//XCUIElementTypeImage[@name=\"icon_account_tab_logout\"]/preceding-sibling::XCUIElementTypeButton");
-    By loc_dlgLogout_btnOK = By.xpath("//XCUIElementTypeButton[@name=\"OK\"]");
+    private final By loc_icnLogout = By.xpath("//XCUIElementTypeImage[@name=\"icon_account_tab_logout\"]/preceding-sibling::XCUIElementTypeButton");
+    private final By loc_dlgLogout_btnOK = By.xpath("//XCUIElementTypeButton[@name=\"OK\"]");
+    private final By loc_btnLanguage = By.xpath("//*[XCUIElementTypeImage[@name=\"icon_account_tab_language\"]]/XCUIElementTypeButton");
+    private final By loc_ddvVietNameOptions = By.xpath("//*[XCUIElementTypeImage[@name=\"flag_vietnam\"]]/XCUIElementTypeButton");
+    private final By loc_ddvEnglishOptions = By.xpath("//*[XCUIElementTypeImage[@name=\"flag_usa\"]]/XCUIElementTypeButton");
 
     public void logout() {
         // Open logout popup
@@ -32,5 +36,13 @@ public class AccountScreen {
 
         // Log
         logger.info("Logout");
+    }
+
+    public void selectLanguage() {
+        // Open language dropdown
+        iosUtils.click(loc_btnLanguage);
+
+        // Select language
+        iosUtils.click(PropertiesUtils.getLangKey().equals("vi") ? loc_ddvVietNameOptions : loc_ddvEnglishOptions);
     }
 }

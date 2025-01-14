@@ -7,6 +7,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import pages.ios.seller.home.HomeScreen;
 import pages.ios.seller.login.LoginScreen;
 import pages.ios.seller.supplier.IOSBaseSupplierScreen;
 import utility.PropertiesUtils;
@@ -33,6 +34,9 @@ public class IOSGoSELLERSupplierTest extends BaseTest {
 
         // Log into the goSELLER
         new LoginScreen(driver).performLogin(sellerCredentials);
+
+        // Change application language
+        new HomeScreen(driver).changeApplicationLanguage();
 
         // Initialize the BaseSupplierScreen instance
         baseSupplierScreen = new IOSBaseSupplierScreen(driver);

@@ -148,7 +148,7 @@ public class ListenerUtils implements ITestListener, ISuiteListener {
         test = extent.createTest(testName);
 
         // Logger
-        logger.info("===== STEP =====> Test Started: {} ", testName);
+        logger.info("Test Started: {} ", testName);
     }
 
     /**

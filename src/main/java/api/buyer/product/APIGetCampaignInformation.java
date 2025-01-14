@@ -82,7 +82,7 @@ public class APIGetCampaignInformation {
      */
     public CampaignInformation getDiscountCampaignInformation(int itemId, int branchId, int customerId) {
         // Logger
-        LogManager.getLogger().info("===== STEP =====> [GetDiscountCampaign] itemId: {}, branchId: {}, customerId: {}", itemId, branchId, customerId);
+        LogManager.getLogger().info("Get discount campaign information, itemId: {}, branchId: {}, customerId: {}", itemId, branchId, customerId);
 
         List<CampaignInformation> campaignInformationList = new APIUtils().post(
                         "/orderservices2/api/check-product-branch-wholesale/%d/%d".formatted(loginInfo.getStore().getId(), customerId),

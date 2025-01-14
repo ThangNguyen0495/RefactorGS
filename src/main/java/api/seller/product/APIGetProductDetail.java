@@ -168,7 +168,7 @@ public class APIGetProductDetail {
      */
     public ProductInformation getProductInformation(int productId) {
         // Logger
-        LogManager.getLogger().info("===== STEP =====> [GetProductInfo] ProductId: {} ", productId);
+        LogManager.getLogger().info("Get product information by API, id: {} ", productId);
 
         Response response = new APIUtils().get("/itemservice/api/beehive-items/%d".formatted(productId), loginInfo.getAccessToken());
 

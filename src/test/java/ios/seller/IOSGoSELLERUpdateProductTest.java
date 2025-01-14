@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import pages.ios.seller.home.HomeScreen;
 import pages.ios.seller.login.LoginScreen;
 import pages.ios.seller.product.IOSBaseProductScreen;
 
@@ -33,6 +34,8 @@ public class IOSGoSELLERUpdateProductTest extends BaseTest {
     void setup() throws IOException, URISyntaxException {
         initDriver("SELLER", "IOS");
         new LoginScreen(driver).performLogin(sellerCredentials);
+        // Change application language
+        new HomeScreen(driver).changeApplicationLanguage();
         productScreen = new IOSBaseProductScreen(driver).fetchInformation();
     }
 

@@ -44,10 +44,25 @@ public class APIGetStaffList {
 
     public StaffInformation randomStaff() {
         var staffList = getStaffList();
-        if (staffList.isEmpty()) return new StaffInformation(0, 0, "", "",
-                true, loginInfo.getStore().getId(), null, null,
-                null, null, null);
 
-        return staffList.get(nextInt(staffList.size()));
+        // Return a default StaffInformation if the list is empty
+        if (staffList.isEmpty()) {
+            return getDefaultStaffInformation();
+        }
+
+        // Find any enabled staff or return the default if none found
+        return staffList.parallelStream()
+                .filter(StaffInformation::isEnabled)
+                .findAny()
+                .orElse(getDefaultStaffInformation());
+    }
+
+    // Helper method to create a default StaffInformation
+    private StaffInformation getDefaultStaffInformation() {
+        return new StaffInformation(
+                0, 0, "", "",
+                true, loginInfo.getStore().getId(),
+                null, null, null, null, null
+        );
     }
 }

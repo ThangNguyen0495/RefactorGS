@@ -1322,11 +1322,8 @@ public class BaseProductPage extends BaseProductElement {
         // Remove old wholesale product configuration if present
         removeOldWholesaleConfig();
 
-        // Ensure the 'Add Wholesale Pricing' checkbox is selected
-        webUtils.checkCheckbox(loc_chkAddWholesalePricing);
-
-        // Click the 'Configure Wholesale Pricing' button
-        webUtils.click(loc_btnConfigureWholesalePricing);
+        // Navigate to create wholesale pricing by URL
+        driver.get("%s/product/wholesale-price/create/%d".formatted(PropertiesUtils.getDomain(), productInfo.getId()));
 
         // Return a new instance of WholesaleProductPage for further actions
         return new WholesaleProductPage(driver, productInfo, defaultLanguage);
@@ -1436,8 +1433,7 @@ public class BaseProductPage extends BaseProductElement {
 
 
         // Log the start of product management
-        String operation = isUpdate ? "UpdateProduct" : "CreateProduct";
-        logger.info("===== STEP =====> [{}] START... ", operation);
+        logger.info("Start the process of creating/updating product");
 
         // Add variations first to input prices, stock, and upload images related to variations
         addVariations();
@@ -1476,9 +1472,6 @@ public class BaseProductPage extends BaseProductElement {
 
         // Reset local variables for the next test
         resetAllVariables();
-
-        // Log the completion of product management
-        logger.info("===== STEP =====> [{}] DONE!!! ", operation);
     }
 
     /**
@@ -1523,7 +1516,7 @@ public class BaseProductPage extends BaseProductElement {
      */
     public void verifyProductInformation() {
         // Log the start of the product information verification process
-        logger.info("===== STEP =====> [VerifyProductInfo] START... ");
+        logger.info("Start the process of creating/updating the product");
 
         // Determine if the product needs to be created based on the API response
         boolean isCreate = currentProductInfo == null;
@@ -1704,9 +1697,6 @@ public class BaseProductPage extends BaseProductElement {
             Assert.assertEquals(actualVariationValues, expectedVariationValues,
                     "Variation values must be '%s', but found '%s'".formatted(expectedVariationValues, actualVariationValues));
         }
-
-        // Log the completion of the product information verification process
-        logger.info("===== STEP =====> [VerifyProductInfo] END!!! ");
     }
 
 
@@ -1720,7 +1710,7 @@ public class BaseProductPage extends BaseProductElement {
      */
     public void updateProductStatus() {
         // Log the start of changing the product variation statuses
-        logger.info("===== STEP =====> [ChangeProductStatus] START... ");
+        logger.info("Start the process of updating product statues");
 
         // Generate new product/variation status
         ProductHelper.InitProductInfo initProductInfo = new ProductHelper.InitProductInfo();
@@ -1756,9 +1746,6 @@ public class BaseProductPage extends BaseProductElement {
             }
         });
 
-        // Log the completion of changing the product variation statuses
-        logger.info("===== STEP =====> [ChangeProductStatus] DONE!!! ");
-
         // Verify that the variation statuses have been correctly updated
         var actualProductInfoAfterChangeVariationStatus = new APIGetProductDetail(credentials).getProductInformation(newProductInfo.getId());
 
@@ -1786,7 +1773,7 @@ public class BaseProductPage extends BaseProductElement {
      */
     public void updateProductTranslation() {
         // Log the start of adding variation translations
-        logger.info("===== STEP =====> [AddProductTranslation] START... ");
+        logger.info("Start the process of adding product translation");
 
         // Generate product translation
         ProductHelper.InitProductInfo initProductInfo = new ProductHelper.InitProductInfo();
@@ -1811,9 +1798,6 @@ public class BaseProductPage extends BaseProductElement {
                                 untranslatedLanguageNames,
                                 defaultLanguage)
         );
-
-        // Log the completion of adding variation translations
-        logger.info("===== STEP =====> [AddProductTranslation] DONE!!! ");
 
         // Get current product information
         var actualProductInfo = new APIGetProductDetail(credentials).getProductInformation(newProductInfo.getId());
@@ -2000,7 +1984,7 @@ public class BaseProductPage extends BaseProductElement {
         newProductInfo = ProductHelper.generateProductInformation(initProductInfo);
 
         // Log the start of adding variation attributes
-        logger.info("===== STEP =====> [AddProductAttribution] START... ");
+        logger.info("Start the process of adding product attribution");
 
         // Add attribution to main product
         addProductAttribution();
@@ -2015,9 +1999,6 @@ public class BaseProductPage extends BaseProductElement {
 
         // Pause briefly to allow the attribution update process to complete
         WebUtils.sleep(1000);
-
-        // Log the completion of adding variation attributes
-        logger.info("===== STEP =====> [AddProductAttribution] DONE!!! ");
 
         // Get current product information
         var actualProductInfo = new APIGetProductDetail(credentials).getProductInformation(newProductInfo.getId());

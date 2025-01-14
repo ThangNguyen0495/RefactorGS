@@ -270,7 +270,7 @@ public class APICreateProductDiscountCampaign {
      * @param startDatePlus Number of days to add to the current date for campaign start
      */
     public void createProductDiscountCampaign(APIGetProductDetail.ProductInformation productInfo, int startDatePlus) {
-        LogManager.getLogger().info("===== STEP =====> [CreateDiscountCampaign] START... "); // Logging the start of campaign creation
+        LogManager.getLogger().info("Add product discount campaign for id: {}", productInfo.getId()); // Logging the start of campaign creation
 
         this.productInfo = productInfo; // Assigning product information to the instance variable
         endEarlyDiscountCampaign(); // Ending any ongoing campaigns
@@ -284,7 +284,5 @@ public class APICreateProductDiscountCampaign {
                         discountCampaignPayload,
                         Map.of("time-zone", "Asia/Saigon"))
                 .then().statusCode(200); // Verifying the response status is 200 OK
-
-        LogManager.getLogger().info("===== STEP =====> [CreateDiscountCampaign] DONE!!! "); // Logging the successful creation of the campaign
     }
 }

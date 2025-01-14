@@ -36,22 +36,22 @@ public class IOSBaseSupplierScreen {
         iosUtils = new IOSUtils(driver);
     }
 
-    By loc_btnHeaderSave = By.xpath("//XCUIElementTypeButton[@name=\"Save\"]");
-    By loc_txtSupplierName = By.xpath("//*[*[@name=\"Supplier name*\"]]/XCUIElementTypeTextField");
-    By loc_txtSupplierCode = By.xpath("//*[*[@name=\"Supplier code\"]]/XCUIElementTypeTextField");
-    By loc_txtPhoneNumber = By.xpath("//*[*[@name=\"Phone\"]]/XCUIElementTypeTextField");
+    By loc_btnHeaderSave = By.xpath("//XCUIElementTypeButton[@name=\"Save\" or @name = \"Lưu\"]");
+    By loc_txtSupplierName = By.xpath("//*[*[@name=\"Supplier name*\" or @name=\"Tên nhà cung cấp*\"]]/XCUIElementTypeTextField");
+    By loc_txtSupplierCode = By.xpath("//*[*[@name=\"Supplier code\" or @name=\"Mã nhà cung cấp\"]]/XCUIElementTypeTextField");
+    By loc_txtPhoneNumber = By.xpath("//*[*[@name=\"Phone\" or @name=\"Số điện thoại\"]]/XCUIElementTypeTextField");
     By loc_txtEmail = By.xpath("//*[*[@name=\"Email\"]]/XCUIElementTypeTextField");
-    By loc_ddvSelectedCountry = By.xpath("//*[*[@name=\"Country\"]]/XCUIElementTypeButton");
-    By loc_txtVietnamAddress = By.xpath("//*[*[@name=\"Address\"]]/XCUIElementTypeTextField");
-    By loc_lblSelectedVietnamCity = By.xpath("//*[*[@name=\"City/Province\"]]/XCUIElementTypeButton");
-    By loc_lblSelectedVietnamDistrict = By.xpath("//*[*[@name=\"District\"]]/XCUIElementTypeButton");
-    By loc_lblSelectedVietnamWard = By.xpath("//*[*[@name=\"Ward\"]]/XCUIElementTypeButton");
-    By loc_txtForeignStreetAddress = By.xpath("//*[*[@name=\"Street address\"]]/XCUIElementTypeTextField");
-    By loc_txtForeignAddress2 = By.xpath("//*[*[@name=\"Address 2\"]]/XCUIElementTypeTextField");
-    By loc_txtForeignCity = By.xpath("//*[*[@name=\"City\"]]/XCUIElementTypeTextField");
-    By loc_lblSelectedForeignProvince = By.xpath("//*[*[@name=\"State / Region / Province\"]]/XCUIElementTypeButton");
+    By loc_ddvSelectedCountry = By.xpath("//*[*[@name=\"Country\" or @name=\"Quốc gia\"]]/XCUIElementTypeButton");
+    By loc_txtVietnamAddress = By.xpath("//*[*[@name=\"Address\" or @name=\"Địa chỉ\"]]/XCUIElementTypeTextField");
+    By loc_lblSelectedVietnamCity = By.xpath("//*[*[@name=\"City/Province\" or @name=\"Tỉnh/Thành phố\"]]/XCUIElementTypeButton");
+    By loc_lblSelectedVietnamDistrict = By.xpath("//*[*[@name=\"District\" or @name=\"Quận / Huyện\"]]/XCUIElementTypeButton");
+    By loc_lblSelectedVietnamWard = By.xpath("//*[*[@name=\"Ward\" or @name=\"Phường / Xã\"]]/XCUIElementTypeButton");
+    By loc_txtForeignStreetAddress = By.xpath("//*[*[@name=\"Street address\" or @name=\"Tên đường\"]]/XCUIElementTypeTextField");
+    By loc_txtForeignAddress2 = By.xpath("//*[*[@name=\"Address 2\" or @name=\"Địa chỉ 2\"]]/XCUIElementTypeTextField");
+    By loc_txtForeignCity = By.xpath("//*[*[@name=\"City\" or @name=\"Thành phố\"]]/XCUIElementTypeTextField");
+    By loc_lblSelectedForeignProvince = By.xpath("//*[*[@name=\"State / Region / Province\" or @name=\"Tiểu bang / Vùng / Tỉnh\"]]/XCUIElementTypeButton");
     By loc_txtForeignZipcode = By.xpath("//*[*[@name=\"ZipCode\"]]/XCUIElementTypeTextField");
-    By loc_lblSelectedResponsibleStaff = By.xpath("//*[*[@name=\"Responsible Staff\"]]/XCUIElementTypeButton");
+    By loc_lblSelectedResponsibleStaff = By.xpath("//*[*[@name=\"Responsible Staff\" or @name=\"Người Phụ Trách\"]]/XCUIElementTypeButton");
 
     By loc_ddvResponsibleStaff(String staffName) {
         return By.xpath("//*[@name = '%s']".formatted(staffName));

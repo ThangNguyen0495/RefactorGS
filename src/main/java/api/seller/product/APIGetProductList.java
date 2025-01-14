@@ -156,7 +156,7 @@ public class APIGetProductList {
      */
     public int fetchRemainingStockByProductId(int productId) {
         // Logger
-        LogManager.getLogger().info("===== STEP =====> [FetchElasticsearchProductRemainingStock] ProductId: {} ", productId);
+        LogManager.getLogger().info("Get product stock from Elasticsearch, id: {} ", productId);
 
         // Get product name
         String productName = new APIGetProductDetail(credentials).getProductInformation(productId).getName();
@@ -177,7 +177,7 @@ public class APIGetProductList {
      */
     public boolean isProductDeletedFromElasticsearch(int productId) {
         // Logger
-        LogManager.getLogger().info("===== STEP =====> [CheckIsDeletedFromElasticsearch] ProductId: {} ", productId);
+        LogManager.getLogger().info("Verify product is deleted from Elasticsearch, id: {} ", productId);
 
         // Get product name
         String productName = new APIGetProductDetail(credentials).getProductInformation(productId).getName();
@@ -195,7 +195,7 @@ public class APIGetProductList {
      */
     public String fetchElasticsearchProductStatus(int productId) {
         // Logger
-        LogManager.getLogger().info("===== STEP =====> [FetchElasticsearchProductStatus] ProductId: {} ", productId);
+        LogManager.getLogger().info("Get product status from Elasticsearch, id: {} ", productId);
 
         // Retrieve the product name using the product ID
         String productName = new APIGetProductDetail(credentials).getProductInformation(productId).getName();

@@ -1,6 +1,5 @@
 package pages.ios.seller.product.product_management;
 
-import io.appium.java_client.ios.IOSDriver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.NoSuchElementException;
@@ -8,7 +7,6 @@ import org.openqa.selenium.WebDriver;
 import pages.ios.seller.home.HomeScreen;
 import utility.IOSUtils;
 
-import static pages.ios.seller.product.IOSBaseProductElement.loc_chkDisplayIfOutOfStock;
 import static utility.helper.ActivityHelper.sellerBundleId;
 
 public class ProductManagementScreen extends ProductManagementElement {
@@ -45,9 +43,6 @@ public class ProductManagementScreen extends ProductManagementElement {
         if (!iosUtils.getListElement(loc_lblProductName(productName)).isEmpty()) {
             // Click into first result
             iosUtils.click(loc_lblProductName(productName));
-
-            // Wait product detail screen loaded
-            iosUtils.getElement(loc_chkDisplayIfOutOfStock);
         } else throw new NoSuchElementException("No result with keyword: %s".formatted(productName));
     }
 

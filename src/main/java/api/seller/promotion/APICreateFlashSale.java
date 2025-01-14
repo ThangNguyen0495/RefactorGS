@@ -145,7 +145,7 @@ public class APICreateFlashSale {
      * @throws RuntimeException if the flash sale creation fails after 5 attempts.
      */
     private Response createFlashSaleResponse(APIGetProductDetail.ProductInformation productInfo, int... time) {
-        logger.info("===== STEP =====> [CreateFlashSale] START... ");
+        logger.info("Create flash sale campaign by API");
 
         for (int attempt = 0; attempt < 5; attempt++) {
             FlashSalePayload payload = createFlashSalePayload(productInfo, time);
@@ -159,7 +159,6 @@ public class APICreateFlashSale {
             );
 
             if (response.getStatusCode() == 200) {
-                logger.info("===== STEP =====> [CreateFlashSale] DONE!!! ");
                 return response; // Exit if successful
             }
 

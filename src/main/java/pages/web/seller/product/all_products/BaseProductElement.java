@@ -94,7 +94,7 @@ public class BaseProductElement {
     protected final By loc_dlgUpdateStock_txtStockValue = By.cssSelector(".modal-body  .quantity-input-field > input");
 
     protected By loc_dlgUpdateStock_txtBranchStock(String branchName) {
-        return By.xpath("//td[text() ='%s']/following-sibling::td//input | //tbody//tr//td[count(//*[text()='%s']/preceding-sibling::th) +1]//*[@name='search-input']".formatted(branchName, branchName));
+        return By.xpath("//td[text() ='%s']/following-sibling::td//input | //tbody//tr//td[count(//*[text()='%s']/preceding-sibling::th) +1]//input[@name='search-input']".formatted(branchName, branchName));
     }
 
     protected final By loc_btnDeleteVariation = By.cssSelector(".d-none .product-form-variation-selector__btn-delete");

@@ -104,7 +104,7 @@ public class APIGetInventoryHistory {
     public boolean checkProductCanBeDeleted(int productId) {
         List<InventoryHistory> inventoryHistoryList = getAllInventoryHistory(String.valueOf(productId), "");
 
-        LogManager.getLogger().info("===== STEP =====> [CheckCanBeDeleted] ProductId: {} ", productId);
+        LogManager.getLogger().info("Check product can be deleted, id: {} ", productId);
         return inventoryHistoryList.stream()
                 .filter(history -> history.getOrderId() != null && history.getOrderId().contains("CH"))
                 .noneMatch(this::hasTransferInComplete);
@@ -123,7 +123,7 @@ public class APIGetInventoryHistory {
     public boolean checkProductCanBeManagedByLotDate(int productId) {
         var inventoryHistoryList = getAllInventoryHistory(String.valueOf(productId), "");
 
-        LogManager.getLogger().info("===== STEP =====> [CheckCanBeManagedByLotDate] ProductId: {} ", productId);
+        LogManager.getLogger().info("Check product can be managed by lot-date, id: {} ", productId);
         return inventoryHistoryList.stream()
                 .filter(history -> history.getOrderId() != null)
                 .allMatch(this::canManageStockByLotDate);

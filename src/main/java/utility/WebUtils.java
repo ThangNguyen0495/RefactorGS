@@ -416,9 +416,6 @@ public class WebUtils {
      *                Use 0 to click the first element.
      */
     public void clickJS(By locator, int index) {
-        // Ensure that at least one element is found
-        Assert.assertFalse(getListElement(locator).isEmpty(), "Cannot find element to click.");
-
         // Highlight the element
         highlightElement(locator, index);
 

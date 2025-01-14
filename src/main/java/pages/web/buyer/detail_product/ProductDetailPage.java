@@ -886,7 +886,7 @@ public class ProductDetailPage {
      * @return ProductDetailPage instance to allow method chaining
      */
     public ProductDetailPage navigateProductDetailPage(APISellerLogin.Credentials credentials, int productId) {
-        logger.info("===== STEP =====> [CheckProductDetail] START...");
+        logger.info("Start the process of checking product information");
 
         // Store the credentials for API requests
         this.credentials = credentials;
@@ -931,8 +931,6 @@ public class ProductDetailPage {
         } else {
             verify404PageDisplayed();
         }
-
-        logger.info("===== STEP =====> [CheckProductDetail] DONE!!!");
     }
 
     /**

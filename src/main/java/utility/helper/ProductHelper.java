@@ -222,7 +222,7 @@ public class ProductHelper {
                                          (newProductInfo.isLotAvailable() && nextBoolean()));
 
         // Generate product name and description
-        newProductInfo.setName(generateProductName(defaultLangCode, hasModel, manageByIMEI));
+        newProductInfo.setName(generateProductName(defaultLangCode, hasModel, manageByIMEI, newProductInfo.isLotAvailable()));
         newProductInfo.setDescription("[%s] Product description %s".formatted(defaultLangCode, LocalDateTime.now()));
 
         // Set original and new price
@@ -248,17 +248,20 @@ public class ProductHelper {
      * @param manageByIMEI    Indicates if the product is managed by IMEI or serial number.
      * @return A formatted product name that includes the default language, model information, and current timestamp.
      */
-    private static String generateProductName(String defaultLangCode, boolean hasModel, boolean manageByIMEI) {
+    private static String generateProductName(String defaultLangCode, boolean hasModel, boolean manageByIMEI, boolean lotAvailable) {
         // Determine variation text based on model availability
         String variationText = hasModel ? "Variation" : "Without variation";
 
         // Determine inventory management text based on management type
         String manageText = manageByIMEI ? "IMEI" : "Normal";
 
+        String lotText = lotAvailable ? "LOT" : "NoLOT";
+
         // Format and return the product name with relevant details and timestamp
-        return "[%s][%s] Product name - %s - %s".formatted(
+        return "[%s][%s][%s] Product name - %s - %s".formatted(
                 defaultLangCode,
                 variationText,
+                lotText,
                 manageText,
                 LocalDateTime.now().toString().substring(0, 19)
         );

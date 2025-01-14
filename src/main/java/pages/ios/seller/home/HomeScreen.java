@@ -1,6 +1,5 @@
 package pages.ios.seller.home;
 
-import io.appium.java_client.ios.IOSDriver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
@@ -27,6 +26,14 @@ public class HomeScreen extends HomeElement{
             // Logout
             new AccountScreen(driver).logout();
         }
+    }
+
+    public void changeApplicationLanguage() {
+        // Navigate to Account screen
+        iosUtils.click(loc_icnAccount);
+
+        // Change language
+        new AccountScreen(driver).selectLanguage();
     }
 
     public void navigateToCreateProductScreen() {

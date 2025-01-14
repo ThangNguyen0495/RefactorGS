@@ -114,12 +114,10 @@ public class APIAddWholesaleProduct {
         // Assigns the provided product information to the instance variable
         this.productInfo = productInfo;
 
-        LogManager.getLogger().info("===== STEP =====> [AddWholesaleProduct] START... ");
+        LogManager.getLogger().info("Add wholesale product configuration for id: {}", productInfo.getId());
 
         // Makes a POST request to add the wholesale pricing for the product
         new APIUtils().post("/itemservice/api/item/wholesale-pricing", loginInfo.getAccessToken(), generateWholesalePricingPayload())
                 .then().statusCode(200); // Verifies that the response status is 200 OK
-
-        LogManager.getLogger().info("===== STEP =====> [AddWholesaleProduct] DONE!!! ");
     }
 }

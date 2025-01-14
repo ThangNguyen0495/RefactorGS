@@ -190,7 +190,7 @@ jobs:
 
   Android-GoSELLER-CreateAndUpdateSuppliers:
     needs: Android-GoSELLER-Suppliers
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.target_env }}
     steps:
       - uses: ThangNguyen0495/execute-appium-android-test@v1.0.0

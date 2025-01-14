@@ -11,7 +11,6 @@ import pages.ios.seller.home.HomeScreen;
 import utility.IOSUtils;
 
 import static io.appium.java_client.AppiumBy.iOSNsPredicateString;
-import static pages.ios.seller.home.HomeElement.loc_icnAccount;
 
 public class LoginScreen {
     WebDriver driver;
@@ -23,7 +22,7 @@ public class LoginScreen {
     By loc_txtUsername = iOSNsPredicateString("type == \"XCUIElementTypeTextField\"");
     By loc_txtPassword = iOSNsPredicateString("type == \"XCUIElementTypeSecureTextField\"");
     By loc_chkTermOfUse = By.xpath("(//XCUIElementTypeTextView[@value]//preceding-sibling::*)[1]//XCUIElementTypeImage");
-    By loc_btnLogin = By.xpath("(//XCUIElementTypeButton)[6]");
+    By loc_btnLogin = By.xpath("//XCUIElementTypeButton[@name=\"LOGIN\"]");
 
     public LoginScreen(WebDriver driver) {
         // Get driver
@@ -70,11 +69,6 @@ public class LoginScreen {
         logger.info("Tap login button");
     }
 
-    void waitHomeScreenLoaded() {
-        // Wait home screen loaded
-        iosUtils.getElement(loc_icnAccount);
-    }
-
     public void performLogin(Credentials credentials) {
         // Get login information
         LoginScreen.credentials = credentials;
@@ -88,8 +82,5 @@ public class LoginScreen {
         inputPassword(credentials.getPassword());
         agreeTermOfUse();
         clickLoginBtn();
-
-        // Wait home screen loaded
-        waitHomeScreenLoaded();
     }
 }
