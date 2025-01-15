@@ -30,8 +30,8 @@ public class APIGetOrderDetail {
      * billing and shipping info, and order items.
      */
     @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class OrderInformation {
-
         private OrderInfo orderInfo;
         private CustomerInfo customerInfo;
         private BillingInfo billingInfo;
@@ -63,7 +63,6 @@ public class APIGetOrderDetail {
             private int itemsCount;
             private int totalQuantity;
             private boolean paid;
-            private boolean isAllowEarningPoint;
             private String status;
             private int totalPrice;
             private int totalAmount;
@@ -86,7 +85,14 @@ public class APIGetOrderDetail {
             private List<CouponCode> couponCodes;
             private String appInstall;
             private String inStore;
-            private boolean isInStore;
+            private String deliveryName;
+            private Boolean isAllowEarningPoint;
+            private long shippingFee;
+            private long originalShippingFee;
+            private long loyaltyPoint;
+            private Object deliveryOrder;
+            private Object orderCosts;
+            private Boolean isInStore;
         }
 
         /**
@@ -118,6 +124,7 @@ public class APIGetOrderDetail {
          * Class representing the billing information related to the order.
          */
         @Data
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class BillingInfo {
             private String contactName;
             private String address1;
@@ -144,6 +151,7 @@ public class APIGetOrderDetail {
          * Class representing the shipping information for the order.
          */
         @Data
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class ShippingInfo {
             private String fullAddress;
             private String fullAddressEn;
@@ -153,6 +161,7 @@ public class APIGetOrderDetail {
          * Class representing the store branch where the order was placed or processed.
          */
         @Data
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class StoreBranch {
             private String createdDate;
             private String lastModifiedDate;
@@ -179,6 +188,7 @@ public class APIGetOrderDetail {
          * Class representing an item in the order, including details about quantity, price, and discounts.
          */
         @Data
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class Item {
             private int id;
             private long itemId;
@@ -213,6 +223,7 @@ public class APIGetOrderDetail {
              * Class representing a discount applied to the item.
              */
             @Data
+            @JsonIgnoreProperties(ignoreUnknown = true)
             public static class ItemTotalDiscount {
                 private int value;
                 private String discountType;
@@ -225,6 +236,7 @@ public class APIGetOrderDetail {
          * Class representing a discount applied to the order.
          */
         @Data
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class Discount {
             private int value;
             private String discountType;
@@ -235,6 +247,7 @@ public class APIGetOrderDetail {
          * Class representing a coupon discount applied to the order.
          */
         @Data
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class CouponDiscount {
             private int value;
             private String discountType;
@@ -246,6 +259,7 @@ public class APIGetOrderDetail {
          * Class representing earning points details for the order.
          */
         @Data
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class EarningPoint {
             // Define fields if needed later
         }
@@ -254,6 +268,7 @@ public class APIGetOrderDetail {
          * Class representing a group of related orders, including order count and total price.
          */
         @Data
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class BcOrderGroup {
             private String createdDate;
             private String lastModifiedDate;
@@ -272,6 +287,7 @@ public class APIGetOrderDetail {
          * Class representing coupon codes applied to the order.
          */
         @Data
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class CouponCode {
             private int discountValue;
             private String discountCode;
@@ -282,7 +298,7 @@ public class APIGetOrderDetail {
          * Class representing custom tags or information associated with the order.
          */
         @Data
-        @JsonIgnoreProperties
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class OrderTagInfo {
             // Define fields if needed later
         }
