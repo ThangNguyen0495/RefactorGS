@@ -8,7 +8,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import pages.android.seller.login.LoginScreen;
 import pages.android.seller.products.AndroidBaseProductScreen;
-import pages.ios.seller.home.HomeScreen;
+import pages.android.seller.home.HomeScreen;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
