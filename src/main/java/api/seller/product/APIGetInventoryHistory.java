@@ -2,8 +2,8 @@ package api.seller.product;
 
 import api.seller.affiliate.APIGetPartnerTransferDetail;
 import api.seller.login.APISellerLogin;
-import api.seller.order.APIGetReturnOrderList;
 import api.seller.order.APIGetOrderDetail;
+import api.seller.order.APIGetReturnOrderList;
 import api.seller.supplier.APIGetPurchaseOrderDetail;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.restassured.response.Response;
@@ -102,12 +102,21 @@ public class APIGetInventoryHistory {
      * @return True if the product can be deleted (no incomplete transfers), false otherwise.
      */
     public boolean checkProductCanBeDeleted(int productId) {
+        LogManager.getLogger().info("Checking if product can be deleted, id: {}", productId);
+
         List<InventoryHistory> inventoryHistoryList = getAllInventoryHistory(String.valueOf(productId), "");
 
-        LogManager.getLogger().info("Check product can be deleted, id: {} ", productId);
-        return inventoryHistoryList.stream()
+        // Check for incomplete transfer-in orders and return early if found
+        boolean hasIncompleteTransferInOrders = inventoryHistoryList.stream()
                 .filter(history -> history.getOrderId() != null && history.getOrderId().contains("CH"))
-                .noneMatch(this::hasTransferInComplete);
+                .anyMatch(this::hasTransferInComplete);
+        if (hasIncompleteTransferInOrders) return false; // Cannot delete the product
+
+        // Check for incomplete purchase orders and return early if found
+        boolean hasIncompletePurchaseOrders = inventoryHistoryList.stream()
+                .filter(history -> history.getOrderId() != null && history.getOrderId().contains("PO"))
+                .anyMatch(this::hasPurchaseOrderInComplete);
+        return !hasIncompletePurchaseOrders;
     }
 
     /**
@@ -168,11 +177,11 @@ public class APIGetInventoryHistory {
         return switch (actionType) {
             case "FROM_LOCK" -> false; // Initial order status, incomplete order
             case "FROM_EDIT_ORDER" -> !hasOrderInComplete(history); // Updated order, still incomplete
-            case "FROM_SOLD" -> !hasReturnOrderInComplete(history); // Delivered order, but return order must be complete
+            case "FROM_SOLD" ->
+                    !hasReturnOrderInComplete(history); // Delivered order, but return order must be complete
             default -> true; // Can manage by lot if none of the above conditions are met
         };
     }
-
 
 
     /**

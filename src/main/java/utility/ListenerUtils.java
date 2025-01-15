@@ -73,7 +73,6 @@ public class ListenerUtils implements ITestListener, ISuiteListener {
      * Then, it updates the HTML report by extracting the "Tests Skipped" count and adding a new column for it.
      *
      * @param suite The {@code ISuite} object representing the suite of tests.
-     *
      * @throws IndexOutOfBoundsException If there are not enough `<b>` elements in the HTML to retrieve the skipped value.
      */
     @Override

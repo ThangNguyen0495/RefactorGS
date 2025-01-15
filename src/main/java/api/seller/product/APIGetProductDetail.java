@@ -168,20 +168,23 @@ public class APIGetProductDetail {
      */
     public ProductInformation getProductInformation(int productId) {
         // Logger
-        LogManager.getLogger().info("Get product information by API, id: {} ", productId);
+        LogManager.getLogger().info("Get product information by API, id: {}", productId);
 
+        // Make the API call to fetch product information
         Response response = new APIUtils().get("/itemservice/api/beehive-items/%d".formatted(productId), loginInfo.getAccessToken());
 
+        // Process the response
         return switch (response.getStatusCode()) {
-            case 200 -> response.as(ProductInformation.class);
+            case 200 -> response.as(ProductInformation.class); // If OK, map the response to ProductInformation
             case 404 -> {
-                var productInfo = new ProductInformation();
-                productInfo.setId(productId);
-                productInfo.setDeleted(true);
-                yield productInfo;
+                // If not found, return a deleted product
+                ProductInformation deletedProduct = new ProductInformation();
+                deletedProduct.setId(productId);
+                deletedProduct.setDeleted(true);
+                yield deletedProduct;
             }
-            default ->
-                    throw new AssertionError("Can not get product detail, response: \n%s.".formatted(response.asPrettyString()));
+            default -> // If status is unexpected, throw an exception
+                    throw new AssertionError("Cannot get product detail, response: \n%s.".formatted(response.asPrettyString()));
         };
     }
 
@@ -422,7 +425,7 @@ public class APIGetProductDetail {
         if (!productInformation.isHasModel()) {
             // No variations; map stock by branch with null as the modelId key
             Map<Integer, Integer> branchStockMap = new HashMap<>();
-            productInformation.getBranches().forEach(branch -> branchStockMap.put(branch.getBranchId(), branch.getTotalItem() - branch.getSoldItem()));
+            productInformation.getBranches().forEach(branch -> branchStockMap.put(branch.getBranchId(), branch.getTotalItem()));
             return Collections.singletonMap(null, new TreeMap<>(branchStockMap));
         }
 
@@ -435,7 +438,7 @@ public class APIGetProductDetail {
             Map<Integer, Integer> branchStockMap = new HashMap<>();
 
             // Populate branchId -> stock map for this model
-            model.getBranches().forEach(branch -> branchStockMap.put(branch.getBranchId(), branch.getTotalItem() - branch.getSoldItem()));
+            model.getBranches().forEach(branch -> branchStockMap.put(branch.getBranchId(), branch.getTotalItem()));
 
             // Add modelId -> branchId -> stock map to the main map
             modelBranchStockMap.put(model.getId(), new TreeMap<>(branchStockMap));

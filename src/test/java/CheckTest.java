@@ -1,27 +1,24 @@
+import api.seller.login.APISellerLogin;
+import api.seller.product.APIGetInventoryHistory;
 import baseTest.BaseTest;
-import io.appium.java_client.ios.IOSDriver;
-import org.testng.Assert;
-import org.testng.annotations.*;
+import io.restassured.RestAssured;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.SystemDefaultDnsResolver;
+import org.testng.annotations.Listeners;
+import org.testng.annotations.Test;
 import utility.ListenerUtils;
-import utility.ScreenshotUtils;
+import utility.PropertiesUtils;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.List;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 @Listeners(ListenerUtils.class)
 public class CheckTest extends BaseTest {
 
-   @Test
-    void t() throws IOException, URISyntaxException {
-//       initDriver("SELLER", "IOS");
-//       // Assuming you have already initialized the Appium driver
-//       String sessionId = ((IOSDriver) driver).getSessionId().toString();
-//
-//       // Print or log the current session ID
-//       System.out.println("Current Appium Session ID: " + sessionId);
-      new ScreenshotUtils().compareImages("/Users/nguyenthang/IdeaProjects/LocalProject1/src/main/resources/files/checkbox_images/checked.png", "/Users/nguyenthang/IdeaProjects/LocalProject1/src/main/resources/files/element_image/el_image.png");
-
-   }
+    @Test
+    void loc_txt() {
+       var s = new APIGetInventoryHistory(PropertiesUtils.getSellerCredentials()).checkProductCanBeDeleted(1224983);
+        System.out.println(s);
+    }
 }

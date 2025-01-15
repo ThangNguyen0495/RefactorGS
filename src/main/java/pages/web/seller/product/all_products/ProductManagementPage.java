@@ -176,7 +176,7 @@ public class ProductManagementPage {
 
         // Collect product IDs into a list
         return IntStream.range(0, productCount)
-                .mapToObj(index -> Integer.parseInt(webUtils.getText(loc_lblProductId)))
+                .mapToObj(index -> Integer.parseInt(webUtils.getText(loc_lblProductId, index)))
                 .toList();
     }
 
@@ -260,7 +260,7 @@ public class ProductManagementPage {
         List<Integer> beforeStock = getStockList(productIds);
 
         // Perform the bulk action
-        performBulkAction(actionIndex, confirmButtonLocator, actionDescription, stockValue);
+        performBulkStockAction(actionIndex, confirmButtonLocator, actionDescription, stockValue);
 
         // Verify stock updates on ItemService and Elasticsearch
         int newStock = stockValue.length > 0 ? stockValue[0] : 0;
@@ -298,7 +298,7 @@ public class ProductManagementPage {
      * @param actionDescription    A description of the action being performed for logging purposes.
      * @param stockValue           The stock value to input for update actions (ignored for clear stock).
      */
-    private void performBulkAction(int actionIndex, By confirmButtonLocator, String actionDescription, int... stockValue) {
+    private void performBulkStockAction(int actionIndex, By confirmButtonLocator, String actionDescription, int... stockValue) {
         selectBulkAction(actionIndex);
 
         if (stockValue.length > 0) {

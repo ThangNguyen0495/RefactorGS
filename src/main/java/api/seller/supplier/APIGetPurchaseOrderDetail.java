@@ -1,10 +1,12 @@
 package api.seller.supplier;
 
 import api.seller.login.APISellerLogin;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import utility.APIUtils;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * The {@code APIGetPurchaseOrderDetail} class handles the retrieval of purchase order details
@@ -29,6 +31,7 @@ public class APIGetPurchaseOrderDetail {
      * Data class representing the detailed information of a purchase order.
      */
     @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class PurchaseOrderInformation {
         private int id;
         private String purchaseId;
@@ -68,10 +71,11 @@ public class APIGetPurchaseOrderDetail {
         }
 
         @Data
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class PurchaseOrderItem {
             private int id;
             private int quantity;
-            private int importPrice;
+            private long importPrice;
             private long itemId;
             private long modelId;
             private String itemName;
@@ -113,10 +117,11 @@ public class APIGetPurchaseOrderDetail {
         public static class PurchaseOrderPayment {
             private int id;
             private String paymentMethod;
-            private int amount;
+            private long amount;
         }
 
         @Data
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class SupplierDebt {
             private int id;
             private Supplier supplier;
@@ -168,7 +173,9 @@ public class APIGetPurchaseOrderDetail {
      * about the specified purchase order
      */
     public PurchaseOrderInformation getPurchaseOrderInformation(int purchaseId) {
-        return new APIUtils().get("/itemservice/api/purchase-orders/%s".formatted(purchaseId), loginInfo.getAccessToken())
+        return new APIUtils().get("/itemservice/api/purchase-orders/%s".formatted(purchaseId),
+                        loginInfo.getAccessToken(),
+                        Map.of("storeid", loginInfo.getStore().getId()))
                 .then()
                 .statusCode(200)
                 .extract().as(PurchaseOrderInformation.class);

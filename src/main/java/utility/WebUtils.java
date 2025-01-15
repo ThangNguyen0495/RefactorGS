@@ -8,7 +8,6 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.Assert;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -201,11 +200,8 @@ public class WebUtils {
         try {
             // Wait for the condition to be met
             return getWait(timeoutInMillis).until(condition);
-        } catch (TimeoutException e) {
-            // Log that the condition was not met within the timeout
-            logger.info("Timeout waiting for condition: {}", condition);
+        } catch (TimeoutException ignored) {
         }
-
         return null;
     }
 
@@ -866,7 +862,10 @@ public class WebUtils {
      * @param locator The locator of the element.
      */
     public void waitVisibilityOfElementLocated(By locator) {
-        retryOnStaleElement(() -> wait.until(ExpectedConditions.visibilityOfElementLocated(locator)));
+        try {
+            retryOnStaleElement(() -> wait.until(ExpectedConditions.visibilityOfElementLocated(locator)));
+        } catch (TimeoutException ignored) {
+        }
     }
 
     /**

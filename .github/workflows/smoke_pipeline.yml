@@ -85,21 +85,21 @@ jobs:
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/smoke_test/web/seller/DashboardUpdateProductTest.xml"
 
-  #  Dashboard-ProductManagement:
-  #    needs:
-  #      - Dashboard-CreateProduct
-  #      - Dashboard-UpdateProduct
-  #    runs-on: ubuntu-latest
-  #    environment: ${{ github.event.inputs.target_env }}
-  #
-  #    if: always()
-  #    steps:
-  #      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
-  #        with:
-  #          test_name: "Dashboard-ProductManagement"
-  #          scripts: |
-  #            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-  #            mvn test "-DsuiteFile=test_configs/smoke_test/web/seller/DashboardProductManagementTest.xml"
+  Dashboard-ProductManagement:
+    needs:
+      - Dashboard-CreateProduct
+      - Dashboard-UpdateProduct
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+
+    if: always()
+    steps:
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+        with:
+          test_name: "Dashboard-ProductManagement"
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/smoke_test/web/seller/DashboardProductManagementTest.xml"
 
   # ...Dashboard/suppliers
   Dashboard-Suppliers:

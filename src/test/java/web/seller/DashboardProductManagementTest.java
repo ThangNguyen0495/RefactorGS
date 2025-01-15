@@ -2,12 +2,10 @@ package web.seller;
 
 import baseTest.BaseTest;
 import org.apache.logging.log4j.LogManager;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import pages.web.seller.login.DashboardLoginPage;
 import pages.web.seller.product.all_products.ProductManagementPage;
+import utility.ListenerUtils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -34,22 +32,23 @@ public class DashboardProductManagementTest extends BaseTest {
     @DataProvider(name = "bulkUpdateActions")
     public Object[][] bulkUpdateActions() {
         return new Object[][]{
-                {0, "testBulkUpdate_ClearStock"},
-                {1, "testBulkUpdate_DeleteProducts"},
-                {2, "testBulkUpdate_DeactivateProduct"},
-                {3, "testBulkUpdate_ActivateProduct"},
-                {4, "testBulkUpdate_UpdateStock"},
-                {5, "testBulkUpdate_UpdateTax"},
-                {6, "testBulkUpdate_DisplayOutOfStockProducts"},
-                {7, "testBulkUpdate_UpdateSellingPlatform"},
-                {8, "testBulkUpdate_UpdatePrice"},
-                {9, "testBulkUpdate_SetStockAlert"},
-                {10, "testBulkUpdate_ManageStockByLotDate"}
+                {"Bulk Update: Clear Stock", 0},
+                {"Bulk Update: Delete Products", 1},
+                {"Bulk Update: Deactivate Product", 2},
+                {"Bulk Update: Activate Product", 3},
+                {"Bulk Update: Update Stock", 4},
+                {"Bulk Update: Update Tax", 5},
+                {"Bulk Update: Display Out Of Stock Products", 6},
+                {"Bulk Update: Update Selling Platform", 7},
+                {"Bulk Update: Update Price", 8},
+                {"Bulk Update: Set Stock Alert", 9},
+                {"Bulk Update: Manage Stock By Lot Date", 10}
         };
+
     }
 
     @Test(dataProvider = "bulkUpdateActions")
-    void checkBulkUpdateActions(int actionIndex, String testName) {
+    void checkBulkUpdateActions(String testName, int actionIndex) {
         LogManager.getLogger().info("Running test: {}", testName);
         productManagementPage.bulkUpdateAndVerifyProducts(actionIndex);
     }
