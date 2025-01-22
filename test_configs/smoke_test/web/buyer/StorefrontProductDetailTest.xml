@@ -3,7 +3,11 @@
 <suite name="Suite">
     <test name="Test">
         <classes>
-            <class name="web.buyer.StorefrontProductDetailTest"/>
+            <class name="web.buyer.StorefrontProductDetailTest">
+                <methods>
+                    <include name="smokeTest"/>
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>

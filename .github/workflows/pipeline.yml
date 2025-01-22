@@ -33,6 +33,7 @@ concurrency:
 jobs:
   Dashboard:
     strategy:
+      fail-fast: false
       matrix:
         test_config_path:
           - DashboardLoginTest.xml
@@ -54,10 +55,10 @@ jobs:
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/web/seller/${{ matrix.test_config_path }}"
-        continue-on-error: true
 
   StoreFront:
     strategy:
+      fail-fast: false
       matrix:
         test_config_path:
           - StorefrontProductDetailTest.xml
@@ -75,10 +76,10 @@ jobs:
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/web/buyer/${{ matrix.test_config_path }}"
-        continue-on-error: true
 
   AndroidSELLER:
     strategy:
+      fail-fast: false
       matrix:
         test_config_path:
           - AndroidGoSELLERCreateProductTest.xml
@@ -98,10 +99,10 @@ jobs:
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/android/seller/${{ matrix.test_config_path }}"
-        continue-on-error: true
 
   iOSSELLER:
     strategy:
+      fail-fast: false
       matrix:
         test_config_path:
           - IOSGoSELLERCreateProductTest.xml
@@ -130,4 +131,3 @@ jobs:
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/ios/seller/${{ matrix.test_config_path }}"
-        continue-on-error: true
