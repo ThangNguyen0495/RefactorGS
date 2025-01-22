@@ -81,15 +81,7 @@ public class DashboardLoginPage {
         }
 
         this.langKey = PropertiesUtils.getLangKey();
-        String currentLangKey = webUtils.getLocalStorageValue("langKey");
-
-        if (this.langKey.equals(currentLangKey)) {
-            logger.info("Current language is already set to '{}'; no change needed.", this.langKey);
-            return this;
-        }
-
-        webUtils.click(loc_ddlLanguage); // Opens the language dropdown
-        webUtils.click(loc_ddvLanguage(this.langKey)); // Selects the desired language
+        webUtils.setLocalStorageValue("langKey", langKey);
         logger.info("Selected display language '{}'.", this.langKey);
 
         return this;
@@ -281,13 +273,13 @@ public class DashboardLoginPage {
         APISellerLogin.LoginInformation loginInfo = new APISellerLogin().getSellerInformation(credentials);
 
         // Set local storage items using JavaScript
-        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('accessToken', '%s')".formatted(loginInfo.getAccessToken()));
-        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('refreshToken', '%s')".formatted(loginInfo.getRefreshToken()));
-        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeId', %s)".formatted(loginInfo.getStore().getId()));
-        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('userId', %s)".formatted(loginInfo.getId()));
-        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeOwnerId', %s)".formatted(loginInfo.getId()));
-        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('storeFull', 'storeFull')");
-        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('langKey', '%s')".formatted(loginInfo.getLangKey()));
+        webUtils.setLocalStorageValue("accessToken", loginInfo.getAccessToken());
+        webUtils.setLocalStorageValue("refreshToken", loginInfo.getRefreshToken());
+        webUtils.setLocalStorageValue("storeId", loginInfo.getStore().getId());
+        webUtils.setLocalStorageValue("userId", loginInfo.getId());
+        webUtils.setLocalStorageValue("storeOwnerId", loginInfo.getId());
+        webUtils.setLocalStorageValue("storeFull", "storeFull");
+        webUtils.setLocalStorageValue("langKey", loginInfo.getLangKey());
 
         logger.info("Set local storage successfully");
 

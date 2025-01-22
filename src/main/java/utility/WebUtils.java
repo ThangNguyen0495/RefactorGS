@@ -798,6 +798,17 @@ public class WebUtils {
     }
 
     /**
+     * Sets a key-value pair in the browser's local storage.
+     *
+     * @param key   the key to be added to the local storage
+     * @param value the value to be associated with the specified key
+     * @throws WebDriverException if there is an issue executing the JavaScript
+     */
+    public void setLocalStorageValue(String key, Object value) {
+        ((JavascriptExecutor) driver).executeScript("localStorage.setItem('%s', '%s')".formatted(key, value));
+    }
+
+    /**
      * Retrieves the value of a specified key from localStorage using JavaScript.
      * If the value is null, it refreshes the page and retries up to 5 times.
      *
