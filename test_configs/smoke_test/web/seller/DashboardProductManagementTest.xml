@@ -3,11 +3,7 @@
 <suite name="Default Suite">
     <test name="[Dashboard] Product Management Test">
         <classes>
-            <class name="web.seller.DashboardProductManagementTest">
-                <methods>
-                    <include name="smokeTest"/>
-                </methods>
-            </class>
+            <class name="web.seller.DashboardProductManagementTest"/>
         </classes>
     </test>
 </suite>
