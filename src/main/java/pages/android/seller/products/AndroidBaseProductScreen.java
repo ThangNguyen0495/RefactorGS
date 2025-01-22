@@ -34,7 +34,6 @@ import java.util.stream.IntStream;
 import static api.seller.user_feature.APIGetUserFeature.*;
 import static java.lang.String.format;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
-import static org.openqa.selenium.By.xpath;
 import static utility.AndroidUtils.getSellerLocatorByResourceId;
 import static utility.AndroidUtils.getSellerLocatorByResourceIdAndInstance;
 import static utility.helper.ActivityHelper.*;
@@ -302,15 +301,6 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         long costPrice = newProductInfo.getCostPrice();
         androidUtils.sendKeys(loc_txtWithoutVariationCostPrice, costPrice);
         logger.info("Input without variation cost price: {}", format("%,d", costPrice));
-    }
-
-    private void inputWithoutVariationSKU() {
-        // Input without variation SKU
-        String sku = newProductInfo.getBranches().getFirst().getSku();
-        androidUtils.sendKeys(loc_txtWithoutVariationSKU, sku);
-
-        // Log
-        logger.info("Input without variation SKU: {}", sku);
     }
 
     private void inputWithoutVariationBarcode() {
@@ -820,15 +810,6 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         return this;
     }
 
-
-    public void updateEachVariationInformation(int... branchStock) {
-        // Update variation information
-        updateVariationInformation(true);
-
-        // Save changes
-        saveChanges();
-    }
-
     private void updateVariationInformation(boolean isCreate) {
         // Init variation POM
         ProductVariationScreen productVariationScreen = new ProductVariationScreen(driver);
@@ -899,7 +880,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         }
 
         By loc_btnSave = getSellerLocatorByResourceId("%s:id/tvActionBarIconRight");
-        By loc_btnSelectImage = xpath("//android.widget.FrameLayout[*[@resource-id = '%s:id/rlSelectImages']]");
+        By loc_btnSelectImage = By.xpath("//android.widget.FrameLayout[*[@resource-id = '%s:id/rlSelectImages']]".formatted(sellerBundleId));
         By loc_txtVariationName = getSellerLocatorByResourceId("%s:id/edtVersionName");
         By loc_chkReuseProductDescription = getSellerLocatorByResourceId("%s:id/ivUseProductDescription");
         By loc_btnVariationDescription = getSellerLocatorByResourceId("%s:id/tvVariationDescription");
@@ -1198,7 +1179,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
 
         By loc_btnSave = getSellerLocatorByResourceId("%s:id/tvActionBarIconRight");
         By loc_dlgUpdateStock = getSellerLocatorByResourceId("%s:id/tabLayoutUpdateStockType");
-        By loc_dlgUpdateStock_tabChange = By.xpath("(//*[@* = '%s:id/tabLayoutUpdateStockType']//android.widget.TextView)[2]");
+        By loc_dlgUpdateStock_tabChange = By.xpath("(//*[@* = '%s:id/tabLayoutUpdateStockType']//android.widget.TextView)[2]".formatted(sellerBundleId));
         By loc_dlgUpdateStock_txtQuantity = getSellerLocatorByResourceId("%s:id/edtStock");
         By loc_dlgUpdateStock_btnOK = getSellerLocatorByResourceId("%s:id/tvUpdateStock");
 
@@ -1280,12 +1261,12 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         }
 
         By loc_lblActions = getSellerLocatorByResourceId("%s:id/ivAction");
-        By loc_lblUpdatePriceActions = By.xpath("(//*[@* = '%s:id/title'])[1]");
-        By loc_lblUpdateStockActions = By.xpath("(//*[@* = '%s:id/title'])[2]");
+        By loc_lblUpdatePriceActions = By.xpath("(//*[@* = '%s:id/title'])[1]".formatted(sellerBundleId));
+        By loc_lblUpdateStockActions = By.xpath("(//*[@* = '%s:id/title'])[2]".formatted(sellerBundleId));
         By loc_dlgUpdatePrice_txtListingPrice = By.xpath("//*[@* = '%s:id/edtOrgPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(sellerBundleId, sellerBundleId));
         By loc_dlgUpdatePrice_txtSellingPrice = By.xpath("//*[@* = '%s:id/edtNewPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(sellerBundleId, sellerBundleId));
         By loc_dlgUpdatePrice_btnOK = getSellerLocatorByResourceId("%s:id/tvOK");
-        By loc_dlgUpdateStock_tabChange = By.xpath("(//*[@* = '%s:id/tabLayoutUpdateStockType']//android.widget.TextView)[2]");
+        By loc_dlgUpdateStock_tabChange = By.xpath("(//*[@* = '%s:id/tabLayoutUpdateStockType']//android.widget.TextView)[2]".formatted(sellerBundleId));
         By loc_dlgUpdateStock_txtQuantity = getSellerLocatorByResourceId("%s:id/edtStock");
         By loc_dlgUpdateStock_btnOK = getSellerLocatorByResourceId("%s:id/tvUpdateStock");
 
