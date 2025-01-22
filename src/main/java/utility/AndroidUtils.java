@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static io.appium.java_client.AppiumBy.androidUIAutomator;
+import static utility.helper.ActivityHelper.buyerBundleId;
 import static utility.helper.ActivityHelper.sellerBundleId;
 
 /**
@@ -38,8 +39,16 @@ public class AndroidUtils {
         return AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\"))".formatted(resourceId.formatted(sellerBundleId)));
     }
 
+    public static By getBuyerLocatorByResourceId(String resourceId) {
+        return AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\"))".formatted(resourceId.formatted(buyerBundleId)));
+    }
+
     public static By getSellerLocatorByResourceIdAndInstance(String resourceId, int index) {
         return AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\").instance(%d))".formatted(resourceId.formatted(sellerBundleId), index));
+    }
+
+    public static By getBuyerLocatorByResourceIdAndInstance(String resourceId, int index) {
+        return AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\").instance(%d))".formatted(resourceId.formatted(buyerBundleId), index));
     }
 
     public static By getLocatorByText(String text) {

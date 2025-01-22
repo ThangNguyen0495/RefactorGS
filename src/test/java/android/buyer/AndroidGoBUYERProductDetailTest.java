@@ -1,4 +1,4 @@
-package web.buyer;
+package android.buyer;
 
 import api.buyer.login.APIBuyerLogin;
 import api.seller.product.APIAddWholesaleProduct;
@@ -14,8 +14,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import pages.web.buyer.detail_product.ProductDetailPage;
-import pages.web.buyer.login.StorefrontLoginPage;
+import pages.android.buyer.login.AndroidBuyerLoginScreen;
+import pages.android.buyer.product.AndroidBuyerProductDetailScreen;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -26,7 +26,7 @@ import java.util.List;
  * This class contains test cases for verifying product details on the storefront,
  * including various scenarios for products managed by Product or IMEI.
  */
-public class StorefrontProductDetailTest extends BaseTest {
+public class AndroidGoBUYERProductDetailTest extends BaseTest {
     private int customerId;
     private APICreateProduct apiCreateProduct;
     private APICreateFlashSale apiCreateFlashSale;
@@ -39,8 +39,8 @@ public class StorefrontProductDetailTest extends BaseTest {
      */
     @BeforeClass
     void setup() throws IOException, URISyntaxException {
-        initDriver("BUYER", "WEB");
-        new StorefrontLoginPage(driver).loginStorefrontByJS(buyerCredentials);
+        initDriver("BUYER", "ANDROID");
+        new AndroidBuyerLoginScreen(driver).performLogin(buyerCredentials);
         this.customerId = new APIBuyerLogin().getBuyerInformation(buyerCredentials).getId();
         this.apiCreateProduct = new APICreateProduct(sellerCredentials);
         this.apiCreateFlashSale = new APICreateFlashSale(sellerCredentials);
@@ -51,7 +51,7 @@ public class StorefrontProductDetailTest extends BaseTest {
 
     @AfterClass
     void tearDown() {
-        if (driver != null)  driver.quit();
+//        if (driver != null)   driver.quit();
     }
 
     /**
@@ -160,7 +160,8 @@ public class StorefrontProductDetailTest extends BaseTest {
                 "G3_03: Check product information with wholesale price",
                 "G4_01: Check product information with flash sale.",
                 "G4_02: Check product information with discount campaign",
-                "G4_03: Check product information with wholesale price");
+                "G4_03: Check product information with wholesale price"
+        );
 
         // Get all test cases from the regression data provider and filter based on testNames
         Object[][] allData = regressionTestData();
@@ -190,17 +191,17 @@ public class StorefrontProductDetailTest extends BaseTest {
     void regressionTest(String testDescription, boolean hasModel, boolean isManagedByIMEI, boolean createFlashSale,
                         boolean createDiscountCampaign, boolean addWholesalePrice, boolean hideStock, boolean hideOutOfStock,
                         boolean inStock, boolean hideFreeBranch, boolean hidePaidBranch, boolean deactivateAllPaidBranch) {
-        productDetailTest( testDescription,  hasModel,  isManagedByIMEI,  createFlashSale,  createDiscountCampaign,
-                addWholesalePrice,  hideStock,  hideOutOfStock,  inStock,  hideFreeBranch,  hidePaidBranch,
+        productDetailTest(testDescription, hasModel, isManagedByIMEI, createFlashSale, createDiscountCampaign,
+                addWholesalePrice, hideStock, hideOutOfStock, inStock, hideFreeBranch, hidePaidBranch,
                 deactivateAllPaidBranch);
     }
 
     @Test(dataProvider = "smokeTestData")
     void smokeTest(String testDescription, boolean hasModel, boolean isManagedByIMEI, boolean createFlashSale,
-                        boolean createDiscountCampaign, boolean addWholesalePrice, boolean hideStock, boolean hideOutOfStock,
-                        boolean inStock, boolean hideFreeBranch, boolean hidePaidBranch, boolean deactivateAllPaidBranch) {
-        productDetailTest( testDescription,  hasModel,  isManagedByIMEI,  createFlashSale,  createDiscountCampaign,
-                addWholesalePrice,  hideStock,  hideOutOfStock,  inStock,  hideFreeBranch,  hidePaidBranch,
+                   boolean createDiscountCampaign, boolean addWholesalePrice, boolean hideStock, boolean hideOutOfStock,
+                   boolean inStock, boolean hideFreeBranch, boolean hidePaidBranch, boolean deactivateAllPaidBranch) {
+        productDetailTest(testDescription, hasModel, isManagedByIMEI, createFlashSale, createDiscountCampaign,
+                addWholesalePrice, hideStock, hideOutOfStock, inStock, hideFreeBranch, hidePaidBranch,
                 deactivateAllPaidBranch);
     }
 
@@ -244,7 +245,7 @@ public class StorefrontProductDetailTest extends BaseTest {
         apiCreateProduct.setShowOutOfStock(!hideOutOfStock);
 
         int[] stock = new int[RandomUtils.nextInt(10)];
-        Arrays.fill(stock, inStock ? RandomUtils.nextInt(10) : 0);
+        Arrays.fill(stock, inStock ? RandomUtils.nextInt(10) + 1 : 0);
 
         // Create the product using the API
         return apiCreateProduct.createProductThenGetId(isManagedByIMEI, withVariation, stock);
@@ -315,7 +316,7 @@ public class StorefrontProductDetailTest extends BaseTest {
      * @param productId The ID of the product to verify.
      */
     private void verifyProductInformation(int productId) {
-        new ProductDetailPage(driver).navigateProductDetailPage(sellerCredentials, productId)
+        new AndroidBuyerProductDetailScreen(driver).navigateProductDetailPage(sellerCredentials, productId)
                 .verifyProductInformation(customerId);
     }
 }

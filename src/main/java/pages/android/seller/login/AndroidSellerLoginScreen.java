@@ -13,9 +13,9 @@ import utility.helper.ActivityHelper;
  * Represents the login screen for the seller application.
  * Provides methods to interact with the login fields and perform login actions.
  */
-public class LoginScreen {
+public class AndroidSellerLoginScreen {
 
-    final static Logger logger = LogManager.getLogger(LoginScreen.class);
+    final static Logger logger = LogManager.getLogger(AndroidSellerLoginScreen.class);
     private final AndroidUtils androidUtils;
 
     @Getter
@@ -26,7 +26,7 @@ public class LoginScreen {
      *
      * @param driver the AndroidDriver instance used for interacting with the app.
      */
-    public LoginScreen(WebDriver driver) {
+    public AndroidSellerLoginScreen(WebDriver driver) {
         this.androidUtils = new AndroidUtils(driver);
     }
 
@@ -95,7 +95,7 @@ public class LoginScreen {
      */
     public void performLogin(APISellerLogin.Credentials loginInformation) {
         // Set login information for later use
-        LoginScreen.credentials = loginInformation;
+        AndroidSellerLoginScreen.credentials = loginInformation;
 
         // Perform login steps
         inputUsername(loginInformation.getUsername());

@@ -3,12 +3,15 @@ package api.seller.promotion;
 import api.seller.login.APISellerLogin;
 import api.seller.product.APIGetProductDetail;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.response.Response;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utility.APIUtils;
+import utility.WebUtils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -163,24 +166,13 @@ public class APICreateFlashSale {
             }
 
             logger.warn("Flash sale creation attempt {} failed with status code: {}", attempt + 1, response.getStatusCode());
-            pauseBetweenAttempts(); // Wait before retrying
+            WebUtils.sleep(10000);
         }
 
         logger.error("Failed to create flash sale after 5 attempts.");
         throw new RuntimeException("Failed to create flash sale after 5 attempts."); // Throw an exception on failure
     }
 
-    /**
-     * Pauses execution for a set duration between attempts to create a flash sale.
-     */
-    private void pauseBetweenAttempts() {
-        try {
-            sleep(3000); // Sleep for 3 seconds
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt(); // Restore interrupted status
-            throw new RuntimeException("Thread was interrupted", e);
-        }
-    }
 
     // Start time of the flash sale campaign, initialized after a flash sale is created
     private static String startDate;

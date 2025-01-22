@@ -7,9 +7,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import pages.android.seller.login.LoginScreen;
+import pages.android.seller.login.AndroidSellerLoginScreen;
 import pages.android.seller.suppliers.supplier.AndroidBaseSupplierScreen;
-import pages.android.seller.home.HomeScreen;
+import pages.android.seller.home.AndroidSellerHomeScreen;
 import utility.PropertiesUtils;
 
 import java.io.IOException;
@@ -33,10 +33,10 @@ public class AndroidGoSELLERSupplierTest extends BaseTest {
         initDriver("SELLER", "ANDROID");
 
         // Log into the goSELLER
-        new LoginScreen(driver).performLogin(sellerCredentials);
+        new AndroidSellerLoginScreen(driver).performLogin(sellerCredentials);
 
         // Change application language
-        new HomeScreen(driver).changeApplicationLanguage();
+        new AndroidSellerHomeScreen(driver).changeApplicationLanguage();
 
         // Initialize the BaseSupplierScreen instance
         baseSupplierScreen = new AndroidBaseSupplierScreen(driver);

@@ -51,23 +51,6 @@ public class WebDriverManager {
     }
 
     /**
-     * Initializes and returns an AndroidDriver instance with app activation.
-     *
-     * @param udid        The unique device identifier.
-     * @param appBundleId The app bundle ID.
-     * @param appPath     The path to the app to be tested.
-     * @return An instance of AndroidDriver.
-     * @throws MalformedURLException If the URL is malformed.
-     * @throws URISyntaxException    If the URI syntax is incorrect.
-     */
-    public static AndroidDriver getAndroidDriver(String udid, String appBundleId, String appPath) throws MalformedURLException, URISyntaxException {
-        AndroidDriver driver = getAndroidDriver(udid, appPath);
-        driver.terminateApp(appBundleId);
-        driver.activateApp(appBundleId);
-        return driver;
-    }
-
-    /**
      * Initializes and returns an IOSDriver instance.
      *
      * @param udid    The unique device identifier.
@@ -87,23 +70,6 @@ public class WebDriverManager {
         options.setCapability("appium:app", appPath);
 
         return new IOSDriver(new URI(url).toURL(), options);
-    }
-
-    /**
-     * Initializes and returns an IOSDriver instance with app activation.
-     *
-     * @param udid        The unique device identifier.
-     * @param appBundleId The app bundle ID.
-     * @param appPath     The path to the app to be tested.
-     * @return An instance of IOSDriver.
-     * @throws MalformedURLException If the URL is malformed.
-     * @throws URISyntaxException    If the URI syntax is incorrect.
-     */
-    public static IOSDriver getIOSDriver(String udid, String appBundleId, String appPath) throws MalformedURLException, URISyntaxException {
-        IOSDriver driver = getIOSDriver(udid, appPath);
-        driver.terminateApp(appBundleId);
-        driver.activateApp(appBundleId);
-        return driver;
     }
 
     /**

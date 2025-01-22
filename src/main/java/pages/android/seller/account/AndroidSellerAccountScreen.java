@@ -8,12 +8,10 @@ import utility.PropertiesUtils;
 import static utility.AndroidUtils.getSellerLocatorByResourceId;
 import static utility.helper.ActivityHelper.sellerBundleId;
 
-public class AccountScreen {
-    private final WebDriver driver;
+public class AndroidSellerAccountScreen {
     private final AndroidUtils androidUtils;
 
-    public AccountScreen(WebDriver driver) {
-        this.driver = driver;
+    public AndroidSellerAccountScreen(WebDriver driver) {
         androidUtils = new AndroidUtils(driver);
     }
 

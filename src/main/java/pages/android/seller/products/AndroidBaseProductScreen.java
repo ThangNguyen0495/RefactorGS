@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
-import pages.android.seller.login.LoginScreen;
+import pages.android.seller.login.AndroidSellerLoginScreen;
 import pages.android.seller.products.product_management.ProductManagementScreen;
 import utility.AndroidUtils;
 import utility.PropertiesUtils;
@@ -110,7 +110,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
      */
     public AndroidBaseProductScreen fetchInformation() {
         // Get credentials
-        this.credentials = LoginScreen.getCredentials();
+        this.credentials = AndroidSellerLoginScreen.getCredentials();
 
         // Retrieve and store branch information
         this.branchInfos = new APIGetBranchList(this.credentials).getBranchInformation();
@@ -587,7 +587,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         int productId = (this.currentProductInfo == null) ? this.newProductInfo.getId() : this.currentProductInfo.getId();
 
         // Retrieve expected product information from the API
-        var actualProductInfo = new APIGetProductDetail(LoginScreen.getCredentials())
+        var actualProductInfo = new APIGetProductDetail(AndroidSellerLoginScreen.getCredentials())
                 .getProductInformation(productId);
 
         // Check product name

@@ -4,6 +4,7 @@ import api.seller.login.APISellerLogin;
 import api.seller.setting.APIGetBranchList;
 import api.seller.setting.APIGetStoreDefaultLanguage;
 import api.seller.setting.APIGetVATList;
+import api.seller.user_feature.APIGetUserFeature;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
+import static api.seller.user_feature.APIGetUserFeature.*;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
@@ -107,10 +109,10 @@ public class APICreateProduct {
         private boolean expiredQuality;
         private String inventoryManageType;
         private String conversionUnitId;
-        private final boolean onApp = false;
-        private final boolean onWeb = true;
-        private final boolean inStore = false;
-        private final boolean inGoSocial = true;
+        private boolean onApp;
+        private boolean onWeb;
+        private boolean inStore;
+        private boolean inGoSocial;
         private final boolean enabledListing = false;
         private List<Inventory> lstInventory = new ArrayList<>();
         private List<ItemModelCodeDTO> itemModelCodeDTOS = new ArrayList<>();
@@ -194,6 +196,16 @@ public class APICreateProduct {
         // Set storefront display
         payload.setIsHideStock(isHideStock);
         payload.setShowOutOfStock(showOutOfStock);
+
+        // Init platform information
+        // Get all user packages
+        var userPackages = new APIGetUserFeature(this.credentials).getUserFeature();
+
+        // Init platform information
+        payload.setOnApp(hasGoAPP(userPackages));
+        payload.setOnWeb(hasGoWEB(userPackages));
+        payload.setInGoSocial(hasGoSOCIAL(userPackages));
+        payload.setInStore(hasGoPOS(userPackages));
 
         // Then clear it for next test
         isHideStock = false;

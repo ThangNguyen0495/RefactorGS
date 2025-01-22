@@ -2,15 +2,15 @@ package pages.android.seller.home;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import pages.android.seller.account.AccountScreen;
+import pages.android.seller.account.AndroidSellerAccountScreen;
 import utility.AndroidUtils;
 
 import static utility.AndroidUtils.*;
 
-public class HomeScreen {
+public class AndroidSellerHomeScreen {
     private final AndroidUtils androidUtils;
     private final WebDriver driver;
-    public HomeScreen(WebDriver driver) {
+    public AndroidSellerHomeScreen(WebDriver driver) {
         this.driver = driver;
         androidUtils = new AndroidUtils(driver);
     }
@@ -22,6 +22,6 @@ public class HomeScreen {
         androidUtils.click(loc_icnAccount);
 
         // Change language
-        new AccountScreen(driver).selectLanguage();
+        new AndroidSellerAccountScreen(driver).selectLanguage();
     }
 }
