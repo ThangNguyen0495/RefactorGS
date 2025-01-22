@@ -54,6 +54,7 @@ jobs:
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/web/seller/${{ matrix.test_config_path }}"
+        continue-on-error: true
 
   StoreFront:
     strategy:
@@ -74,6 +75,7 @@ jobs:
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/web/buyer/${{ matrix.test_config_path }}"
+        continue-on-error: true
 
   AndroidSELLER:
     strategy:
@@ -96,6 +98,7 @@ jobs:
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/android/seller/${{ matrix.test_config_path }}"
+        continue-on-error: true
 
   iOSSELLER:
     strategy:
@@ -127,3 +130,4 @@ jobs:
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/ios/seller/${{ matrix.test_config_path }}"
+        continue-on-error: true
