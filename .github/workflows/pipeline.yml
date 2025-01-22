@@ -27,7 +27,7 @@ on:
         default: "smoke_test"
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.inputs.target_env }}
+  group: ${{ github.workflow }}-${{ github.event.inputs.target_env }}-${{ github.event.inputs.test_type }}
   cancel-in-progress: true
 
 jobs:
