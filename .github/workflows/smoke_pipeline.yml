@@ -25,174 +25,184 @@ concurrency:
 jobs:
   # ...Dashboard/login
   Dashboard-LoginFeature:
+    strategy:
+      matrix:
+        test_config_path: [ test_configs/smoke_test/web/seller/DashboardLoginTest.xml,
+                            test_configs/smoke_test/web/seller/DashboardSupplierTest.xml]
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.target_env }}
     steps:
-      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
-        with:
-          test_name: "Dashboard-Login"
-          scripts: |
-            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/smoke_test/web/seller/DashboardLoginTest.xml"
-
-  # ...Dashboard/products
-  Dashboard_Products_CreateProduct:
-    runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.target_env }}
-    steps:
-      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
-        with:
-          test_name: "Dashboard-CreateProduct"
-          scripts: |
-            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/smoke_test/web/seller/DashboardCreateProductTest.xml"
-
-  Dashboard_Products_UpdateProduct:
-    runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.target_env }}
-    steps:
-      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
-        with:
-          test_name: "Dashboard-UpdateProduct"
-          scripts: |
-            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/smoke_test/web/seller/DashboardUpdateProductTest.xml"
-
-  Dashboard_Products_ProductManagement:
-    needs:
-      - Dashboard_Products_CreateProduct
-      - Dashboard_Products_UpdateProduct
-    runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.target_env }}
-
-    if: always()
-    steps:
-      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
-        with:
-          test_name: "Dashboard-ProductManagement"
-          scripts: |
-            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/smoke_test/web/seller/DashboardProductManagementTest.xml"
-
-  # ...Dashboard/suppliers
-  Dashboard_Suppliers_CreateAndUpdateSuppliers:
-    runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.target_env }}
-
-    steps:
-      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
-        with:
-          test_name: "Dashboard-Suppliers"
-          scripts: |
-            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/smoke_test/web/seller/DashboardSupplierTest.xml"
-
-  # ...Storefront
-  Storefront-ProductDetail:
-    runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.target_env }}
-    steps:
-      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
-        with:
-          test_name: "Storefront-ProductDetail"
-          scripts: |
-            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/smoke_test/web/buyer/StorefrontProductDetailTest.xml"
-
-
-  # ...Android GoSELLER/products
-  AndroidSeller_Products_CreateProduct:
-    runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.target_env }}
-    steps:
-      - uses: ThangNguyen0495/execute-appium-android-test@v1.0.0
-        with:
-          test_name: "Android-GoSELLER-CreateProduct"
-          scripts: |
-            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/smoke_test/android/seller/AndroidGoSELLERCreateProductTest.xml"
-
-  AndroidSeller_Products_UpdateProduct:
-    runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.target_env }}
-    steps:
-      - uses: ThangNguyen0495/execute-appium-android-test@v1.0.0
-        with:
-          test_name: "Android-GoSELLER-UpdateProduct"
-          scripts: |
-            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/smoke_test/android/seller/AndroidGoSELLERUpdateProductTest.xml"
-
-  # ... Android GoSELLER/suppliers
-  AndroidSeller_Suppliers_CreateAndUpdateSuppliers:
-    runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.target_env }}
-    steps:
-      - uses: ThangNguyen0495/execute-appium-android-test@v1.0.0
-        with:
-          test_name: "Android-GoSELLER-Suppliers"
-          scripts: |
-            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            mvn test '-DsuiteFile=test_configs/smoke_test/android/seller/AndroidGoSELLERSupplierTest.xml'
-
-  # ... iOS GoSELLER/products
-  iOSSeller_Products_CreateProduct:
-    runs-on: macos-latest
-    environment: ${{ github.event.inputs.target_env }}
-    steps:
-      - name: Create an iOS simulator
-        uses: ThangNguyen0495/create-ios-simulator@v1.0.0
-
-      - name: Save simulator UDID to GitHub Environment
+      - name: Extract test name from config path
         run: |
-          UDID=$(cat udid.txt)
-          echo "UDID=$UDID" >> $GITHUB_ENV
+          test_name=$(basename "${{ matrix.test_config_path }}" .xml)
+          echo "Test name is: $test_name"
+          echo "test_name=$test_name" >> $GITHUB_ENV
 
-      - uses: ThangNguyen0495/execute-appium-ios-test@v1.0.0
+      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
         with:
-          test_name: "IOS-GoSELLER-CreateProduct"
+          test_name: ${{ env.test_name }}
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
-            mvn test '-DsuiteFile=test_configs/smoke_test/ios/seller/IOSGoSELLERCreateProductTest.xml'
+            mvn test "-DsuiteFile=${{ matrix.test_config_path }}"
 
-  iOSSeller_Products_UpdateProduct:
-    runs-on: macos-latest
-    environment: ${{ github.event.inputs.target_env }}
-    steps:
-      - name: Create an iOS simulator
-        uses: ThangNguyen0495/create-ios-simulator@v1.0.0
-
-      - name: Save simulator UDID to GitHub Environment
-        run: |
-          UDID=$(cat udid.txt)  
-          echo "UDID=$UDID" >> $GITHUB_ENV
-
-      - uses: ThangNguyen0495/execute-appium-ios-test@v1.0.0
-        with:
-          test_name: "IOS-GoSELLER-UpdateProduct"
-          scripts: |
-            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
-            mvn test '-DsuiteFile=test_configs/smoke_test/ios/seller/IOSGoSELLERUpdateProductTest.xml'
-
-  # ... iOS GoSELLER/suppliers
-  iOSSeller_Suppliers_CreateAndUpdateSuppliers:
-    runs-on: macos-latest
-    environment: ${{ github.event.inputs.target_env }}
-    steps:
-      - name: Create an iOS simulator
-        uses: ThangNguyen0495/create-ios-simulator@v1.0.0
-
-      - name: Save simulator UDID to GitHub Environment
-        run: |
-          UDID=$(cat udid.txt)  
-          echo "UDID=$UDID" >> $GITHUB_ENV
-
-      - uses: ThangNguyen0495/execute-appium-ios-test@v1.0.0
-        with:
-          test_name: "IOS-GoSELLER-Suppliers"
-          scripts: |
-            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-            echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
-            mvn test '-DsuiteFile=test_configs/smoke_test/ios/seller/IOSGoSELLERSupplierTest.xml'
+#  # ...Dashboard/products
+#  Dashboard_Products_CreateProduct:
+#    runs-on: ubuntu-latest
+#    environment: ${{ github.event.inputs.target_env }}
+#    steps:
+#      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+#        with:
+#          test_name: "Dashboard-CreateProduct"
+#          scripts: |
+#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+#            mvn test "-DsuiteFile=test_configs/smoke_test/web/seller/DashboardCreateProductTest.xml"
+#
+#  Dashboard_Products_UpdateProduct:
+#    runs-on: ubuntu-latest
+#    environment: ${{ github.event.inputs.target_env }}
+#    steps:
+#      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+#        with:
+#          test_name: "Dashboard-UpdateProduct"
+#          scripts: |
+#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+#            mvn test "-DsuiteFile=test_configs/smoke_test/web/seller/DashboardUpdateProductTest.xml"
+#
+#  Dashboard_Products_ProductManagement:
+#    needs:
+#      - Dashboard_Products_CreateProduct
+#      - Dashboard_Products_UpdateProduct
+#    runs-on: ubuntu-latest
+#    environment: ${{ github.event.inputs.target_env }}
+#
+#    if: always()
+#    steps:
+#      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+#        with:
+#          test_name: "Dashboard-ProductManagement"
+#          scripts: |
+#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+#            mvn test "-DsuiteFile=test_configs/smoke_test/web/seller/DashboardProductManagementTest.xml"
+#
+#  # ...Dashboard/suppliers
+#  Dashboard_Suppliers_CreateAndUpdateSuppliers:
+#    runs-on: ubuntu-latest
+#    environment: ${{ github.event.inputs.target_env }}
+#
+#    steps:
+#      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+#        with:
+#          test_name: "Dashboard-Suppliers"
+#          scripts: |
+#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+#            mvn test "-DsuiteFile=test_configs/smoke_test/web/seller/DashboardSupplierTest.xml"
+#
+#  # ...Storefront
+#  Storefront-ProductDetail:
+#    runs-on: ubuntu-latest
+#    environment: ${{ github.event.inputs.target_env }}
+#    steps:
+#      - uses: ThangNguyen0495/execute-selenium-test@v1.0.0
+#        with:
+#          test_name: "Storefront-ProductDetail"
+#          scripts: |
+#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+#            mvn test "-DsuiteFile=test_configs/smoke_test/web/buyer/StorefrontProductDetailTest.xml"
+#
+#
+#  # ...Android GoSELLER/products
+#  AndroidSeller_Products_CreateProduct:
+#    runs-on: ubuntu-latest
+#    environment: ${{ github.event.inputs.target_env }}
+#    steps:
+#      - uses: ThangNguyen0495/execute-appium-android-test@v1.0.0
+#        with:
+#          test_name: "Android-GoSELLER-CreateProduct"
+#          scripts: |
+#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+#            mvn test "-DsuiteFile=test_configs/smoke_test/android/seller/AndroidGoSELLERCreateProductTest.xml"
+#
+#  AndroidSeller_Products_UpdateProduct:
+#    runs-on: ubuntu-latest
+#    environment: ${{ github.event.inputs.target_env }}
+#    steps:
+#      - uses: ThangNguyen0495/execute-appium-android-test@v1.0.0
+#        with:
+#          test_name: "Android-GoSELLER-UpdateProduct"
+#          scripts: |
+#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+#            mvn test "-DsuiteFile=test_configs/smoke_test/android/seller/AndroidGoSELLERUpdateProductTest.xml"
+#
+#  # ... Android GoSELLER/suppliers
+#  AndroidSeller_Suppliers_CreateAndUpdateSuppliers:
+#    runs-on: ubuntu-latest
+#    environment: ${{ github.event.inputs.target_env }}
+#    steps:
+#      - uses: ThangNguyen0495/execute-appium-android-test@v1.0.0
+#        with:
+#          test_name: "Android-GoSELLER-Suppliers"
+#          scripts: |
+#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+#            mvn test '-DsuiteFile=test_configs/smoke_test/android/seller/AndroidGoSELLERSupplierTest.xml'
+#
+#  # ... iOS GoSELLER/products
+#  iOSSeller_Products_CreateProduct:
+#    runs-on: macos-latest
+#    environment: ${{ github.event.inputs.target_env }}
+#    steps:
+#      - name: Create an iOS simulator
+#        uses: ThangNguyen0495/create-ios-simulator@v1.0.0
+#
+#      - name: Save simulator UDID to GitHub Environment
+#        run: |
+#          UDID=$(cat udid.txt)
+#          echo "UDID=$UDID" >> $GITHUB_ENV
+#
+#      - uses: ThangNguyen0495/execute-appium-ios-test@v1.0.0
+#        with:
+#          test_name: "IOS-GoSELLER-CreateProduct"
+#          scripts: |
+#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+#            echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
+#            mvn test '-DsuiteFile=test_configs/smoke_test/ios/seller/IOSGoSELLERCreateProductTest.xml'
+#
+#  iOSSeller_Products_UpdateProduct:
+#    runs-on: macos-latest
+#    environment: ${{ github.event.inputs.target_env }}
+#    steps:
+#      - name: Create an iOS simulator
+#        uses: ThangNguyen0495/create-ios-simulator@v1.0.0
+#
+#      - name: Save simulator UDID to GitHub Environment
+#        run: |
+#          UDID=$(cat udid.txt)
+#          echo "UDID=$UDID" >> $GITHUB_ENV
+#
+#      - uses: ThangNguyen0495/execute-appium-ios-test@v1.0.0
+#        with:
+#          test_name: "IOS-GoSELLER-UpdateProduct"
+#          scripts: |
+#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+#            echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
+#            mvn test '-DsuiteFile=test_configs/smoke_test/ios/seller/IOSGoSELLERUpdateProductTest.xml'
+#
+#  # ... iOS GoSELLER/suppliers
+#  iOSSeller_Suppliers_CreateAndUpdateSuppliers:
+#    runs-on: macos-latest
+#    environment: ${{ github.event.inputs.target_env }}
+#    steps:
+#      - name: Create an iOS simulator
+#        uses: ThangNguyen0495/create-ios-simulator@v1.0.0
+#
+#      - name: Save simulator UDID to GitHub Environment
+#        run: |
+#          UDID=$(cat udid.txt)
+#          echo "UDID=$UDID" >> $GITHUB_ENV
+#
+#      - uses: ThangNguyen0495/execute-appium-ios-test@v1.0.0
+#        with:
+#          test_name: "IOS-GoSELLER-Suppliers"
+#          scripts: |
+#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+#            echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
+#            mvn test '-DsuiteFile=test_configs/smoke_test/ios/seller/IOSGoSELLERSupplierTest.xml'
