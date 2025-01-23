@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import static io.appium.java_client.AppiumBy.androidUIAutomator;
 import static utility.helper.ActivityHelper.buyerBundleId;
@@ -132,6 +133,22 @@ public class AndroidUtils {
     }
 
     /**
+     * Retries an action when a TimeoutException is thrown.
+     *
+     * @param action The action to be retried.
+     * @param <T>    The return type of the action.
+     * @return The result of the action.
+     */
+    private static <T> T retryOnTimeOut(WebDriver driver, Supplier<T> action) {
+        try {
+            return action.get();
+        } catch (TimeoutException ignored) {
+            new AndroidUtils(driver).scrollDown();
+            return action.get();
+        }
+    }
+
+    /**
      * Closes the notification screen if it is visible.
      */
     private void closeNotificationScreen() {
@@ -178,7 +195,7 @@ public class AndroidUtils {
                     // Attempt to locate the element while handling stale element exceptions
                     WebElement element = WebUtils.retryOnStaleElement(() -> {
                         closeNotificationScreen(); // Close notification screen
-                        return wait.until(ExpectedConditions.presenceOfElementLocated(locator)); // Locate the element
+                        return retryOnTimeOut(driver, () -> wait.until(ExpectedConditions.presenceOfElementLocated(locator))); // Locate the element
                     });
 
                     // Check if the element is fully visible
@@ -376,13 +393,12 @@ public class AndroidUtils {
     public boolean isChecked(By locator) {
         // Check if the element is an ImageView and compare images if so
         if (getElement(locator).getAttribute("class").equals("android.widget.ImageView")) {
-            String checkedImagePath = "./src/main/resources/files/checkbox_images/checked.png";
             String checkboxImagePath = "./src/main/resources/files/element_image/el_image.png";
 
             try {
                 ScreenshotUtils screenshotUtils = new ScreenshotUtils();
                 screenshotUtils.takeElementScreenShot(checkboxImagePath, getElement(locator));
-                return screenshotUtils.compareImages(checkedImagePath, checkboxImagePath);
+                return screenshotUtils.compareImages(checkboxImagePath);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

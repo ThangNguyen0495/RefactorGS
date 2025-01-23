@@ -10,13 +10,13 @@ import api.seller.setting.APIGetBranchList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import pages.android.buyer.home.AndroidBuyerHomeScreen;
 import utility.AndroidUtils;
 import utility.PropertiesUtils;
+import utility.WebUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +25,7 @@ import java.util.stream.IntStream;
 
 import static api.seller.setting.APIGetBranchList.*;
 import static utility.AndroidUtils.*;
+import static utility.helper.ActivityHelper.buyerBundleId;
 
 public class AndroidBuyerProductDetailScreen {
     // WebDriver instance for interacting with the browser
@@ -61,11 +62,11 @@ public class AndroidBuyerProductDetailScreen {
 
     // Locators
     private final By loc_lblProductName = getBuyerLocatorByResourceId("%s:id/item_market_product_detail_desc_title");
-    private final By loc_lblSellingPrice = getBuyerLocatorByResourceId("%s:id/item_market_product_detail_desc_promotion_price");
+    private final By loc_lblSellingPrice = By.xpath("//*[contains(@resource-id, ':id/product_detail_content_popup_variation_tv_product_price')]");
     private final By loc_lblListingPrice = getBuyerLocatorByResourceId("%s:id/item_market_product_detail_desc_original_price");
 
     private By loc_ddvVariationName(int variationGroupIndex) {
-        return getBuyerLocatorByResourceId("%s" + ":id/item_market_product_detail_desc_tv_variation_%s_label".formatted(variationGroupIndex));
+        return getBuyerLocatorByResourceId("%s" + ":id/item_market_product_detail_desc_tv_variation_%s_label".formatted(variationGroupIndex + 1));
     }
 
     private By loc_ddvVariationValue(String variationValue) {
@@ -82,10 +83,12 @@ public class AndroidBuyerProductDetailScreen {
     private final By loc_lblSoldOut = getBuyerLocatorByResourceId("%s:id/activity_item_details_tv_not_available");
     private final By loc_txtQuantity = getBuyerLocatorByResourceId("%s:id/product_detail_content_popup_variation_edt_quantity");
     private final By loc_lblFlashSale = getBuyerLocatorByResourceId("%s:id/rlFlashSaleContainer");
+    private final By loc_lblDiscountCampaign = getBuyerLocatorByResourceId("%s:id/item_market_product_detail_tv_wholesale_label");
     private final By loc_chkBuyInBulk = getBuyerLocatorByResourceId("%s:id/product_detail_content_popup_variation_iv_check_buy_in_bulk");
     private final By loc_pnlWholesalePricing = getBuyerLocatorByResourceId("%s:id/item_market_product_detail_desc_group_wholesale_pricing");
     private final By loc_btnBuyNow = getBuyerLocatorByResourceId("%s:id/tvBuyNow");
-    private final By loc_btnAddToCart = getBuyerLocatorByResourceId("%s:id/ivIconAddToCart");
+    private final By loc_btnAddToCart = By.xpath("//*[contains(@resource-id, ':id/item_market_product_detail_footer_btn_add_to_cart')]");
+    private final By loc_btnCloseCart = getBuyerLocatorByResourceId("%s:id/product_detail_content_popup_variation_rl_exit");
     private final By loc_icnFilterBranch = getBuyerLocatorByResourceId("%s:id/iv_select_branch_filter");
     private final By loc_icnSearchBranch = getBuyerLocatorByResourceId("%s:id/iv_show_search_branch");
 
@@ -116,7 +119,7 @@ public class AndroidBuyerProductDetailScreen {
      * @param expectedSellingPrice The expected selling price.
      * @param branchName           The name of the branch.
      */
-    private void validateBranchPrices(long expectedListingPrice, long expectedSellingPrice, String branchName) {
+    private void validateBranchPrices(long expectedListingPrice, long expectedSellingPrice, String branchName, Runnable adjustStockAction) {
         String branchInfo = branchName.isEmpty() ? "" : "[Branch name: %s]".formatted(branchName);
 
         if (!(new APIGetPreferences(credentials).getStoreListingWebInformation().isEnabledProduct() && productInfo.isEnabledListing())) {
@@ -127,9 +130,25 @@ public class AndroidBuyerProductDetailScreen {
                 logger.info("No discount product (listing price = selling price)");
             }
 
+            // Open cart popup to verify the product selling price
+            WebUtils.retryUntil(5, 3000, "Can not open add to cart popup",
+                    () -> !androidUtils.getListElement(loc_lblSellingPrice).isEmpty(),
+                    () -> androidUtils.click(loc_btnAddToCart));
+
+            logger.info("%s Open cart popup.".formatted(branchInfo));
+
+            // Run pre-action to check selling price if needed
+            if (adjustStockAction != null) {
+                adjustStockAction.run();
+            }
+
             long actualSellingPrice = Long.parseLong(androidUtils.getText(loc_lblSellingPrice).replaceAll("\\D+", ""));
             Assert.assertTrue(Math.abs(actualSellingPrice - expectedSellingPrice) <= 1, "%s Selling price should be approximately %,d ±1, but found %,d.".formatted(branchInfo, expectedSellingPrice, actualSellingPrice));
             logger.info("{} Checked product prices and store currency.", branchInfo);
+
+            // Close cart after verify selling price
+            androidUtils.click(loc_btnCloseCart);
+            logger.info("%s Close cart popup.".formatted(branchInfo));
         } else {
             logger.info("{} Website listing is enabled, so listing/selling price is hidden.", branchInfo);
         }
@@ -146,14 +165,7 @@ public class AndroidBuyerProductDetailScreen {
     private void validateDiscountCampaignDisplay(String branchName) {
         String branchInfo = "[Branch name: %s]".formatted(branchName);
 
-        if (!androidUtils.getListElement(loc_chkBuyInBulk).isEmpty()) {
-            // Check if the buy in bulk checkbox is unchecked and click if so
-            if (!androidUtils.isChecked(loc_chkBuyInBulk)) {
-                androidUtils.click(loc_chkBuyInBulk);
-            }
-        }
-
-        Assert.assertFalse(androidUtils.getListElement(loc_chkBuyInBulk).isEmpty(), "%s Discount campaign is not displayed.".formatted(branchInfo));
+        Assert.assertFalse(androidUtils.getListElement(loc_lblDiscountCampaign).isEmpty(), "%s Discount campaign is not displayed.".formatted(branchInfo));
         logger.info("{} Checked discount campaign display.", branchInfo);
     }
 
@@ -243,7 +255,7 @@ public class AndroidBuyerProductDetailScreen {
         String varName = !variationName.isEmpty() ? "[Variation: %s]".formatted(variationName) : "";
         if (!productInfo.getIsHideStock() && isVisible) {
             String actualStockText = androidUtils.getText(loc_lblBranchStock(branchName));
-            int actualStock = Integer.parseInt(actualStockText.replaceAll("\\D+", ""));
+            int actualStock = Integer.parseInt(actualStockText.split("-")[1].replaceAll("\\D+", ""));
 
             // Assert stock quantities match
             Assert.assertEquals(actualStock, expectedStock,
@@ -268,6 +280,7 @@ public class AndroidBuyerProductDetailScreen {
 
         // Scroll to description section
         // Then retrieve storefront product description
+        androidUtils.scrollToEndOfScreen();
         WebElement descriptionSection = androidUtils.getElement(loc_sctDescription);
         String sfDescription = descriptionSection.findElement(loc_cntDescription).getText().replaceAll("\n", "");
 
@@ -308,7 +321,8 @@ public class AndroidBuyerProductDetailScreen {
      */
     private void verifySoldOutMarkDisplayed(String variationName) {
         String varName = !variationName.isEmpty() ? "[Variation: %s]".formatted(variationName) : "";
-        boolean isSoldOut = androidUtils.getText(loc_lblSoldOut).equals("Hết hàng") || androidUtils.getText(loc_lblSoldOut).equals("Out of stock");
+        androidUtils.scrollToTopOfScreen();
+        boolean isSoldOut = !androidUtils.getListElement(loc_lblSoldOut).isEmpty();
 
         // Assert sold out mark is visible
         Assert.assertTrue(isSoldOut, "%s Sold out mark does not show".formatted(varName));
@@ -425,7 +439,7 @@ public class AndroidBuyerProductDetailScreen {
     private void displayFlashSaleInfo(APIGetFlashSaleInformation.FlashSaleInformation flashSaleInfo, long listingPrice, String brName) {
         validateFlashSaleDisplay(brName);
         logger.info("PRICE: FLASH SALE");
-        validateBranchPrices(listingPrice, flashSaleInfo.getItems().getFirst().getNewPrice(), brName);
+        validateBranchPrices(listingPrice, flashSaleInfo.getItems().getFirst().getNewPrice(), brName, null);
     }
 
     /**
@@ -435,7 +449,17 @@ public class AndroidBuyerProductDetailScreen {
         validateDiscountCampaignDisplay(brName);
         logger.info("PRICE: DISCOUNT CAMPAIGN");
         long newPrice = calculateCampaignPrice(campaignInfo, sellingPrice);
-        validateBranchPrices(listingPrice, newPrice, brName);
+
+        validateBranchPrices(listingPrice, newPrice, brName,
+                () -> {
+                    // In case product has discount campaign, checked the "Buy In Bulk" checkbox
+                    if (!androidUtils.getListElement(loc_chkBuyInBulk).isEmpty()) {
+                        // Check if the buy in bulk checkbox is unchecked and click if so
+                        if (!androidUtils.isChecked(loc_chkBuyInBulk)) {
+                            androidUtils.click(loc_chkBuyInBulk);
+                        }
+                    }
+                });
     }
 
     /**
@@ -444,8 +468,8 @@ public class AndroidBuyerProductDetailScreen {
     private void displayWholesaleInfo(APIGetWholesaleInformation.WholesaleInformation wholesaleInfo, long listingPrice, String brName) {
         validateWholesalePricingDisplay(brName);
         logger.info("PRICE: WHOLESALE PRODUCT");
-        adjustQuantityForWholesale(wholesaleInfo);
-        validateBranchPrices(listingPrice, wholesaleInfo.getPrice().longValue(), brName);
+        validateBranchPrices(listingPrice, wholesaleInfo.getPrice().longValue(), brName,
+                () -> adjustQuantityForWholesale(wholesaleInfo));
     }
 
     /**
@@ -453,7 +477,7 @@ public class AndroidBuyerProductDetailScreen {
      */
     private void displayRegularPrice(long listingPrice, long sellingPrice, String brName) {
         logger.info("PRICE: SELLING PRICE");
-        validateBranchPrices(listingPrice, sellingPrice, brName);
+        validateBranchPrices(listingPrice, sellingPrice, brName, null);
     }
 
     /**
@@ -473,7 +497,6 @@ public class AndroidBuyerProductDetailScreen {
     private void adjustQuantityForWholesale(APIGetWholesaleInformation.WholesaleInformation wholesaleInfo) {
         int minQuantity = wholesaleInfo.getMinQuatity();
         setQuantityWithRetries(minQuantity);
-        waitForPageLoad();
     }
 
     /**
@@ -484,7 +507,6 @@ public class AndroidBuyerProductDetailScreen {
      */
     private void setQuantityWithRetries(int minQuantity) {
         for (int attempt = 1; attempt <= 5; attempt++) {
-            androidUtils.click(loc_btnAddToCart);
             androidUtils.sendKeys(loc_txtQuantity, minQuantity);
 
             if (androidUtils.getText(loc_txtQuantity).equals(String.valueOf(minQuantity))) {
@@ -492,29 +514,8 @@ public class AndroidBuyerProductDetailScreen {
             }
 
             logger.warn("Attempt {} to set quantity failed. Retrying...", attempt);
-
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new IllegalStateException("Thread interrupted while waiting to retry setting quantity", e);
-            }
         }
         throw new IllegalStateException("Failed to set quantity after 5 attempts.");
-    }
-
-    /**
-     * Waits for the page to load after applying changes.
-     */
-    private void waitForPageLoad() {
-        try {
-
-            logger.info("Wait for the page to load after applying wholesale discount.");
-        } catch (TimeoutException ex) {
-            logger.warn("Timeout while waiting for the page to load: {}", ex.getMessage());
-
-            logger.info("Retrying to wait for page load after applying wholesale discount.");
-        }
     }
 
     /**
@@ -727,9 +728,6 @@ public class AndroidBuyerProductDetailScreen {
 
                     // Loop through each variation and select it from the dropdown
                     varNames.forEach(this::selectVariation);
-
-                    // Wait for the page to load after selecting the variation
-                    waitForPageLoad();
                 }
 
                 // Validate the variation's information
@@ -762,6 +760,8 @@ public class AndroidBuyerProductDetailScreen {
      * @return ProductDetailPage instance to allow method chaining
      */
     public AndroidBuyerProductDetailScreen navigateProductDetailPage(APISellerLogin.Credentials credentials, int productId) {
+        // Relaunch app to load new product information
+        androidUtils.relaunchApp(buyerBundleId);
         logger.info("Start the process of checking product information");
 
         // Store the credentials for API requests

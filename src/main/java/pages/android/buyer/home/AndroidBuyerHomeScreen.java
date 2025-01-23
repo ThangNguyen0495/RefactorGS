@@ -33,7 +33,7 @@ public class AndroidBuyerHomeScreen {
         return By.xpath("//android.widget.TextView[@text = '%s']".formatted(productName));
     }
 
-    private final By loc_icnAccount = getBuyerLocatorByResourceId("%s:id/bottom_navigation_tab_me");
+    private final By loc_icnAccount = By.xpath("//*[contains(@resource-id, ':id/bottom_navigation_tab_me')]");
 
 
     private void searchProductByName(String productName) {

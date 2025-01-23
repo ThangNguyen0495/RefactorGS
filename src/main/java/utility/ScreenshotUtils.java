@@ -84,51 +84,56 @@ public class ScreenshotUtils {
     }
 
     /**
-     * Compares two images pixel by pixel, considering only the overlapping area based on the minimum width and height.
+     * Compares the provided image by calculating the percentage of white pixels.
+     * If the percentage of white pixels is greater than or equal to 75%,
+     * the method returns false (indicating unchecked); otherwise, it returns true.
      *
-     * @return true if the overlapping area of the images is identical, false otherwise.
-     * @throws IOException if there is an error reading the image files.
+     * @param actualImagePath The file path of the image to analyze.
+     * @return {@code true} if the percentage of white pixels is less than 75%, {@code false} otherwise.
+     * @throws IOException If there is an issue reading the image file.
      */
-    public boolean compareImages(String expectedImagePath, String actualImagePath) throws IOException {
-        // Load the images to compare
-        BufferedImage img1 = ImageIO.read(new File(expectedImagePath));
-        BufferedImage img2 = ImageIO.read(new File(actualImagePath));
-        img2 = scaleImage(img2, img1.getWidth(), img1.getHeight());
+    public boolean compareImages(String actualImagePath) throws IOException {
+        // Load the image
+        BufferedImage img = ImageIO.read(new File(actualImagePath));
 
-        // Determine the minimum width and height for comparison
-        int minWidth = Math.min(img1.getWidth(), img2.getWidth());
-        int minHeight = Math.min(img1.getHeight(), img2.getHeight());
+        // Initialize pixel counters
+        int totalPixels = img.getHeight() * img.getWidth();
+        int whitePixels = 0;
 
-        // Compare images pixel by pixel for the overlapping area
-        int totalPixels = minWidth * minHeight;
-        int matchingPixels = 0;
+        // Loop through each pixel in the image
+        for (int y = 0; y < img.getHeight(); y++) {
+            for (int x = 0; x < img.getWidth(); x++) {
+                Color color = new Color(img.getRGB(x, y));
+                int red = color.getRed();
+                int green = color.getGreen();
+                int blue = color.getBlue();
 
-        for (int y = 0; y < minHeight; y++) {
-            for (int x = 0; x < minWidth; x++) {
-                if (img1.getRGB(x, y) == img2.getRGB(x, y)) {
-                    matchingPixels++;
+                // Check if the pixel is considered white
+                if (isWhitePixel(red, green, blue)) {
+                    whitePixels++;
                 }
             }
         }
 
-        // Calculate match percentage
-        float matchPercentage = (float) matchingPixels / totalPixels;
+        // Calculate the percentage of white pixels
+        float whitePercentage = (float) whitePixels / totalPixels;
 
-        LogManager.getLogger().info("Matches percentage: %s".formatted(matchPercentage * 100));
-        // Return true if all pixels in the overlapping area match
-        return matchPercentage >= 0.75;
+        // Log the calculated percentage
+        LogManager.getLogger().info("White percentage: {}%", whitePercentage * 100);
+
+        // Return true if white percentage is less than 75%, false otherwise
+        return whitePercentage < 0.75;
     }
 
-    public static BufferedImage scaleImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
-        // Create a new BufferedImage for the scaled version
-        BufferedImage scaledImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_ARGB_PRE);
-
-        // Get the Graphics2D object for rendering the scaled image
-        Graphics2D g2d = scaledImage.createGraphics();
-        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-        g2d.drawImage(originalImage, 0, 0, targetWidth, targetHeight, null);
-        g2d.dispose(); // Release resources
-
-        return scaledImage;
+    /**
+     * Determines if a pixel is white based on its RGB values.
+     *
+     * @param red   The red component of the pixel.
+     * @param green The green component of the pixel.
+     * @param blue  The blue component of the pixel.
+     * @return {@code true} if the pixel is white, {@code false} otherwise.
+     */
+    private boolean isWhitePixel(int red, int green, int blue) {
+        return red >= 240 && green >= 240 && blue >= 240;
     }
 }

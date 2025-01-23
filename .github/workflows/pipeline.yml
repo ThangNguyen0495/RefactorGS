@@ -82,7 +82,7 @@ jobs:
       fail-fast: false
       matrix:
         test_config_path:
-          - AndroidGoSELLERCreateProductTest.xml
+          - AndroidGoBuyerProductDetail.xml
           - AndroidGoSELLERUpdateProductTest.xml
           - AndroidGoSELLERSupplierTest.xml
     runs-on: ubuntu-latest
@@ -99,6 +99,28 @@ jobs:
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/android/seller/${{ matrix.test_config_path }}"
+            
+
+  AndroidBuyer:
+    strategy:
+      fail-fast: false
+      matrix:
+        test_config_path:
+          - AndroidGoBuyerProductDetail.xml
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - name: Extract test name from config path
+        run: |
+          test_name=$(basename "${{ matrix.test_config_path }}" .xml)
+          echo "test_name=$test_name" >> $GITHUB_ENV
+
+      - uses: ThangNguyen0495/execute-appium-android-test@v1.0.0
+        with:
+          test_name: ${{ env.test_name }}
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/android/buyer/${{ matrix.test_config_path }}"
 
   iOSSELLER:
     strategy:

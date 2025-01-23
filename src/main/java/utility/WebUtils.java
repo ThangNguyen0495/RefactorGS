@@ -161,6 +161,9 @@ public class WebUtils {
                 return; // Exit early if the condition is satisfied
             }
 
+            // Log
+            logger.info("Retries '{}' times", attempt + 1);
+
             // Perform the action if the condition was not met
             action.run();
 

@@ -51,7 +51,7 @@ public class AndroidGoBUYERProductDetailTest extends BaseTest {
 
     @AfterClass
     void tearDown() {
-//        if (driver != null)   driver.quit();
+        if (driver != null)   driver.quit();
     }
 
     /**
@@ -245,7 +245,10 @@ public class AndroidGoBUYERProductDetailTest extends BaseTest {
         apiCreateProduct.setShowOutOfStock(!hideOutOfStock);
 
         int[] stock = new int[RandomUtils.nextInt(10)];
-        Arrays.fill(stock, inStock ? RandomUtils.nextInt(10) + 1 : 0);
+        int branchStock = inStock ? RandomUtils.nextInt(10) + 1 : 0;
+        Arrays.fill(stock, branchStock);
+        System.out.println(Arrays.toString(Arrays.stream(stock).toArray()));
+        LogManager.getLogger().info("Product stock: {}", branchStock);
 
         // Create the product using the API
         return apiCreateProduct.createProductThenGetId(isManagedByIMEI, withVariation, stock);
