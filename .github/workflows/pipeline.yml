@@ -120,6 +120,10 @@ jobs:
           test_name: ${{ env.test_name }}
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            $ANDROID_HOME/platform-tools/adb kill-server
+            $ANDROID_HOME/platform-tools/adb start-server
+            $ANDROID_HOME/platform-tools/adb devices
+            $ANDROID_HOME/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
             mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/android/buyer/${{ matrix.test_config_path }}"
 
 #  iOSSELLER:
