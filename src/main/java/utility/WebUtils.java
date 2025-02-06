@@ -42,27 +42,6 @@ public class WebUtils {
     private static final Logger logger = LogManager.getLogger();
 
     /**
-     * Performs a given action with optional logging.
-     *
-     * @param action the action to be performed, represented as a {@link Runnable}.
-     * @throws IllegalArgumentException if the action is null.
-     */
-    public static void performAction(Runnable action) {
-        performAction(null, action, null);
-    }
-
-    /**
-     * Performs a given action with optional logging.
-     *
-     * @param logMessage a message to be logged before performing the action; can be null or empty.
-     * @param action     the action to be performed, represented as a {@link Runnable}.
-     * @throws IllegalArgumentException if the action is null.
-     */
-    public static void performAction(String logMessage, Runnable action) {
-        performAction(logMessage, action, null);
-    }
-
-    /**
      * Performs a given action with optional logging and verification.
      *
      * @param logMessage a message to be logged before performing the action; can be null or empty.
@@ -81,36 +60,6 @@ public class WebUtils {
         if (verifier != null) {
             verifier.run();
         }
-    }
-
-    /**
-     * Performs a given action that returns a result, without logging.
-     *
-     * @param <T>    the type of the result produced by the action.
-     * @param action the action to be performed, represented as a {@link Supplier}.
-     * @return the result of the action.
-     * @throws IllegalArgumentException if the action is null.
-     */
-    public static <T> T performAction(Supplier<T> action) {
-        return performAction(null, action);
-    }
-
-    /**
-     * Performs a given action that returns a result, with optional logging.
-     *
-     * @param <T>        the type of the result produced by the action.
-     * @param logMessage a message to be logged before performing the action; can be null or empty.
-     * @param action     the action to be performed, represented as a {@link Supplier}.
-     * @return the result of the action.
-     * @throws IllegalArgumentException if the action is null.
-     */
-    public static <T> T performAction(String logMessage, Supplier<T> action) {
-        if (logMessage != null && !logMessage.isEmpty()) logger.info(logMessage);
-
-        if (action == null) {
-            throw new IllegalArgumentException("Action must be provided.");
-        }
-        return action.get();
     }
 
     /**
@@ -160,9 +109,6 @@ public class WebUtils {
             if (condition.get()) {
                 return; // Exit early if the condition is satisfied
             }
-
-            // Log
-            logger.info("Retries '{}' times", attempt + 1);
 
             // Perform the action if the condition was not met
             action.run();
@@ -470,8 +416,8 @@ public class WebUtils {
                     clear(locator, index);
                     click(locator, index);
                     retryOnStaleElement(() -> retrySendKeysOnElementNotInteractable(locator, index, getContent(content)));
-                    clickOutOfTextBox(locator, index);
                 });
+        clickOutOfTextBox(locator, index);
     }
 
     /**
@@ -777,30 +723,6 @@ public class WebUtils {
     }
 
     /**
-     * Removes a specified attribute from the element identified by the locator and index using JavaScript.
-     *
-     * @param locator   The locator of the element.
-     * @param index     The index of the element if there are multiple matching elements.
-     * @param attribute The name of the attribute to remove.
-     */
-    public void removeAttribute(By locator, int index, String attribute) {
-        if (getElement(locator, index) != null) {
-            ((JavascriptExecutor) driver).executeScript("arguments[0].removeAttribute(arguments[1])", getElement(locator, index), attribute);
-        }
-    }
-
-    /**
-     * Removes the element identified by the locator using JavaScript.
-     *
-     * @param locator The locator of the element.
-     */
-    public void removeElement(By locator) {
-        if (getElement(locator) != null) {
-            retryOnStaleElement(() -> ((JavascriptExecutor) driver).executeScript("arguments[0].remove()", getElement(locator)));
-        }
-    }
-
-    /**
      * Sets a key-value pair in the browser's local storage.
      *
      * @param key   the key to be added to the local storage
@@ -1005,10 +927,6 @@ public class WebUtils {
                 () -> !isCheckedJS(locator, index), // Condition to stop retrying: checkbox is unchecked
                 () -> clickJS(locator, index)
         );
-    }
-
-    private Select getDropdownSelect(By locator) {
-        return retryOnStaleElement(() -> new Select(getElement(locator)));
     }
 
     /**

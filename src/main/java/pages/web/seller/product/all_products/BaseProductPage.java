@@ -932,6 +932,7 @@ public class BaseProductPage extends BaseProductElement {
         // Get the maximum stock to be updated
         int maximumBranchStock = APIGetProductDetail.getMaximumBranchStockForModel(newProductInfo, modelId);
         webUtils.sendKeys(loc_dlgUpdateStock_txtStockValue, maximumBranchStock + 1);
+        logger.info("Apply stock: '{}' to all branches", maximumBranchStock + 1);
 
         // Input stock quantities for each branch
         updateBranchStockForModel(modelId);

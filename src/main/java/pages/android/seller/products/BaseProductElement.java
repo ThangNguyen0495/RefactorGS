@@ -1,7 +1,6 @@
 package pages.android.seller.products;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.support.pagefactory.ByChained;
 
 import static org.openqa.selenium.By.xpath;
 import static utility.AndroidUtils.getSellerLocatorByResourceId;
@@ -15,15 +14,14 @@ public class BaseProductElement {
     By loc_icnUploadImages = getSellerLocatorByResourceId("%s:id/rlSelectImages");
     By loc_txtProductName = getSellerLocatorByResourceId("%s:id/edtProductName");
     By loc_btnProductDescription = getSellerLocatorByResourceId("%s:id/tvProductDescription");
-    By loc_txtWithoutVariationListingPrice = new ByChained(getSellerLocatorByResourceId("%s:id/edtProductOrgPrice"), By.id("%s:id/edtPriceCustom".formatted(sellerBundleId)));
-    By loc_txtWithoutVariationSellingPrice = new ByChained(getSellerLocatorByResourceId("%s:id/edtProductNewPrice"), By.id("%s:id/edtPriceCustom".formatted(sellerBundleId)));
-    By loc_txtWithoutVariationCostPrice = new ByChained(getSellerLocatorByResourceId("%s:id/edtProductCostPrice"), By.id("%s:id/edtPriceCustom".formatted(sellerBundleId)));
-    By loc_txtWithoutVariationSKU = getSellerLocatorByResourceId("%s:id/edtSKU");
+    By loc_txtWithoutVariationListingPrice = By.xpath("//*[@resource-id = '%s:id/edtProductOrgPrice']//android.widget.EditText".formatted(sellerBundleId));
+    By loc_txtWithoutVariationSellingPrice = By.xpath("//*[@resource-id = '%s:id/edtProductNewPrice']//android.widget.EditText".formatted(sellerBundleId));
+    By loc_txtWithoutVariationCostPrice =  By.xpath("//*[@resource-id = '%s:id/edtProductCostPrice']//android.widget.EditText".formatted(sellerBundleId));
     By loc_txtWithoutVariationBarcode = getSellerLocatorByResourceId("%s:id/edtProductBarcode");
     By loc_chkHideRemainingStock = getSellerLocatorByResourceId("%s:id/ivHideStockOnOnlineStore");
     By loc_chkDisplayIfOutOfStock = getSellerLocatorByResourceId("%s:id/ivDisplayIfOutOfStock");
     By loc_lblSelectedManageInventoryType = getSellerLocatorByResourceId("%s:id/btnSwitchManageInventoryType");
-    By loc_lblManageInventoryByIMEI = xpath("//*[@* = '%s']".formatted("%s:id/llManageInventoryByImeiSerial"));
+    By loc_lblManageInventoryByIMEI = xpath("//*[@* = '%s:id/llManageInventoryByImeiSerial']".formatted(sellerBundleId));
     By loc_chkManageStockByLotDate = getSellerLocatorByResourceId("%s:id/ivManageStockByLotDate");
     By loc_lblInventory = getSellerLocatorByResourceId("%s:id/clInventoryContainer");
     By loc_swShipping = getSellerLocatorByResourceId("%s:id/swShipping");

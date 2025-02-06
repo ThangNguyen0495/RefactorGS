@@ -34,8 +34,7 @@ import java.util.stream.IntStream;
 import static api.seller.user_feature.APIGetUserFeature.*;
 import static java.lang.String.format;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
-import static utility.AndroidUtils.getSellerLocatorByResourceId;
-import static utility.AndroidUtils.getSellerLocatorByResourceIdAndInstance;
+import static utility.AndroidUtils.*;
 import static utility.helper.ActivityHelper.*;
 
 
@@ -1173,8 +1172,12 @@ public class AndroidBaseProductScreen extends BaseProductElement {
             androidUtils = new AndroidUtils(driver);
         }
 
-        By loc_txtBranchStock(int branchIndex) {
-            return getSellerLocatorByResourceIdAndInstance("%s:id/edtStock", branchIndex);
+        By loc_txtBranchStock(AndroidUtils androidUtils, String branchName) {
+            // Scroll into branch element
+            androidUtils.getElement(getLocatorByText(branchName));
+
+            // Then return that's stock locator
+            return By.xpath("//*[*/*[@text = '%s']]/android.widget.EditText".formatted(branchName));
         }
 
         By loc_btnSave = getSellerLocatorByResourceId("%s:id/tvActionBarIconRight");
@@ -1206,20 +1209,20 @@ public class AndroidBaseProductScreen extends BaseProductElement {
                         .orElse(0);
 
                 // Get current branch stock
-                String currentStockText = androidUtils.getText(loc_txtBranchStock(branchIndex)).replaceAll("\\D+", "");
+                String currentStockText = androidUtils.getText(loc_txtBranchStock(androidUtils, branchName)).replaceAll("\\D+", "");
                 int currentStock = currentStockText.isEmpty() ? 0 : Integer.parseInt(currentStockText);
 
                 // Only update when the stock needs to be changed
                 if (branchQuantity != currentStock) {
                     if (manageByIMEI) {
                         // Navigate to add IMEI screen
-                        androidUtils.click(loc_txtBranchStock(branchIndex));
+                        androidUtils.click(loc_txtBranchStock(androidUtils, branchName));
 
                         // Add IMEI
                         new AddIMEIScreen(driver).addIMEI(branchQuantity, branchName, variation);
                     } else {
                         // Handle stock based on operation type
-                        androidUtils.click(loc_txtBranchStock(branchIndex));
+                        androidUtils.click(loc_txtBranchStock(androidUtils, branchName));
                         if (!isCreate && !androidUtils.getListElement(loc_dlgUpdateStock).isEmpty()) {
                             // Update stock via popup for updates
                             androidUtils.click(loc_dlgUpdateStock_tabChange);
@@ -1227,7 +1230,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
                             androidUtils.click(loc_dlgUpdateStock_btnOK);
                         } else {
                             // Add or directly input stock
-                            androidUtils.sendKeys(loc_txtBranchStock(branchIndex), String.valueOf(branchQuantity));
+                            androidUtils.sendKeys(loc_txtBranchStock(androidUtils, branchName), String.valueOf(branchQuantity));
                         }
                     }
 
