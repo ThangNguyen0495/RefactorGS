@@ -44,7 +44,7 @@ public class AndroidSellerLoginScreen {
      */
     public void inputUsername(String username) {
         androidUtils.sendKeys(loc_txtUsername, username);
-        logger.info("Input '{}' into Username field.", username);
+        logger.info("Input '****' into Username field.");
     }
 
     /**
@@ -54,7 +54,7 @@ public class AndroidSellerLoginScreen {
      */
     public void inputPassword(String password) {
         androidUtils.sendKeys(loc_txtPassword, password);
-        logger.info("Input '{}' into Password field.", password);
+        logger.info("Input '****' into Password field.");
     }
 
     /**
