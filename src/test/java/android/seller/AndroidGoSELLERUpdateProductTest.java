@@ -4,9 +4,7 @@ import api.seller.product.APICreateProduct;
 import baseTest.BaseTest;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.logging.log4j.LogManager;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import pages.android.seller.login.AndroidSellerLoginScreen;
 import pages.android.seller.products.AndroidBaseProductScreen;
 import pages.android.seller.home.AndroidSellerHomeScreen;
@@ -28,7 +26,7 @@ public class AndroidGoSELLERUpdateProductTest extends BaseTest {
      * This includes initializing the WebDriver, logging into the dashboard,
      * and creating an instance of the API for product creation.
      */
-    @BeforeClass
+    @BeforeMethod
     void setup() throws IOException, URISyntaxException {
         initDriver("SELLER", "ANDROID");
 
@@ -37,6 +35,11 @@ public class AndroidGoSELLERUpdateProductTest extends BaseTest {
         // Change application language
         new AndroidSellerHomeScreen(driver).changeApplicationLanguage();
         productScreen = new AndroidBaseProductScreen(driver).fetchInformation();
+    }
+
+    @AfterMethod
+    void tearDown() {
+        if (driver != null) driver.quit();
     }
 
     /**

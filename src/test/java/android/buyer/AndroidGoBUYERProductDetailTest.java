@@ -10,10 +10,7 @@ import api.seller.setting.APIUpdateBranchInformation;
 import baseTest.BaseTest;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.logging.log4j.LogManager;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import pages.android.buyer.login.AndroidBuyerLoginScreen;
 import pages.android.buyer.product.AndroidBuyerProductDetailScreen;
 
@@ -37,7 +34,7 @@ public class AndroidGoBUYERProductDetailTest extends BaseTest {
     /**
      * Sets up the necessary APIs and logs into the storefront before running tests.
      */
-    @BeforeClass
+    @BeforeMethod
     void setup() throws IOException, URISyntaxException {
         initDriver("BUYER", "ANDROID");
         new AndroidBuyerLoginScreen(driver).performLogin(buyerCredentials);
@@ -49,7 +46,7 @@ public class AndroidGoBUYERProductDetailTest extends BaseTest {
         this.apiUpdateBranch = new APIUpdateBranchInformation(sellerCredentials);
     }
 
-    @AfterClass
+    @AfterMethod
     void tearDown() {
         if (driver != null)   driver.quit();
     }

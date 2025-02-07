@@ -2,11 +2,10 @@ package ios.seller;
 
 import api.seller.product.APICreateProduct;
 import baseTest.BaseTest;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.logging.log4j.LogManager;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import pages.ios.seller.home.HomeScreen;
@@ -30,13 +29,18 @@ public class IOSGoSELLERUpdateProductTest extends BaseTest {
      * This includes initializing the WebDriver, logging into the dashboard,
      * and creating an instance of the API for product creation.
      */
-    @BeforeClass
+    @BeforeMethod
     void setup() throws IOException, URISyntaxException {
         initDriver("SELLER", "IOS");
         new LoginScreen(driver).performLogin(sellerCredentials);
         // Change application language
         new HomeScreen(driver).changeApplicationLanguage();
         productScreen = new IOSBaseProductScreen(driver).fetchInformation();
+    }
+
+    @AfterMethod
+    void tearDown() {
+        if (driver != null) driver.quit();
     }
 
     /**

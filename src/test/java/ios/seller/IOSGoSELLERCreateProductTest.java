@@ -3,9 +3,7 @@ package ios.seller;
 import baseTest.BaseTest;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.logging.log4j.LogManager;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import pages.ios.seller.home.HomeScreen;
 import pages.ios.seller.login.LoginScreen;
 import pages.ios.seller.product.IOSBaseProductScreen;
@@ -22,13 +20,18 @@ public class IOSGoSELLERCreateProductTest extends BaseTest {
      * Sets up the test environment before any tests are run.
      * Initializes the WebDriver and logs into the dashboard.
      */
-    @BeforeClass
+    @BeforeMethod
     void setup() throws IOException, URISyntaxException {
         initDriver("SELLER", "IOS");
         new LoginScreen(driver).performLogin(sellerCredentials);
         // Change application language
         new HomeScreen(driver).changeApplicationLanguage();
         productScreen = new IOSBaseProductScreen(driver).fetchInformation();
+    }
+
+    @AfterMethod
+    void tearDown() {
+        if (driver != null) driver.quit();
     }
     /**
      * Generates a test data object containing flags and a test name.
