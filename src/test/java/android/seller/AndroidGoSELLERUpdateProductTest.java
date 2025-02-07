@@ -26,7 +26,7 @@ public class AndroidGoSELLERUpdateProductTest extends BaseTest {
      * This includes initializing the WebDriver, logging into the dashboard,
      * and creating an instance of the API for product creation.
      */
-    @BeforeMethod
+    @BeforeClass
     void setup() throws IOException, URISyntaxException {
         initDriver("SELLER", "ANDROID");
 
@@ -35,11 +35,6 @@ public class AndroidGoSELLERUpdateProductTest extends BaseTest {
         // Change application language
         new AndroidSellerHomeScreen(driver).changeApplicationLanguage();
         productScreen = new AndroidBaseProductScreen(driver).fetchInformation();
-    }
-
-    @AfterMethod
-    void tearDown() {
-        if (driver != null) driver.quit();
     }
 
     /**

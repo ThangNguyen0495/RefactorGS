@@ -3,10 +3,7 @@ package android.seller;
 import baseTest.BaseTest;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.logging.log4j.LogManager;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import pages.android.seller.home.AndroidSellerHomeScreen;
 import pages.android.seller.login.AndroidSellerLoginScreen;
 import pages.android.seller.products.AndroidBaseProductScreen;
@@ -28,18 +25,13 @@ public class AndroidGoSELLERCreateProductTest extends BaseTest {
      * Sets up the test environment before any tests are run.
      * Initializes the WebDriver and logs into the dashboard.
      */
-    @BeforeMethod
+    @BeforeClass
     void setup() throws IOException, URISyntaxException {
         initDriver("SELLER", "ANDROID");
         new AndroidSellerLoginScreen(driver).performLogin(sellerCredentials);
         // Change application language
         new AndroidSellerHomeScreen(driver).changeApplicationLanguage();
         productScreen = new AndroidBaseProductScreen(driver).fetchInformation();
-    }
-
-    @AfterMethod
-    void tearDown() {
-        if (driver != null) driver.quit();
     }
 
     /**

@@ -20,7 +20,7 @@ public class IOSGoSELLERCreateProductTest extends BaseTest {
      * Sets up the test environment before any tests are run.
      * Initializes the WebDriver and logs into the dashboard.
      */
-    @BeforeMethod
+    @BeforeClass
     void setup() throws IOException, URISyntaxException {
         initDriver("SELLER", "IOS");
         new LoginScreen(driver).performLogin(sellerCredentials);
@@ -29,10 +29,6 @@ public class IOSGoSELLERCreateProductTest extends BaseTest {
         productScreen = new IOSBaseProductScreen(driver).fetchInformation();
     }
 
-    @AfterMethod
-    void tearDown() {
-        if (driver != null) driver.quit();
-    }
     /**
      * Generates a test data object containing flags and a test name.
      *
