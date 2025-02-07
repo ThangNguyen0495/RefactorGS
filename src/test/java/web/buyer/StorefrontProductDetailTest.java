@@ -244,7 +244,7 @@ public class StorefrontProductDetailTest extends BaseTest {
         apiCreateProduct.setShowOutOfStock(!hideOutOfStock);
 
         int[] stock = new int[RandomUtils.nextInt(10)];
-        Arrays.fill(stock, inStock ? RandomUtils.nextInt(10) : 0);
+        Arrays.fill(stock, inStock ? RandomUtils.nextInt(10) + 1 : 0);
 
         // Create the product using the API
         return apiCreateProduct.createProductThenGetId(isManagedByIMEI, withVariation, stock);

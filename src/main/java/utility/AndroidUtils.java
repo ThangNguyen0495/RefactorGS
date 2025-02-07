@@ -9,9 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.interactions.Pause;
-import org.openqa.selenium.interactions.PointerInput;
-import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -46,10 +43,6 @@ public class AndroidUtils {
 
     public static By getSellerLocatorByResourceIdAndInstance(String resourceId, int index) {
         return AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\").instance(%d))".formatted(resourceId.formatted(sellerBundleId), index));
-    }
-
-    public static By getBuyerLocatorByResourceIdAndInstance(String resourceId, int index) {
-        return AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\").instance(%d))".formatted(resourceId.formatted(buyerBundleId), index));
     }
 
     public static By getLocatorByText(String text) {
@@ -265,95 +258,6 @@ public class AndroidUtils {
     }
 
     /**
-     * Checks if the element located by the specified locator is enabled.
-     *
-     * @param locator The locator for the element.
-     * @return True if the element is enabled, false otherwise.
-     */
-    public boolean isEnabled(By locator) {
-        return getElement(locator).isEnabled();
-    }
-
-    /**
-     * Performs a tap action at the specified coordinates on the screen.
-     *
-     * @param x The x-coordinate for the tap.
-     * @param y The y-coordinate for the tap.
-     */
-    public void tapByCoordinates(int x, int y) {
-        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
-        Sequence tapSequence = new Sequence(finger, 1)
-                .addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), x, y))
-                .addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
-                .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
-
-        ((AndroidDriver) driver).perform(List.of(tapSequence));
-    }
-
-    /**
-     * Performs a tap action at a percentage of the screen's width and height.
-     *
-     * @param x The x-coordinate as a percentage of the screen width (0.0 to 1.0).
-     * @param y The y-coordinate as a percentage of the screen height (0.0 to 1.0).
-     */
-    public void tapByCoordinatesInPercent(double x, double y) {
-        Dimension size = driver.manage().window().getSize();
-        tapByCoordinates((int) (size.width * x), (int) (size.height * y));
-    }
-
-    /**
-     * Performs a swipe action from a start to an end point, specified as percentages of the screen dimensions.
-     *
-     * @param startX The start x-coordinate as a percentage of the screen width (0.0 to 1.0).
-     * @param startY The start y-coordinate as a percentage of the screen height (0.0 to 1.0).
-     * @param endX   The end x-coordinate as a percentage of the screen width (0.0 to 1.0).
-     * @param endY   The end y-coordinate as a percentage of the screen height (0.0 to 1.0).
-     * @param delay  The duration of the swipe in milliseconds.
-     */
-    public void swipeByCoordinatesInPercent(double startX, double startY, double endX, double endY, int delay) {
-        Dimension size = driver.manage().window().getSize();
-
-        int startXCoordinate = (int) (size.width * startX);
-        int startYCoordinate = (int) (size.height * startY);
-        int endXCoordinate = (int) (size.width * endX);
-        int endYCoordinate = (int) (size.height * endY);
-
-        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
-        Sequence swipeSequence = new Sequence(finger, 0)
-                .addAction(finger.createPointerMove(Duration.ofMillis(0), PointerInput.Origin.viewport(), startXCoordinate, startYCoordinate))
-                .addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
-                .addAction(new Pause(finger, Duration.ofMillis(10)))
-                .addAction(finger.createPointerMove(Duration.ofMillis(delay), PointerInput.Origin.viewport(), endXCoordinate, endYCoordinate))
-                .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
-
-        ((AndroidDriver) driver).perform(List.of(swipeSequence));
-    }
-
-    /**
-     * Gets the vertical location of an element as a percentage of the screen height.
-     *
-     * @param locator The locator for the element.
-     * @return The vertical location of the element as a percentage of the screen height.
-     */
-    public double getElementLocationYPercent(By locator) {
-        int y = getElement(locator).getLocation().getY();
-        Dimension size = driver.manage().window().getSize();
-        return (double) y / size.height;
-    }
-
-    /**
-     * Swipes horizontally across the screen from a start to an end point, specified as percentages of the screen width.
-     *
-     * @param locator The locator of the element to use for determining the vertical position.
-     * @param startX  The start x-coordinate as a percentage of the screen width (0.0 to 1.0).
-     * @param endX    The end x-coordinate as a percentage of the screen width (0.0 to 1.0).
-     */
-    public void swipeHorizontalInPercent(By locator, double startX, double endX) {
-        double y = getElementLocationYPercent(locator);
-        swipeByCoordinatesInPercent(startX, y, endX, y, 200);
-    }
-
-    /**
      * Waits until the specified screen activity is loaded.
      *
      * @param screenActivity The activity name of the screen to wait for.
@@ -362,18 +266,9 @@ public class AndroidUtils {
         customWait(60_000).until((ExpectedCondition<Boolean>) driver -> {
             AndroidDriver androidDriver = (AndroidDriver) driver;
             assert androidDriver != null;
-            return Objects.requireNonNull(androidDriver.currentActivity()).equals(screenActivity);
+            assert androidDriver.currentActivity() != null;
+            return androidDriver.currentActivity().equals(screenActivity);
         });
-    }
-
-    /**
-     * Checks if the element located by the specified locator is displayed on the screen.
-     *
-     * @param locator The locator for the element.
-     * @return True if the element is displayed, false otherwise.
-     */
-    public boolean isDisplayed(By locator) {
-        return getElement(locator).isDisplayed();
     }
 
     private boolean isElementFullyVisible(WebElement element) {
@@ -470,18 +365,5 @@ public class AndroidUtils {
             // If an IOException occurs, wrap it in a RuntimeException and throw
             throw new RuntimeException("Failed to push file to mobile device: " + filePath, e);
         }
-    }
-
-    /**
-     * Retrieves the text of all elements located by the specified locator on the first screen.
-     * Scrolls to the top of the screen before retrieving the elements.
-     *
-     * @param locator The locator for the elements.
-     * @return A list of text from the elements found on the first screen.
-     */
-    public List<String> getListElementTextOnFirstScreen(By locator) {
-        scrollToTopOfScreen();
-        List<WebElement> elements = getListElement(locator);
-        return elements.isEmpty() ? List.of() : elements.stream().map(WebElement::getText).toList();
     }
 }
