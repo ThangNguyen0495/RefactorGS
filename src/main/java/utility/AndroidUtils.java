@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 import static io.appium.java_client.AppiumBy.androidUIAutomator;
 import static utility.helper.ActivityHelper.buyerBundleId;
@@ -50,7 +49,7 @@ public class AndroidUtils {
     }
 
     public static By getLocatorByPartialText(String partialText) {
-        return  AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().textContains(\"%s\"))".formatted(partialText));
+        return  AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollForward().scrollIntoView(new UiSelector().textContains(\"%s\"))".formatted(partialText));
     }
 
 
@@ -92,16 +91,6 @@ public class AndroidUtils {
         }
     }
 
-    public void scrollUp() {
-        try {
-            driver.findElement(androidUIAutomator(
-                    "new UiScrollable(new UiSelector().scrollable(true)).scrollBackward()"));
-            logger.info("Scrolled up once on the screen.");
-        } catch (NoSuchElementException e) {
-            logger.warn("Failed to scroll up: {}", e.getMessage());
-        }
-    }
-
     /**
      * Scrolls to the end of the screen using UiScrollable.
      */
@@ -112,32 +101,6 @@ public class AndroidUtils {
             logger.info("Scrolled to the end of the screen.");
         } catch (NoSuchElementException e) {
             logger.warn("Failed to scroll to the end of the screen: {}", e.getMessage());
-        }
-    }
-
-    public void scrollDown() {
-        try {
-            driver.findElement(androidUIAutomator(
-                    "new UiScrollable(new UiSelector().scrollable(true)).scrollForward()"));
-            logger.info("Scrolled down once on the screen.");
-        } catch (NoSuchElementException e) {
-            logger.warn("Failed to scroll down: {}", e.getMessage());
-        }
-    }
-
-    /**
-     * Retries an action when a TimeoutException is thrown.
-     *
-     * @param action The action to be retried.
-     * @param <T>    The return type of the action.
-     * @return The result of the action.
-     */
-    private static <T> T retryOnTimeOut(WebDriver driver, Supplier<T> action) {
-        try {
-            return action.get();
-        } catch (TimeoutException ignored) {
-            new AndroidUtils(driver).scrollDown();
-            return action.get();
         }
     }
 
@@ -180,23 +143,10 @@ public class AndroidUtils {
      * @throws RuntimeException If the element cannot be made fully visible after 5 retries.
      */
     public WebElement getElement(By locator) {
-        return WebUtils.retryUntil(
-                5, // Maximum retries
-                1000, // Delay between retries in milliseconds
-                "Cannot find element", // Error message on failure
-                () -> {
-                    // Attempt to locate the element while handling stale element exceptions
-                    WebElement element = WebUtils.retryOnStaleElement(() -> {
-                        closeNotificationScreen(); // Close notification screen
-                        return retryOnTimeOut(driver, () -> wait.until(ExpectedConditions.presenceOfElementLocated(locator))); // Locate the element
-                    });
-
-                    // Check if the element is fully visible
-                    return isElementFullyVisible(element);
-                },
-                // Fallback action in case retries fail
-                () -> wait.until(ExpectedConditions.presenceOfElementLocated(locator))
-        );
+        return WebUtils.retryOnStaleElement(() -> {
+            closeNotificationScreen(); // Close notification screen
+            return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+        });
     }
 
     /**
@@ -269,14 +219,6 @@ public class AndroidUtils {
             assert androidDriver.currentActivity() != null;
             return androidDriver.currentActivity().equals(screenActivity);
         });
-    }
-
-    private boolean isElementFullyVisible(WebElement element) {
-        Rectangle rect = element.getRect();
-        int screenHeight = driver.manage().window().getSize().getHeight();
-
-        // Check if the element is fully visible within the screen's height
-        return rect.y >= 0 && (rect.y + rect.height) <= screenHeight;
     }
 
     /**
