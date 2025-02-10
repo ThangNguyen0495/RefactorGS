@@ -22,7 +22,7 @@ public class LoginScreen {
     By loc_txtUsername = iOSNsPredicateString("type == \"XCUIElementTypeTextField\"");
     By loc_txtPassword = iOSNsPredicateString("type == \"XCUIElementTypeSecureTextField\"");
     By loc_chkTermOfUse = By.xpath("(//XCUIElementTypeTextView[@value]//preceding-sibling::*)[1]//XCUIElementTypeImage");
-    By loc_btnLogin = By.xpath("//XCUIElementTypeButton[@name=\"LOGIN\"]");
+    By loc_btnLogin = By.xpath("//XCUIElementTypeButton[@name=\"LOGIN\" or @name = \"ĐĂNG NHẬP\"]");
 
     public LoginScreen(WebDriver driver) {
         // Get driver
