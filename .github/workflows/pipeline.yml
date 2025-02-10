@@ -31,7 +31,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  Dashboard:
+#  Dashboard:
 #    strategy:
 #      fail-fast: false
 #      matrix:
