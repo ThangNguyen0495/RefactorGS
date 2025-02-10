@@ -85,7 +85,7 @@ jobs:
           - AndroidGoSELLERCreateProductTest.xml
           - AndroidGoSELLERUpdateProductTest.xml
           - AndroidGoSELLERSupplierTest.xml
-    runs-on: macos-13
+    runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.target_env }}
     steps:
       - name: Extract test name from config path
