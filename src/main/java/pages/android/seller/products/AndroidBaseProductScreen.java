@@ -253,9 +253,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         androidUtils.pushFileToMobileDevices(imagePath);
 
         // Open select image popup
-        WebUtils.retryUntil(5, 1000, "Can not open select image popup",
-                () -> androidUtils.getListElement(loc_icnUploadImages, 1000).isEmpty(),
-                () -> androidUtils.click(loc_icnUploadImages));
+        androidUtils.click(loc_icnUploadImages);
 
         // Select images
         new SelectImagePopup(driver).selectImages();
@@ -833,12 +831,10 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         private final AndroidUtils androidUtils;
 
         // Locator for the image list, used to find and select images on the popup.
-        private final By loc_lstImages =
-                AndroidUtils.getSellerLocatorByResourceId("%s:id/tvSelectIndex");
+        private final By loc_lstImages = By.xpath("//*[contains(@resource-id, ':id/tvSelectIndex')]");
 
         // Locator for the save button, used to confirm and save the image selection.
-        private final By loc_btnSave =
-                AndroidUtils.getSellerLocatorByResourceId("%s:id/fragment_choose_photo_dialog_btn_choose");
+        private final By loc_btnSave = By.xpath("//*[contains(@resource-id, ':id/fragment_choose_photo_dialog_btn_choose')]");
 
         /**
          * Constructor for the SelectImagePopup class.

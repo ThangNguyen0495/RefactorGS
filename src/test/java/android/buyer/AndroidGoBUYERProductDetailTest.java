@@ -34,7 +34,7 @@ public class AndroidGoBUYERProductDetailTest extends BaseTest {
     /**
      * Sets up the necessary APIs and logs into the storefront before running tests.
      */
-    @BeforeMethod
+    @BeforeClass
     void setup() throws IOException, URISyntaxException {
         initDriver("BUYER", "ANDROID");
         new AndroidBuyerLoginScreen(driver).performLogin(buyerCredentials);
@@ -46,7 +46,7 @@ public class AndroidGoBUYERProductDetailTest extends BaseTest {
         this.apiUpdateBranch = new APIUpdateBranchInformation(sellerCredentials);
     }
 
-    @AfterMethod
+    @AfterClass
     void tearDown() {
         if (driver != null)   driver.quit();
     }
@@ -241,10 +241,9 @@ public class AndroidGoBUYERProductDetailTest extends BaseTest {
         apiCreateProduct.setHideStock(hideStock);
         apiCreateProduct.setShowOutOfStock(!hideOutOfStock);
 
-        int[] stock = new int[RandomUtils.nextInt(10)];
+        int[] stock = new int[10];
         int branchStock = inStock ? RandomUtils.nextInt(10) + 1 : 0;
         Arrays.fill(stock, branchStock);
-        System.out.println(Arrays.toString(Arrays.stream(stock).toArray()));
         LogManager.getLogger().info("Product stock: {}", branchStock);
 
         // Create the product using the API

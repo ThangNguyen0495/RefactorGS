@@ -11,7 +11,7 @@ import static utility.helper.ActivityHelper.sellerBundleId;
 public class BaseProductElement {
     By loc_btnSave = getSellerLocatorByResourceId("%s:id/ivActionBarIconRight");
     By loc_icnDeleteImages = getSellerLocatorByResourceId("%s:id/ivDelete");
-    By loc_icnUploadImages = getSellerLocatorByResourceId("%s:id/rlSelectImages");
+    By loc_icnUploadImages = xpath("//*[contains(@resource-id, ':id/rlSelectImages')]");
     By loc_txtProductName = getSellerLocatorByResourceId("%s:id/edtProductName");
     By loc_btnProductDescription = getSellerLocatorByResourceId("%s:id/tvProductDescription");
     By loc_txtWithoutVariationListingPrice = By.xpath("//*[@resource-id = '%s:id/edtProductOrgPrice']//android.widget.EditText".formatted(sellerBundleId));
