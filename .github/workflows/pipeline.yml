@@ -93,7 +93,7 @@ jobs:
           test_name=$(basename "${{ matrix.test_config_path }}" .xml)
           echo "test_name=$test_name" >> $GITHUB_ENV
 
-      - uses: ThangNguyen0495/execute-appium-android-test@v1.0.0
+      - uses: ThangNguyen0495/execute-appium-android-test@main
         with:
           test_name: ${{ env.test_name }}
           scripts: |
