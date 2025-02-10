@@ -102,7 +102,7 @@ public class DashboardLoginPage {
         }
 
         webUtils.sendKeys(loc_txtUsername, username);
-        logger.info("Input '{}' into Username field.", username);
+        logger.info("Input '****' into Username field.");
         return this;
     }
 
@@ -121,7 +121,7 @@ public class DashboardLoginPage {
         }
 
         webUtils.sendKeys(loc_txtPassword, password);
-        logger.info("Input '{}' into Password field.", password);
+        logger.info("Input '****' into Password field.");
         return this;
     }
 
