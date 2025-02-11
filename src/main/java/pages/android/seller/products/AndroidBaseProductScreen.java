@@ -981,12 +981,17 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         }
 
         void updateVariationSKU() {
-            // Input variation SKU
-            String sku = model.getSku();
-            androidUtils.sendKeys(loc_txtVariationSKU, sku);
+            if (!androidUtils.getListElement(loc_txtVariationSKU).isEmpty()) {
+                // Input variation SKU
+                String sku = model.getSku();
 
-            // Log
-            logger.info("Input variation SKU: {}", sku);
+                androidUtils.sendKeys(loc_txtVariationSKU, sku);
+
+                // Log
+                logger.info("Input variation SKU: {}", sku);
+            }
+
+
         }
 
         void updateVariationBarcode() {
