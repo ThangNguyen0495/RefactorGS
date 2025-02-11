@@ -255,6 +255,7 @@ public class AndroidBuyerProductDetailScreen {
         String varName = !variationName.isEmpty() ? "[Variation: %s]".formatted(variationName) : "";
         if (!productInfo.getIsHideStock() && isVisible) {
             String actualStockText = androidUtils.getText(loc_lblBranchStock(branchName));
+            logger.info("Branch and stock text: '{}'", actualStockText);
             int actualStock = Integer.parseInt(actualStockText.split("-")[1].replaceAll("\\D+", ""));
 
             // Assert stock quantities match
