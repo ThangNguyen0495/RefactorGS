@@ -55,7 +55,7 @@ jobs:
           - DashboardUpdateProductTest.xml
           - DashboardProductManagementTest.xml
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.platform }} == 'Dashboard' || github.event.inputs.platform == 'All Platforms'
+    if: github.event.inputs.platform == 'Dashboard' || github.event.inputs.platform == 'All Platforms'
     environment: ${{ github.event.inputs.target_env }}
     steps:
       - name: Extract test name from config path
@@ -77,7 +77,7 @@ jobs:
         test_config_path:
           - StorefrontProductDetailTest.xml
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.platform }} == 'StoreFront' || github.event.inputs.platform == 'All Platforms'
+    if: github.event.inputs.platform == 'StoreFront' || github.event.inputs.platform == 'All Platforms'
     environment: ${{ github.event.inputs.target_env }}
     steps:
       - name: Extract test name from config path
@@ -101,7 +101,7 @@ jobs:
           - AndroidGoSELLERUpdateProductTest.xml
           - AndroidGoSELLERSupplierTest.xml
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.platform }} == 'Android Seller' || github.event.inputs.platform == 'All Platforms'
+    if: github.event.inputs.platform == 'Android Seller' || github.event.inputs.platform == 'All Platforms'
     environment: ${{ github.event.inputs.target_env }}
     steps:
       - name: Extract test name from config path
@@ -124,7 +124,7 @@ jobs:
         test_config_path:
           - AndroidGoBuyerProductDetail.xml
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.platform }} == 'Android Buyer' || github.event.inputs.platform == 'All Platforms'
+    if: github.event.inputs.platform == 'Android Buyer' || github.event.inputs.platform == 'All Platforms'
     environment: ${{ github.event.inputs.target_env }}
     steps:
       - name: Extract test name from config path
@@ -148,7 +148,7 @@ jobs:
           - IOSGoSELLERUpdateProductTest.xml
           - IOSGoSELLERSupplierTest.xml
     runs-on: macos-latest
-    if: ${{ github.event.inputs.platform }} == 'iOS Seller' || github.event.inputs.platform == 'All Platforms'
+    if: github.event.inputs.platform == 'iOS Seller' || github.event.inputs.platform == 'All Platforms'
     environment: ${{ github.event.inputs.target_env }}
     steps:
       - name: Create an iOS simulator
