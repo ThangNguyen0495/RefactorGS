@@ -25,57 +25,72 @@ on:
           - smoke_test
           - regression_test
         default: "smoke_test"
+      platform:
+        description: "Select the test platform"
+        required: true
+        type: choice
+        options:
+          - All Platforms
+          - Dashboard
+          - StoreFront
+          - Android Seller
+          - Android Buyer
+          - iOS Seller
+          - iOS Buyer
+        default: "All Platforms"
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.inputs.target_env }}-${{ github.event.inputs.test_type }}
+  group: ${{ github.workflow }}-${{ github.event.inputs.target_env }}-${{ github.event.inputs.test_type }}-${{ github.event.inputs.platform }}
   cancel-in-progress: true
 
 jobs:
-#  Dashboard:
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        test_config_path:
-#          - DashboardLoginTest.xml
-#          - DashboardSupplierTest.xml
-#          - DashboardCreateProductTest.xml
-#          - DashboardUpdateProductTest.xml
-#          - DashboardProductManagementTest.xml
-#    runs-on: ubuntu-latest
-#    environment: ${{ github.event.inputs.target_env }}
-#    steps:
-#      - name: Extract test name from config path
-#        run: |
-#          test_name=$(basename "${{ matrix.test_config_path }}" .xml)
-#          echo "test_name=$test_name" >> $GITHUB_ENV
-#
-#      - uses: ThangNguyen0495/execute-selenium-test@main
-#        with:
-#          test_name: ${{ env.test_name }}
-#          scripts: |
-#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-#            mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/web/seller/${{ matrix.test_config_path }}"
-#
-#  StoreFront:
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        test_config_path:
-#          - StorefrontProductDetailTest.xml
-#    runs-on: ubuntu-latest
-#    environment: ${{ github.event.inputs.target_env }}
-#    steps:
-#      - name: Extract test name from config path
-#        run: |
-#          test_name=$(basename "${{ matrix.test_config_path }}" .xml)
-#          echo "test_name=$test_name" >> $GITHUB_ENV
-#
-#      - uses: ThangNguyen0495/execute-selenium-test@main
-#        with:
-#          test_name: ${{ env.test_name }}
-#          scripts: |
-#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-#            mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/web/buyer/${{ matrix.test_config_path }}"
+  Dashboard:
+    strategy:
+      fail-fast: false
+      matrix:
+        test_config_path:
+          - DashboardLoginTest.xml
+          - DashboardSupplierTest.xml
+          - DashboardCreateProductTest.xml
+          - DashboardUpdateProductTest.xml
+          - DashboardProductManagementTest.xml
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.platform }} == 'Dashboard' || github.event.inputs.platform == 'All Platforms'
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - name: Extract test name from config path
+        run: |
+          test_name=$(basename "${{ matrix.test_config_path }}" .xml)
+          echo "test_name=$test_name" >> $GITHUB_ENV
+
+      - uses: ThangNguyen0495/execute-selenium-test@main
+        with:
+          test_name: ${{ env.test_name }}
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/web/seller/${{ matrix.test_config_path }}"
+
+  StoreFront:
+    strategy:
+      fail-fast: false
+      matrix:
+        test_config_path:
+          - StorefrontProductDetailTest.xml
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.platform }} == 'StoreFront' || github.event.inputs.platform == 'All Platforms'
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - name: Extract test name from config path
+        run: |
+          test_name=$(basename "${{ matrix.test_config_path }}" .xml)
+          echo "test_name=$test_name" >> $GITHUB_ENV
+
+      - uses: ThangNguyen0495/execute-selenium-test@main
+        with:
+          test_name: ${{ env.test_name }}
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/web/buyer/${{ matrix.test_config_path }}"
 
   AndroidSeller:
     strategy:
@@ -86,6 +101,7 @@ jobs:
           - AndroidGoSELLERUpdateProductTest.xml
           - AndroidGoSELLERSupplierTest.xml
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.platform }} == 'Android Seller' || github.event.inputs.platform == 'All Platforms'
     environment: ${{ github.event.inputs.target_env }}
     steps:
       - name: Extract test name from config path
@@ -108,6 +124,7 @@ jobs:
         test_config_path:
           - AndroidGoBuyerProductDetail.xml
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.platform }} == 'Android Buyer' || github.event.inputs.platform == 'All Platforms'
     environment: ${{ github.event.inputs.target_env }}
     steps:
       - name: Extract test name from config path
@@ -122,34 +139,35 @@ jobs:
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/android/buyer/${{ matrix.test_config_path }}"
 
-#  iOSSeller:
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        test_config_path:
-#          - IOSGoSELLERCreateProductTest.xml
-#          - IOSGoSELLERUpdateProductTest.xml
-#          - IOSGoSELLERSupplierTest.xml
-#    runs-on: macos-latest
-#    environment: ${{ github.event.inputs.target_env }}
-#    steps:
-#      - name: Create an iOS simulator
-#        uses: ThangNguyen0495/create-ios-simulator@main
-#
-#      - name: Save simulator UDID to GitHub Environment
-#        run: |
-#          UDID=$(cat udid.txt)
-#          echo "UDID=$UDID" >> $GITHUB_ENV
-#
-#      - name: Extract test name from config path
-#        run: |
-#          test_name=$(basename "${{ matrix.test_config_path }}" .xml)
-#          echo "test_name=$test_name" >> $GITHUB_ENV
-#
-#      - uses: ThangNguyen0495/execute-appium-ios-test@main
-#        with:
-#          test_name: ${{ env.test_name }}
-#          scripts: |
-#            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
-#            echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
-#            mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/ios/seller/${{ matrix.test_config_path }}"
+  iOSSeller:
+    strategy:
+      fail-fast: false
+      matrix:
+        test_config_path:
+          - IOSGoSELLERCreateProductTest.xml
+          - IOSGoSELLERUpdateProductTest.xml
+          - IOSGoSELLERSupplierTest.xml
+    runs-on: macos-latest
+    if: ${{ github.event.inputs.platform }} == 'iOS Seller' || github.event.inputs.platform == 'All Platforms'
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - name: Create an iOS simulator
+        uses: ThangNguyen0495/create-ios-simulator@main
+
+      - name: Save simulator UDID to GitHub Environment
+        run: |
+          UDID=$(cat udid.txt)
+          echo "UDID=$UDID" >> $GITHUB_ENV
+
+      - name: Extract test name from config path
+        run: |
+          test_name=$(basename "${{ matrix.test_config_path }}" .xml)
+          echo "test_name=$test_name" >> $GITHUB_ENV
+
+      - uses: ThangNguyen0495/execute-appium-ios-test@main
+        with:
+          test_name: ${{ env.test_name }}
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/ios/seller/${{ matrix.test_config_path }}"
