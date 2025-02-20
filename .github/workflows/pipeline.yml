@@ -171,3 +171,34 @@ jobs:
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/ios/seller/${{ matrix.test_config_path }}"
+
+  iOSBuyer:
+    strategy:
+      fail-fast: false
+      matrix:
+        test_config_path:
+          - IOSGoBuyerProductDetail.xml
+    runs-on: macos-latest
+    if: github.event.inputs.platform == 'iOS Buyer' || github.event.inputs.platform == 'All Platforms'
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - name: Create an iOS simulator
+        uses: ThangNguyen0495/create-ios-simulator@main
+
+      - name: Save simulator UDID to GitHub Environment
+        run: |
+          UDID=$(cat udid.txt)
+          echo "UDID=$UDID" >> $GITHUB_ENV
+
+      - name: Extract test name from config path
+        run: |
+          test_name=$(basename "${{ matrix.test_config_path }}" .xml)
+          echo "test_name=$test_name" >> $GITHUB_ENV
+
+      - uses: ThangNguyen0495/execute-appium-ios-test@main
+        with:
+          test_name: ${{ env.test_name }}
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
+            mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/ios/buyer/${{ matrix.test_config_path }}"

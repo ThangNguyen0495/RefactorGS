@@ -1,20 +1,17 @@
 package utility;
 
-import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.AppiumBy;
 import io.appium.java_client.ios.IOSDriver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
-import org.openqa.selenium.interactions.Pause;
-import org.openqa.selenium.interactions.PointerInput;
-import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.Map;
 
 /**
  * Provides utility functions for interacting with iOS devices in an Appium-based
@@ -35,21 +32,6 @@ public class IOSUtils {
     public IOSUtils(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-    }
-
-    /**
-     * Retries an action on StaleElementReferenceException.
-     *
-     * @param action The action to be retried.
-     * @param <T>    The return type of the action.
-     * @return The result of the action.
-     */
-    private <T> T retryOnStaleElement(Supplier<T> action) {
-        try {
-            return action.get();
-        } catch (StaleElementReferenceException ex) {
-            return action.get();
-        }
     }
 
     /**
@@ -106,7 +88,7 @@ public class IOSUtils {
             // Timeout ignored; proceed to return an empty list if no elements are found
         }
 
-        return retryOnStaleElement(() -> {
+        return WebUtils.retryOnStaleElement(() -> {
             // Retrieve and return elements, or an empty list if none are found
             List<WebElement> elements = driver.findElements(locator);
             return elements.isEmpty() ? List.of() : wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
@@ -120,114 +102,13 @@ public class IOSUtils {
      * @return The found WebElement.
      */
     public WebElement getElement(By locator) {
-        return retryOnStaleElement(() -> {
+        return WebUtils.retryOnStaleElement(() -> {
             try {
                 return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
             } catch (TimeoutException ex) {
                 throw new TimeoutException("Cannot find element");
             }
         });
-    }
-
-    /**
-     * Retrieves a single element located by the specified locator and index.
-     *
-     * @param locator The locator for the elements.
-     * @param index   The index of the element in the list.
-     * @return The found WebElement.
-     */
-    public WebElement getElement(By locator, int index) {
-        return retryOnStaleElement(() -> wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator)).get(index));
-    }
-
-    /**
-     * Performs a tap action at the specified coordinates on the screen.
-     *
-     * @param x The x-coordinate for the tap.
-     * @param y The y-coordinate for the tap.
-     */
-    public void tapAtCoordinates(int x, int y) {
-        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
-        Sequence tapSequence = new Sequence(finger, 1);
-        tapSequence.addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), x, y))
-                .addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
-                .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
-
-        ((IOSDriver) driver).perform(List.of(tapSequence));
-    }
-
-    /**
-     * Performs a double tap action at the specified coordinates on the screen.
-     *
-     * @param x The x-coordinate for the double tap.
-     * @param y The y-coordinate for the double tap.
-     */
-    public void doubleTapAtCoordinates(int x, int y) {
-        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
-        Sequence doubleTapSequence = new Sequence(finger, 1);
-
-        doubleTapSequence.addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), x, y))
-                .addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
-                .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()))
-                .addAction(new Pause(finger, Duration.ofMillis(100)))
-                .addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
-                .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
-
-        ((IOSDriver) driver).perform(List.of(doubleTapSequence));
-    }
-
-    /**
-     * Performs a tap action at a percentage of the screen's width and height.
-     *
-     * @param xPercentage The x-coordinate as a percentage of the screen width (0.0 to 1.0).
-     * @param yPercentage The y-coordinate as a percentage of the screen height (0.0 to 1.0).
-     */
-    public void tapAtPercentage(double xPercentage, double yPercentage) {
-        Dimension screenSize = driver.manage().window().getSize();
-        int x = (int) (screenSize.width * xPercentage);
-        int y = (int) (screenSize.height * yPercentage);
-        tapAtCoordinates(x, y);
-    }
-
-    /**
-     * Performs a tap action at the center of the given WebElement.
-     *
-     * @param element The WebElement to tap on.
-     */
-    public void tapAtCenter(WebElement element) {
-        int centerX = element.getLocation().getX() + element.getSize().getWidth() / 2;
-        int centerY = element.getLocation().getY() + element.getSize().getHeight() / 2;
-        tapAtCoordinates(centerX, centerY);
-    }
-
-    /**
-     * Performs a tap action at the right-top corner of the given WebElement.
-     *
-     * @param element The WebElement to tap on.
-     */
-    public void tapAtRightTopCorner(WebElement element) {
-        int rightTopX = element.getLocation().getX() + element.getSize().getWidth();
-        int rightTopY = element.getLocation().getY();
-        tapAtCoordinates(rightTopX, rightTopY);
-    }
-
-    /**
-     * Performs a tap action at the right-top corner of the element located by the specified locator.
-     *
-     * @param locator The locator for the element.
-     */
-    public void tapAtRightTopCorner(By locator) {
-        tapAtRightTopCorner(getElement(locator));
-    }
-
-    /**
-     * Performs a tap action at the right-top corner of the element located by the specified locator and index.
-     *
-     * @param locator The locator for the elements.
-     * @param index   The index of the element in the list.
-     */
-    public void tapAtRightTopCorner(By locator, int index) {
-        tapAtRightTopCorner(getElement(locator, index));
     }
 
 
@@ -267,18 +148,7 @@ public class IOSUtils {
      * @param locator The {@link By} locator of the target element.
      */
     public void click(By locator) {
-        click(locator, 0);
-    }
-
-    /**
-     * Clicks the element at the specified index located by the given locator.
-     *
-     * @param locator The {@link By} locator of the target elements.
-     * @param index   The zero-based index of the element to click.
-     * @throws IndexOutOfBoundsException If no element exists at the given index.
-     */
-    public void click(By locator, int index) {
-        getElement(locator, index).click();
+        getElement(locator).click();
     }
 
     /**
@@ -291,21 +161,17 @@ public class IOSUtils {
      * @throws IllegalArgumentException if content is null.
      */
     public void sendKeys(By locator, Object content) {
-        sendKeys(locator, 0, content);
-    }
-
-    public void sendKeys(By locator, int index, Object content) {
         if (content == null) {
             throw new IllegalArgumentException("Content to send cannot be null.");
         }
 
         WebUtils.retryOnStaleElement(() -> {
-            getElement(locator, index).clear();
+            getElement(locator).clear();
 
             if (content instanceof CharSequence) {
-                getElement(locator, index).sendKeys((CharSequence) content);
+                getElement(locator).sendKeys((CharSequence) content);
             } else {
-                getElement(locator, index).sendKeys(String.valueOf(content));
+                getElement(locator).sendKeys(String.valueOf(content));
             }
             hideKeyboard();
         });
@@ -318,58 +184,7 @@ public class IOSUtils {
      * @return The text of the element.
      */
     public String getText(By locator) {
-        return retryOnStaleElement(() -> getElement(locator).getText());
-    }
-
-    /**
-     * Retrieves the text of the element located by the specified locator and index.
-     *
-     * @param locator The locator for the elements.
-     * @param index   The index of the element in the list.
-     * @return The text of the element.
-     */
-    public String getText(By locator, int index) {
-        return retryOnStaleElement(() -> getElement(locator, index).getText());
-    }
-
-    /**
-     * Performs a swipe action from a start to an end point specified as percentages of the screen dimensions.
-     *
-     * @param startX The start x-coordinate as a percentage of the screen width (0.0 to 1.0).
-     * @param startY The start y-coordinate as a percentage of the screen height (0.0 to 1.0).
-     * @param endX   The end x-coordinate as a percentage of the screen width (0.0 to 1.0).
-     * @param endY   The end y-coordinate as a percentage of the screen height (0.0 to 1.0).
-     */
-    public void swipeByPercentage(double startX, double startY, double endX, double endY) {
-        swipeByPercentage(startX, startY, endX, endY, 200);
-    }
-
-    /**
-     * Performs a swipe action from a start to an end point specified as percentages of the screen dimensions.
-     * Allows specifying the duration of the swipe action.
-     *
-     * @param startX The start x-coordinate as a percentage of the screen width (0.0 to 1.0).
-     * @param startY The start y-coordinate as a percentage of the screen height (0.0 to 1.0).
-     * @param endX   The end x-coordinate as a percentage of the screen width (0.0 to 1.0).
-     * @param endY   The end y-coordinate as a percentage of the screen height (0.0 to 1.0).
-     * @param delay  The duration of the swipe action in milliseconds.
-     */
-    public void swipeByPercentage(double startX, double startY, double endX, double endY, int delay) {
-        Dimension screenSize = driver.manage().window().getSize();
-        int startXCoordinate = (int) (screenSize.width * startX);
-        int startYCoordinate = (int) (screenSize.height * startY);
-        int endXCoordinate = (int) (screenSize.width * endX);
-        int endYCoordinate = (int) (screenSize.height * endY);
-
-        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
-        Sequence swipeSequence = new Sequence(finger, 0);
-        swipeSequence.addAction(finger.createPointerMove(Duration.ofMillis(0), PointerInput.Origin.viewport(), startXCoordinate, startYCoordinate))
-                .addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
-                .addAction(new Pause(finger, Duration.ofMillis(10)))
-                .addAction(finger.createPointerMove(Duration.ofMillis(delay), PointerInput.Origin.viewport(), endXCoordinate, endYCoordinate))
-                .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
-
-        ((AppiumDriver) driver).perform(List.of(swipeSequence));
+        return WebUtils.retryOnStaleElement(() -> getElement(locator).getText());
     }
 
     /**
@@ -379,7 +194,7 @@ public class IOSUtils {
      * @return True if the element is checked, false otherwise.
      */
     public boolean isChecked(By locator) {
-        return retryOnStaleElement(() -> {
+        return WebUtils.retryOnStaleElement(() -> {
             // Get the WebElement
             WebElement element = getElement(locator);
 
@@ -399,19 +214,6 @@ public class IOSUtils {
             // Fallback: Check the "value" attribute
             return element.getAttribute("value") != null && element.getAttribute("value").equals("1");
         });
-    }
-
-    public boolean isElementFullyVisible(By locator) {
-        Rectangle rect = getElement(locator).getRect();
-        int screenHeight = driver.manage().window().getSize().getHeight();
-
-
-        System.out.println(rect.y + " " + rect.height);
-
-        System.out.println(screenHeight);
-
-        // Check if the element is fully visible within the screen's height
-        return rect.y >= 0 && (rect.y + rect.height) <= screenHeight;
     }
 
     /**

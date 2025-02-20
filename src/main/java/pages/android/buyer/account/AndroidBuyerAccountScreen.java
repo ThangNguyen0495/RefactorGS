@@ -1,4 +1,4 @@
-package pages.android.buyer;
+package pages.android.buyer.account;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

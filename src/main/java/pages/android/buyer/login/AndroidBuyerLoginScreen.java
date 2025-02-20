@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import pages.android.buyer.AndroidBuyerAccountScreen;
+import pages.android.buyer.account.AndroidBuyerAccountScreen;
 import pages.ios.seller.login.LoginScreen;
 import utility.AndroidUtils;
 
