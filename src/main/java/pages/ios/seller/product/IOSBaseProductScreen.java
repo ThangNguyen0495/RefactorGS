@@ -23,7 +23,10 @@ import utility.helper.ProductHelper;
 import utility.helper.VariationHelper;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 import static api.seller.user_feature.APIGetUserFeature.*;
@@ -378,10 +381,9 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
 
     private void modifyShippingInformation() {
         // Enables the shipping switch
-//        WebUtils.retryUntil(5, 1000, "Can not change Shipping switch status",
-//                () -> iosUtils.isChecked(loc_swShipping),
-//                () -> iosUtils.click(loc_swShipping));
-        iosUtils.toggleCheckbox(loc_swShipping);
+        if (iosUtils.getListElement(loc_txtWeight).isEmpty()) {
+            iosUtils.toggleCheckbox(loc_swShipping);
+        }
         logger.info("Enables shipping switch");
 
         // Add product weight
@@ -823,7 +825,7 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         // Update variation information
         IntStream.range(0, this.newProductInfo.getModels().size()).forEach(variationIndex -> {
             // Navigate to variation detail screen
-            iosUtils.click(loc_lstVariations(variationIndex));
+            iosUtils.click(loc_lstVariations, variationIndex);
 
             // Update variation information
             productVariationScreen.getVariationInformation(this.branchInfos, variationIndex, this.newProductInfo)
@@ -889,7 +891,7 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         By loc_txtVariationListingPrice = By.xpath("(//XCUIElementTypeStaticText[@name=\"Selling price\" or @name=\"Giá bán\"]//following-sibling::*//XCUIElementTypeTextField)[1]");
         By loc_txtVariationSellingPrice = By.xpath("(//XCUIElementTypeStaticText[@name=\"Selling price\" or @name=\"Giá bán\"]//following-sibling::*//XCUIElementTypeTextField)[2]");
         By loc_txtVariationCostPrice = By.xpath("//XCUIElementTypeStaticText[@name=\"Cost price\" or @name=\"Giá gốc\"]//following-sibling::*//XCUIElementTypeTextField");
-        By loc_txtVariationSKU = By.xpath("//XCUIElementTypeStaticText[@name=\"SKU\" or name = \"Mã SKU\"]//following-sibling::XCUIElementTypeTextField");
+        By loc_txtVariationSKU = By.xpath("//XCUIElementTypeStaticText[@name=\"SKU\" or @name=\"Mã SKU\"]//following-sibling::XCUIElementTypeTextField");
         By loc_txtVariationBarcode = By.xpath("//XCUIElementTypeStaticText[@name=\"Barcode\" or @name=\"Mã vạch\"]//following-sibling::XCUIElementTypeTextField");
         By loc_icnInventory = By.xpath("//XCUIElementTypeImage[@name=\"icon_inventory\"]/preceding-sibling::XCUIElementTypeButton");
         By loc_btnDeactivate = By.xpath("//XCUIElementTypeButton[contains(@name, \"ctivate\") or @name=\"Ngừng bán\"] or @name=\"Bán ngay\"]");
@@ -1058,15 +1060,13 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         }
 
         By loc_btnRemoveVariationGroup = By.xpath("//*[*/*/XCUIElementTypeImage[@name=\"ic-minus_circle\"]]/preceding-sibling::XCUIElementTypeButton");
-        By loc_txtVariationName(int groupIndex) {
-            return By.xpath("(//*[XCUIElementTypeImage[@name=\"ic-minus_circle\"]]/XCUIElementTypeTextField)[%d]".formatted(groupIndex));
-        }
-        By loc_txtVariationValue(int groupIndex) {
-            return By.xpath("(//*[XCUIElementTypeImage[@name=\"ic-plus\"]]/*/XCUIElementTypeTextField)[%d]".formatted(groupIndex));
-        }
-        By loc_icnAddVariationValue(int groupIndex) {
-             return By.xpath("(//*[*/XCUIElementTypeImage[@name=\"ic-plus\"]]/following-sibling:: XCUIElementTypeButton)[%d]".formatted(groupIndex));
-        };
+
+        By loc_txtVariationName = By.xpath("//*[XCUIElementTypeImage[@name=\"ic-minus_circle\"]]/XCUIElementTypeTextField");
+
+        By loc_txtVariationValue = By.xpath("//*[XCUIElementTypeImage[@name=\"ic-plus\"]]/*/XCUIElementTypeTextField");
+
+        By loc_icnAddVariationValue = By.xpath("//*[*/XCUIElementTypeImage[@name=\"ic-plus\"]]/following-sibling:: XCUIElementTypeButton");
+
         By loc_btnAddVariation = By.xpath("//*[XCUIElementTypeImage[@name=\"ic-plus\"]]/XCUIElementTypeButton");
         By loc_btnSave = By.xpath("//XCUIElementTypeButton[@name=\"icon checked white\"]");
 
@@ -1094,13 +1094,13 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
                 iosUtils.click(loc_btnAddVariation);
 
                 // Input variation group
-                iosUtils.sendKeys(loc_txtVariationName(groupIndex), variationGroup);
+                iosUtils.sendKeys(loc_txtVariationName, groupIndex, variationGroup);
                 logger.info("Add variation group {}, group: {}", groupIndex + 1, variationGroup);
 
                 // Input variation value
                 variationValue.forEach(value -> {
-                    iosUtils.sendKeys(loc_txtVariationValue(groupIndex), value);
-                    iosUtils.click(loc_icnAddVariationValue(groupIndex));
+                    iosUtils.sendKeys(loc_txtVariationValue, groupIndex, value);
+                    iosUtils.click(loc_icnAddVariationValue, groupIndex);
                     logger.info("Add variation value for group {}, value: {}", groupIndex + 1, value);
                 });
             });

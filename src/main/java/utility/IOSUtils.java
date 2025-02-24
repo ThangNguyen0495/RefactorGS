@@ -1,6 +1,5 @@
 package utility;
 
-import io.appium.java_client.AppiumBy;
 import io.appium.java_client.ios.IOSDriver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,7 +10,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Provides utility functions for interacting with iOS devices in an Appium-based
@@ -111,6 +109,17 @@ public class IOSUtils {
         });
     }
 
+    /**
+     * Retrieves a single element located by the specified locator and index.
+     *
+     * @param locator The locator for the elements.
+     * @param index   The index of the element in the list.
+     * @return The found WebElement.
+     */
+    public WebElement getElement(By locator, int index) {
+        return WebUtils.retryOnStaleElement(() -> wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator)).get(index));
+    }
+
 
     /**
      * Toggles the status of a checkbox. If the checkbox cannot be clicked directly due to its type,
@@ -152,29 +161,66 @@ public class IOSUtils {
     }
 
     /**
-     * Sends the specified keys to the element located by the given locator.
-     * Clears the element's existing value before sending keys.
+     * Clicks the element at the specified index located by the given locator.
      *
-     * @param locator The locator for the element.
-     * @param content The keys or content to send to the element.
-     *                Non-CharSequence objects will be converted to strings.
-     * @throws IllegalArgumentException if content is null.
+     * @param locator The {@link By} locator of the target elements.
+     * @param index   The zero-based index of the element to click.
+     * @throws IndexOutOfBoundsException If no element exists at the given index.
+     */
+    public void click(By locator, int index) {
+        getElement(locator, index).click();
+    }
+
+    /**
+     * Sends the specified content to the element located by the given locator.
+     * This method defaults to using the first matching element (index 0).
+     *
+     * @param locator The {@link By} locator used to find the element.
+     * @param content The content to send to the element. Must not be {@code null}.
+     * @throws IllegalArgumentException if {@code content} is {@code null}.
      */
     public void sendKeys(By locator, Object content) {
+        sendKeys(locator, 0, content);
+    }
+
+    /**
+     * Sends the specified content to the element located by the given locator at the specified index.
+     * This method clears the existing content in the element before sending the new content.
+     * It supports both {@link CharSequence} and other object types, converting non-CharSequence content to a string.
+     * If a stale element exception occurs, it retries automatically.
+     * Finally, it attempts to hide the keyboard after sending keys.
+     *
+     * @param locator The {@link By} locator used to find the element.
+     * @param index   The index of the matching element to interact with (starting from 0).
+     * @param content The content to send to the element. Must not be {@code null}.
+     * @throws IllegalArgumentException if {@code content} is {@code null}.
+     */
+    public void sendKeys(By locator, int index, Object content) {
         if (content == null) {
             throw new IllegalArgumentException("Content to send cannot be null.");
         }
 
         WebUtils.retryOnStaleElement(() -> {
-            getElement(locator).clear();
+            getElement(locator, index).clear();
 
             if (content instanceof CharSequence) {
-                getElement(locator).sendKeys((CharSequence) content);
+                getElement(locator, index).sendKeys((CharSequence) content);
             } else {
-                getElement(locator).sendKeys(String.valueOf(content));
+                getElement(locator, index).sendKeys(String.valueOf(content));
             }
             hideKeyboard();
         });
+    }
+
+    /**
+     * Retrieves the text of the element located by the specified locator and index.
+     *
+     * @param locator The locator for the elements.
+     * @param index   The index of the element in the list.
+     * @return The text of the element.
+     */
+    public String getText(By locator, int index) {
+        return WebUtils.retryOnStaleElement(() -> getElement(locator, index).getText());
     }
 
     /**

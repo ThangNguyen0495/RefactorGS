@@ -33,9 +33,7 @@ public class IOSBaseProductElement {
     By loc_swVariation = By.xpath("//*[XCUIElementTypeStaticText[contains(@name,\"Variations\") or contains(@name, \"Phân loại hàng\")]]/XCUIElementTypeSwitch");
     By loc_btnAddVariation = By.xpath("//*[XCUIElementTypeStaticText[@name=\"Add Variation\" or @name=\"Thêm phân loại\" or @name=\"Edit Variation\" or @name=\"Sửa phân loại\"]]/XCUIElementTypeButton");
     By loc_btnEditMultiple = By.xpath("//XCUIElementTypeButton[@name=\"Edit multiple\" or @name=\"Sửa hàng loạt\"]");
-    By loc_lstVariations(int variationIndex) {
-        return By.xpath("(//XCUIElementTypeStaticText[contains(@name, \"available\")]//parent::XCUIElementTypeCell)[%d]".formatted(variationIndex));
-    }
+    By loc_lstVariations= By.xpath("//XCUIElementTypeStaticText[contains(@name, \"available\") or contains(@name, \"còn\")]//parent::XCUIElementTypeCell");
     By loc_btnSave = By.xpath("//XCUIElementTypeButton[@name=\"icon checked white\"]");
     By loc_dlgWarningManagedByLot_btnOK = By.xpath("//XCUIElementTypeButton[@name=\"OK\"]");
 }
