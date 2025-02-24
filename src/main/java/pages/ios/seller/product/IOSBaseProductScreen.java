@@ -450,24 +450,20 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
     }
 
     private void modifyPriority() {
-        // Get current priority config status
-        boolean status = iosUtils.isChecked(loc_swPriority);
-
         // Update priority config
-        if (!Objects.equals(newProductInfo.getPriority() > 0, status)) iosUtils.click(loc_swPriority);
-
-        // If product has priority, add priority
-        if (newProductInfo.getPriority() > 0) {
-            // Input priority
-            int priority = newProductInfo.getPriority();
-            iosUtils.sendKeys(loc_txtPriority, priority);
-
-            // Log
-            logger.info("Product priority: {}", priority);
-            return;
+        iosUtils.click(loc_swPriority);
+        if (iosUtils.getListElement(loc_txtPriority).isEmpty()) {
+            iosUtils.click(loc_swPriority);
         }
 
-        logger.info("Product do not have priority configure");
+        // If product has priority, add priority
+        // Input priority
+        int priority = newProductInfo.getPriority();
+        iosUtils.sendKeys(loc_txtPriority, priority);
+
+        // Log
+        logger.info("Product priority: {}", priority);
+
     }
 
     private void addVariations() {
@@ -767,8 +763,8 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         displayIfOutOfStock();
         manageProductByLot();
         modifyShippingInformation();
-        modifyProductSellingPlatform();
         modifyPriority();
+        modifyProductSellingPlatform();
 
         // Save changes
         saveChanges();
@@ -987,7 +983,18 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         void updateVariationSKU() {
             // Input variation SKU
             String sku = model.getSku();
-            iosUtils.sendKeys(loc_txtVariationSKU, sku);
+
+            // Click to check it's add new SKU or update SKU cases
+            iosUtils.click(loc_txtVariationSKU);
+
+            // In case, the current screen is update sku screen
+            // Add SKU for each branch
+            if (iosUtils.getListElement(loc_txtVariationSKU).isEmpty()) {
+                new VariationSKUScreen(driver).inputVariationSKU(APIGetBranchList.getActiveBranchNames(branchInfos), sku);
+            } else {
+                // Update SKU for the current variation
+                iosUtils.sendKeys(loc_txtVariationSKU, sku);
+            }
 
             // Log
             logger.info("Input variation SKU: {}", sku);
@@ -1353,7 +1360,7 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         By loc_txtIMEI = By.xpath("//XCUIElementTypeTextField[@value=\"Input IMEI/Serial number\" or @value=\"Nhập số IMEI/Serial\"]");
         By loc_btnAdd = By.xpath("//XCUIElementTypeImage[@name = \"icon_plus-white\"]");
 
-        public void addIMEI(int quantity, String branchName, String variation) {
+        private void addIMEI(int quantity, String branchName, String variation) {
             // Remove old IMEI
             int size = iosUtils.getListElement(loc_icnRemoveIMEI).size();
             IntStream.range(0, size).forEach(ignored -> iosUtils.click(loc_icnRemoveIMEI));
@@ -1373,6 +1380,29 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
 
             // Save changes
             iosUtils.click(loc_btnSave);
+        }
+    }
+
+    private static class VariationSKUScreen {
+        private final IOSUtils iosUtils;
+        private final Logger logger = LogManager.getLogger();
+
+        private By loc_txtBranchSKU(String branchName) {
+            return By.xpath("//*[XCUIElementTypeStaticText[@name=\"%s\"]]/XCUIElementTypeTextField".formatted(branchName));
+        }
+
+        private final By loc_btnSave = By.xpath("//XCUIElementTypeButton[@name=\"icon checked white\"]");
+
+        public VariationSKUScreen(WebDriver driver) {
+            this.iosUtils = new IOSUtils(driver);
+        }
+
+        private void inputVariationSKU(List<String> branchNames, String SKU) {
+            branchNames.forEach(branchName -> iosUtils.sendKeys(loc_txtBranchSKU(branchName), SKU));
+            logger.info("Input variation SKU.");
+
+            iosUtils.click(loc_btnSave);
+            logger.info("Save the SKU changes.");
         }
     }
 }

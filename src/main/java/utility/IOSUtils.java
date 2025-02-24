@@ -145,7 +145,6 @@ public class IOSUtils {
                     .replaceAll("By.xpath: +", "") // Extract XPath string
                     .replaceAll("XCUIElementTypeOther$", "XCUIElementTypeButton"); // Replace last element type
 
-            System.out.println(updatedXPath);
             // Attempt to click the alternative element (e.g., a button)
             getElement(By.xpath(updatedXPath)).click();
         }
