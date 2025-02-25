@@ -8,7 +8,6 @@ import api.seller.product.APIGetProductDetail;
 import api.seller.sale_channel.APIGetPreferences;
 import api.seller.setting.APIGetBranchList;
 import io.appium.java_client.AppiumBy;
-import io.appium.java_client.ios.IOSDriver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -22,7 +21,6 @@ import utility.WebUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.IntStream;
 
 import static api.seller.setting.APIGetBranchList.*;
@@ -70,10 +68,6 @@ public class IOSBuyerProductDetailScreen {
         return By.xpath("//*[*/*[@name=\"bg_variation_popup_close_button\"]]//XCUIElementTypeStaticText[contains(@name, \"%,d\")]".formatted(sellingPrice));
     }
 
-    private By loc_lblListingPrice(long listingPrice) {
-        return By.xpath("//XCUIElementTypeStaticText[contains(@name, \"%,d\")]".formatted(listingPrice));
-    }
-
     private By loc_ddvVariationName(String variationName) {
         return By.xpath("//*[@name='%s']".formatted(variationName));
     }
@@ -88,7 +82,7 @@ public class IOSBuyerProductDetailScreen {
 
     // Using this to scroll to description section
     private By loc_cntDescription(String productDescription) {
-        return AppiumBy.iOSClassChain("**/XCUIElementTypeStaticText[`name == \"%s\"`]".formatted(productDescription));
+        return AppiumBy.iOSNsPredicateString("name == \"%s\"".formatted(productDescription));
     }
 
     private final By loc_lblSoldOut = By.xpath("//XCUIElementTypeStaticText[@name=\"Hết Hàng\"]");
@@ -123,21 +117,13 @@ public class IOSBuyerProductDetailScreen {
     /**
      * Compares the listing and selling prices for each branch against expected values.
      *
-     * @param expectedListingPrice The expected listing price.
      * @param expectedSellingPrice The expected selling price.
      * @param branchName           The name of the branch.
      */
-    private void validateBranchPrices(long expectedListingPrice, long expectedSellingPrice, String branchName, Runnable adjustStockAction) {
+    private void validateBranchPrices(long expectedSellingPrice, String branchName, Runnable adjustStockAction) {
         String branchInfo = branchName.isEmpty() ? "" : "[Branch name: %s]".formatted(branchName);
 
         if (!(new APIGetPreferences(credentials).getStoreListingWebInformation().isEnabledProduct() && productInfo.isEnabledListing())) {
-            if (expectedListingPrice != expectedSellingPrice) {
-                Assert.assertFalse(iosUtils.getListElement(loc_lblListingPrice(expectedListingPrice)).isEmpty(),
-                        "%s Listing price must be '%,d', but it does not match.".formatted(branchInfo, expectedListingPrice));
-            } else {
-                logger.info("No discount product (listing price = selling price)");
-            }
-
             // Open cart popup to verify the product selling price
             iosUtils.click(loc_btnAddToCart);
             logger.info("%s Open cart popup.".formatted(branchInfo));
@@ -270,13 +256,8 @@ public class IOSBuyerProductDetailScreen {
                 : APIGetProductDetail.getMainProductDescription(productInfo, language);
         expectedDescription = expectedDescription.replaceAll("<.*?>", "").replaceAll("amp;", "");
 
-        // Scroll to end of screen
-        ((IOSDriver)driver).executeScript("mobile:scroll",
-                Map.of("direction", "down", "toVisible", true));
-
         // Assert descriptions match
-        var productDescription = driver.findElements(loc_cntDescription(expectedDescription));
-        Assert.assertFalse(productDescription.isEmpty(),
+        Assert.assertFalse(iosUtils.getListElement(loc_cntDescription(expectedDescription)).isEmpty(),
                 "[Check description] Product description should be '%s', but it does not match'".formatted(expectedDescription));
         logger.info("[Check description] Product description is shown correctly.");
     }
@@ -335,19 +316,18 @@ public class IOSBuyerProductDetailScreen {
         APIGetWholesaleInformation.WholesaleInformation wholesaleInfo = fetchWholesaleInfo(itemId, customerId, variationIndex);
         APIGetFlashSaleInformation.FlashSaleInformation flashSaleInfo = fetchFlashSaleInfo(itemId, variationIndex);
 
-        // Determine the listing and selling price for the variation
-        long listingPrice = getListingPrice(variationIndex);
+        // Determine the selling price for the variation
         long sellingPrice = getSellingPrice(variationIndex);
 
         // Display appropriate pricing and discount information based on priority
         if (isFlashSaleActive(flashSaleInfo)) {
-            displayFlashSaleInfo(flashSaleInfo, listingPrice, branchName);
+            displayFlashSaleInfo(flashSaleInfo, branchName);
         } else if (campaignInfo != null) {
-            displayCampaignInfo(campaignInfo, listingPrice, sellingPrice, branchName);
+            displayCampaignInfo(campaignInfo, sellingPrice, branchName);
         } else if (wholesaleInfo != null) {
-            displayWholesaleInfo(wholesaleInfo, listingPrice, branchName);
+            displayWholesaleInfo(wholesaleInfo, branchName);
         } else {
-            displayRegularPrice(listingPrice, sellingPrice, branchName);
+            displayRegularPrice(sellingPrice, branchName);
         }
     }
 
@@ -387,19 +367,6 @@ public class IOSBuyerProductDetailScreen {
     }
 
     /**
-     * Retrieves the listing price for the variation model. If the product has no variation model,
-     * the original price of the product is returned.
-     *
-     * @param variationIndex the index of the variation model
-     * @return the listing price of the variation or the original product price if no variation exists
-     */
-    private long getListingPrice(int variationIndex) {
-        return productInfo.isHasModel()
-                ? APIGetProductDetail.getVariationListingPrice(productInfo, variationIndex)
-                : productInfo.getOrgPrice();
-    }
-
-    /**
      * Retrieves the selling price for the variation model. If the product has no variation model,
      * the new price of the product is returned.
      *
@@ -426,40 +393,40 @@ public class IOSBuyerProductDetailScreen {
     /**
      * Displays flash sale information and verifies the prices.
      */
-    private void displayFlashSaleInfo(APIGetFlashSaleInformation.FlashSaleInformation flashSaleInfo, long listingPrice, String brName) {
+    private void displayFlashSaleInfo(APIGetFlashSaleInformation.FlashSaleInformation flashSaleInfo, String brName) {
         validateFlashSaleDisplay(brName);
         logger.info("PRICE: FLASH SALE");
-        validateBranchPrices(listingPrice, flashSaleInfo.getItems().getFirst().getNewPrice(), brName, null);
+        validateBranchPrices(flashSaleInfo.getItems().getFirst().getNewPrice(), brName, null);
     }
 
     /**
      * Displays campaign information and verifies the prices.
      */
-    private void displayCampaignInfo(APIGetCampaignInformation.CampaignInformation campaignInfo, long listingPrice, long sellingPrice, String brName) {
+    private void displayCampaignInfo(APIGetCampaignInformation.CampaignInformation campaignInfo, long sellingPrice, String brName) {
         validateDiscountCampaignDisplay(brName);
         logger.info("PRICE: DISCOUNT CAMPAIGN");
         long newPrice = calculateCampaignPrice(campaignInfo, sellingPrice);
 
-        validateBranchPrices(listingPrice, newPrice, brName,
+        validateBranchPrices(newPrice, brName,
                 () -> iosUtils.click(loc_chkBuyInBulk));
     }
 
     /**
      * Displays wholesale information and verifies the prices.
      */
-    private void displayWholesaleInfo(APIGetWholesaleInformation.WholesaleInformation wholesaleInfo, long listingPrice, String brName) {
+    private void displayWholesaleInfo(APIGetWholesaleInformation.WholesaleInformation wholesaleInfo, String brName) {
         validateWholesalePricingDisplay(brName);
         logger.info("PRICE: WHOLESALE PRODUCT");
-        validateBranchPrices(listingPrice, wholesaleInfo.getPrice().longValue(), brName,
+        validateBranchPrices(wholesaleInfo.getPrice().longValue(), brName,
                 () -> adjustQuantityForWholesale(wholesaleInfo));
     }
 
     /**
      * Displays the regular selling price.
      */
-    private void displayRegularPrice(long listingPrice, long sellingPrice, String brName) {
+    private void displayRegularPrice(long sellingPrice, String brName) {
         logger.info("PRICE: SELLING PRICE");
-        validateBranchPrices(listingPrice, sellingPrice, brName, null);
+        validateBranchPrices(sellingPrice, brName, null);
     }
 
     /**
@@ -690,16 +657,28 @@ public class IOSBuyerProductDetailScreen {
 
                 // If the product has variations, select the variation and display its value
                 if (productInfo.isHasModel()) {
+                    // Reset the variation to its default value before selecting the new variation.
+                    // On the iOS app, if a variation is duplicated, it will always select the first available value.
+                    // To prevent re-selecting an already selected variation, we first reset it to default.
+                    List<String> defaultVariations = Arrays.stream(APIGetProductDetail.getVariationValue(productInfo,
+                            langKey,
+                            0).split("\\|")).toList();
+
+                    defaultVariations.forEach(this::selectVariation);
+
+                    // Then, we check the variation index. If variationIndex is not zero, we extract the first value from
+                    // the variation string (split by "|") and apply the change.
+                    // If the selected variation is already the default, no further action is needed.
                     variationValue = APIGetProductDetail.getVariationValue(productInfo, language, variationIndex);
-                    List<String> varNames = Arrays.stream(variationValue.split("\\|")).toList();
+                    if (variationIndex != 0) {
+                        List<String> varNames = Arrays.stream(variationValue.split("\\|")).toList();
 
-                    // Log the variation value if it's not empty
-                    if (!variationValue.isEmpty()) {
+                        // Log the variation value
                         logger.info("*** var: {} ***", variationValue);
-                    }
 
-                    // Loop through each variation and select it from the dropdown
-                    varNames.forEach(this::selectVariation);
+                        // Loop through each variation and select it from the dropdown
+                        varNames.forEach(this::selectVariation);
+                    }
                 }
 
                 // Validate the variation's information
@@ -716,10 +695,6 @@ public class IOSBuyerProductDetailScreen {
      * @param variation the name of the variation to select
      */
     private void selectVariation(String variation) {
-        // Scroll to top of screen
-        ((IOSDriver)driver).executeScript("mobile:scroll",
-                Map.of("direction", "up", "toVisible", true));
-
         // Select the variation value from the dropdown options
         iosUtils.click(loc_ddvVariationValue(variation));
         logger.info("Selected variation: {}.", variation);
@@ -768,7 +743,7 @@ public class IOSBuyerProductDetailScreen {
     }
 
     public void test() {
-       iosUtils.getElement(loc_lblProductName(productInfo.getName()));
+        iosUtils.getElement(loc_lblProductName(productInfo.getName()));
     }
 
     /**

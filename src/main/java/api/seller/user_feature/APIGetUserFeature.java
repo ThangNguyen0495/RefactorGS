@@ -1,6 +1,7 @@
 package api.seller.user_feature;
 
 import api.seller.login.APISellerLogin;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.Getter;
 import utility.APIUtils;
@@ -38,6 +39,7 @@ public class APIGetUserFeature {
      * Represents a package associated with a user, including its features and metadata.
      */
     @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class UserPackage {
         private UserFeature userFeature;
         private String packageName;
@@ -48,6 +50,7 @@ public class APIGetUserFeature {
          * Represents the feature details of a user's package.
          */
         @Data
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class UserFeature {
             private int id;
             private int userId;
