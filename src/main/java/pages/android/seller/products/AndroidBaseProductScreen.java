@@ -1037,9 +1037,6 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         void completeUpdateVariation() {
             // Save all product information
             androidUtils.click(loc_btnSave);
-
-            // Wait product detail screen loaded
-            androidUtils.waitUntilScreenLoaded(sellerProductDetailActivity);
         }
 
         public void updateVariationInformation(boolean isCreate) {

@@ -44,10 +44,6 @@ public class ProductManagementScreen extends ProductManagementElement {
         if (!androidUtils.getListElement(loc_lblProductName(productName)).isEmpty()) {
             // Click into first result
             androidUtils.click(loc_lblProductName(productName));
-
-            // Wait screen loaded
-            androidUtils.waitUntilScreenLoaded(sellerProductDetailActivity);
-
         } else throw new NoSuchElementException("No result with keyword: %s".formatted(productName));
     }
 //
