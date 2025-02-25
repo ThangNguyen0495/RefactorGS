@@ -103,9 +103,6 @@ public class AndroidSellerLoginScreen {
         clickAgreeTerm();
         clickLoginBtn();
 
-        // Wait for the home screen to load after login
-        androidUtils.waitUntilScreenLoaded(ActivityHelper.sellerHomeActivity);
-
         // Accept saving password in Google Password Manager if prompted
         if (!androidUtils.getListElement(loc_btnAcceptSavePassword).isEmpty()) {
             androidUtils.click(loc_btnAcceptSavePassword);
