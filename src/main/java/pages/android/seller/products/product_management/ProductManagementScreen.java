@@ -25,7 +25,7 @@ public class ProductManagementScreen extends ProductManagementElement {
 
     public ProductManagementScreen navigateToProductManagementScreen() {
         // Navigate to product management screen
-        androidUtils.navigateToScreenUsingScreenActivity(sellerBundleId, sellerProductMgmtActivity);
+        androidUtils.navigateToScreenUsingScreenActivity(sellerProductMgmtActivity);
 
         // Log
         logger.info("Navigate to product management screen.");

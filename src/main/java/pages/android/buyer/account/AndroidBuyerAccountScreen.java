@@ -16,7 +16,7 @@ public class AndroidBuyerAccountScreen {
         this.androidUtils = new AndroidUtils(driver);
     }
 
-    private final By loc_btnLogin = AndroidUtils.getBuyerLocatorByResourceId("%s:id/fragment_tab_account_user_profile_tv_sign_in");
+    private final By loc_btnLogin = AndroidUtils.getLocatorByResourceId("%s:id/fragment_tab_account_user_profile_tv_sign_in");
 
     public void navigateToLoginScreen() {
         new AndroidBuyerHomeScreen(driver).navigateToAccountScreen();

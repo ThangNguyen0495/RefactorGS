@@ -25,7 +25,6 @@ import java.util.stream.IntStream;
 
 import static api.seller.setting.APIGetBranchList.*;
 import static utility.AndroidUtils.*;
-import static utility.helper.ActivityHelper.buyerBundleId;
 
 public class AndroidBuyerProductDetailScreen {
     // WebDriver instance for interacting with the browser
@@ -61,12 +60,12 @@ public class AndroidBuyerProductDetailScreen {
     }
 
     // Locators
-    private final By loc_lblProductName = getBuyerLocatorByResourceId("%s:id/item_market_product_detail_desc_title");
+    private final By loc_lblProductName = getLocatorByResourceId("%s:id/item_market_product_detail_desc_title");
     private final By loc_lblSellingPrice = By.xpath("//*[contains(@resource-id, ':id/product_detail_content_popup_variation_tv_product_price')]");
-    private final By loc_lblListingPrice = getBuyerLocatorByResourceId("%s:id/item_market_product_detail_desc_original_price");
+    private final By loc_lblListingPrice = getLocatorByResourceId("%s:id/item_market_product_detail_desc_original_price");
 
     private By loc_ddvVariationName(int variationGroupIndex) {
-        return getBuyerLocatorByResourceId("%s" + ":id/item_market_product_detail_desc_tv_variation_%s_label".formatted(variationGroupIndex + 1));
+        return getLocatorByResourceId("%s" + ":id/item_market_product_detail_desc_tv_variation_%s_label".formatted(variationGroupIndex + 1));
     }
 
     private By loc_ddvVariationValue(String variationValue) {
@@ -78,19 +77,19 @@ public class AndroidBuyerProductDetailScreen {
     }
 
     // Using this to scroll to description section
-    private final By loc_sctDescription = getBuyerLocatorByResourceId("%s:id/llWebViewContainer");
+    private final By loc_sctDescription = getLocatorByResourceId("%s:id/llWebViewContainer");
     private final By loc_cntDescription = By.xpath("//android.widget.TextView");
-    private final By loc_lblSoldOut = getBuyerLocatorByResourceId("%s:id/activity_item_details_tv_not_available");
-    private final By loc_txtQuantity = getBuyerLocatorByResourceId("%s:id/product_detail_content_popup_variation_edt_quantity");
-    private final By loc_lblFlashSale = getBuyerLocatorByResourceId("%s:id/rlFlashSaleContainer");
-    private final By loc_lblDiscountCampaign = getBuyerLocatorByResourceId("%s:id/item_market_product_detail_tv_wholesale_label");
-    private final By loc_chkBuyInBulk = getBuyerLocatorByResourceId("%s:id/product_detail_content_popup_variation_iv_check_buy_in_bulk");
-    private final By loc_pnlWholesalePricing = getBuyerLocatorByResourceId("%s:id/item_market_product_detail_desc_group_wholesale_pricing");
-    private final By loc_btnBuyNow = getBuyerLocatorByResourceId("%s:id/tvBuyNow");
+    private final By loc_lblSoldOut = getLocatorByResourceId("%s:id/activity_item_details_tv_not_available");
+    private final By loc_txtQuantity = getLocatorByResourceId("%s:id/product_detail_content_popup_variation_edt_quantity");
+    private final By loc_lblFlashSale = getLocatorByResourceId("%s:id/rlFlashSaleContainer");
+    private final By loc_lblDiscountCampaign = getLocatorByResourceId("%s:id/item_market_product_detail_tv_wholesale_label");
+    private final By loc_chkBuyInBulk = getLocatorByResourceId("%s:id/product_detail_content_popup_variation_iv_check_buy_in_bulk");
+    private final By loc_pnlWholesalePricing = getLocatorByResourceId("%s:id/item_market_product_detail_desc_group_wholesale_pricing");
+    private final By loc_btnBuyNow = getLocatorByResourceId("%s:id/tvBuyNow");
     private final By loc_btnAddToCart = By.xpath("//*[contains(@resource-id, ':id/item_market_product_detail_footer_btn_add_to_cart')]");
-    private final By loc_btnCloseCart = getBuyerLocatorByResourceId("%s:id/product_detail_content_popup_variation_rl_exit");
-    private final By loc_icnFilterBranch = getBuyerLocatorByResourceId("%s:id/iv_select_branch_filter");
-    private final By loc_icnSearchBranch = getBuyerLocatorByResourceId("%s:id/iv_show_search_branch");
+    private final By loc_btnCloseCart = getLocatorByResourceId("%s:id/product_detail_content_popup_variation_rl_exit");
+    private final By loc_icnFilterBranch = getLocatorByResourceId("%s:id/iv_select_branch_filter");
+    private final By loc_icnSearchBranch = getLocatorByResourceId("%s:id/iv_show_search_branch");
 
     /**
      * Compares the product name displayed in the storefront with the product name from the dashboard.
@@ -762,7 +761,7 @@ public class AndroidBuyerProductDetailScreen {
      */
     public AndroidBuyerProductDetailScreen navigateProductDetailPage(APISellerLogin.Credentials credentials, int productId) {
         // Relaunch app to load new product information
-        androidUtils.relaunchApp(buyerBundleId);
+        androidUtils.relaunchApp();
         logger.info("Start the process of checking product information");
 
         // Store the credentials for API requests

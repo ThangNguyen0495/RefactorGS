@@ -68,6 +68,7 @@ jobs:
           test_name: ${{ env.test_name }}
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo '${{ vars.REUSE_VARIABLE }}' > src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/web/seller/${{ matrix.test_config_path }}"
 
   StoreFront:
@@ -90,6 +91,7 @@ jobs:
           test_name: ${{ env.test_name }}
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo '${{ vars.REUSE_VARIABLE }}' > src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/web/buyer/${{ matrix.test_config_path }}"
 
   AndroidSeller:
@@ -114,6 +116,8 @@ jobs:
           test_name: ${{ env.test_name }}
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo '${{ vars.APP_URL }}' > src/main/resources/config.properties
+            echo '${{ vars.REUSE_VARIABLE }}' > src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/android/seller/${{ matrix.test_config_path }}"
             
 
@@ -137,6 +141,8 @@ jobs:
           test_name: ${{ env.test_name }}
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo '${{ vars.APP_URL }}' > src/main/resources/config.properties
+            echo '${{ vars.REUSE_VARIABLE }}' > src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/android/buyer/${{ matrix.test_config_path }}"
 
   iOSSeller:
@@ -169,6 +175,8 @@ jobs:
           test_name: ${{ env.test_name }}
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo '${{ vars.APP_URL }}' > src/main/resources/config.properties
+            echo '${{ vars.REUSE_VARIABLE }}' > src/main/resources/config.properties
             echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/ios/seller/${{ matrix.test_config_path }}"
 
@@ -200,5 +208,7 @@ jobs:
           test_name: ${{ env.test_name }}
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo '${{ vars.APP_URL }}' > src/main/resources/config.properties
+            echo '${{ vars.REUSE_VARIABLE }}' > src/main/resources/config.properties
             echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
             mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/ios/buyer/${{ matrix.test_config_path }}"

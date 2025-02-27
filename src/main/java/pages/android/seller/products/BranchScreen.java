@@ -1,13 +1,13 @@
 package pages.android.seller.products;
 
-import io.appium.java_client.android.AndroidDriver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import utility.AndroidUtils;
 
-import static utility.helper.ActivityHelper.sellerBundleId;
+import static utility.WebDriverManager.appBundleId;
+
 
 public class BranchScreen {
     WebDriver driver;
@@ -21,7 +21,7 @@ public class BranchScreen {
         androidUtils = new AndroidUtils(driver);
     }
 
-    By loc_btnAllBranches = By.xpath("(//*[@* = '%s:id/htvFullBranches'] // *[@* = '%s:id/tag_container'])[1]".formatted(sellerBundleId, sellerBundleId));
+    By loc_btnAllBranches = By.xpath("(//*[@* = '%s:id/htvFullBranches'] // *[@* = '%s:id/tag_container'])[1]".formatted(appBundleId, appBundleId));
     By loc_btnBranch(String branchName) {
         return By.xpath("//*[@text = '%s']".formatted(branchName));
     }

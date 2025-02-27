@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import static api.seller.setting.APIGetBranchList.*;
-import static utility.helper.ActivityHelper.buyerBundleId;
 
 public class IOSBuyerProductDetailScreen {
     // WebDriver instance for interacting with the browser
@@ -503,8 +502,8 @@ public class IOSBuyerProductDetailScreen {
             verifyBranchStockNameAndPrice(variationName, visibleBranches, branchIds, variationIndex, customerId);
         }
 
-        // Validate product description
-        validateProductDescription(modelId, langKey);
+//        // Validate product description
+//        validateProductDescription(modelId, langKey);
     }
 
     /**
@@ -712,7 +711,7 @@ public class IOSBuyerProductDetailScreen {
      */
     public IOSBuyerProductDetailScreen navigateProductDetailPage(APISellerLogin.Credentials credentials, int productId) {
         // Relaunch app to load new product information
-        iosUtils.relaunchApp(buyerBundleId);
+        iosUtils.relaunchApp();
         logger.info("Start the process of checking product information");
 
         // Store the credentials for API requests

@@ -7,8 +7,6 @@ import org.openqa.selenium.WebDriver;
 import pages.ios.seller.home.HomeScreen;
 import utility.IOSUtils;
 
-import static utility.helper.ActivityHelper.sellerBundleId;
-
 public class ProductManagementScreen extends ProductManagementElement {
     WebDriver driver;
     IOSUtils iosUtils;
@@ -24,7 +22,7 @@ public class ProductManagementScreen extends ProductManagementElement {
 
     public ProductManagementScreen navigateToProductManagementScreen() {
         // Relaunch app
-        iosUtils.relaunchApp(sellerBundleId);
+        iosUtils.relaunchApp();
 
         // Navigate to product management screen
         new HomeScreen(driver).navigateToProductManagementScreen();

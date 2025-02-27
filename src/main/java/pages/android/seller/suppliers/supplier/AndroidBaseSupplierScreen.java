@@ -16,8 +16,7 @@ import utility.helper.SupplierHelper;
 
 import java.util.Optional;
 
-import static utility.AndroidUtils.getSellerLocatorByResourceId;
-import static utility.helper.ActivityHelper.sellerBundleId;
+import static utility.AndroidUtils.getLocatorByResourceId;
 import static utility.helper.ActivityHelper.sellerCreateSupplierActivity;
 
 public class AndroidBaseSupplierScreen {
@@ -38,26 +37,26 @@ public class AndroidBaseSupplierScreen {
         androidUtils = new AndroidUtils(driver);
     }
 
-    By loc_btnHeaderSave = getSellerLocatorByResourceId("%s:id/tvActionBarButtonRight");
-    By loc_txtSupplierName = getSellerLocatorByResourceId("%s:id/edtSupplierName");
-    By loc_txtSupplierCode = getSellerLocatorByResourceId("%s:id/edtSupplierCode");
-    By loc_txtPhoneNumber = getSellerLocatorByResourceId("%s:id/edtPhoneNumber");
-    By loc_txtEmail = getSellerLocatorByResourceId("%s:id/edtEmail");
-    By loc_ddvSelectedCountry = getSellerLocatorByResourceId("%s:id/tvSelectedCountry");
-    By loc_txtVietnamAddress = getSellerLocatorByResourceId("%s:id/edtAddress");
-    By loc_lblSelectedVietnamCity = getSellerLocatorByResourceId("%s:id/tvSelectedCity");
-    By loc_lblSelectedVietnamDistrict = getSellerLocatorByResourceId("%s:id/tvSelectedDistrict");
-    By loc_lblSelectedVietnamWard = getSellerLocatorByResourceId("%s:id/tvSelectedWard");
-    By loc_txtForeignStreetAddress = getSellerLocatorByResourceId("%s:id/edtAddress");
-    By loc_txtForeignAddress2 = getSellerLocatorByResourceId("%s:id/edtAddress2");
-    By loc_txtForeignCity = getSellerLocatorByResourceId("%s:id/edtCityOutSideVN");
-    By loc_lblSelectedForeignProvince = getSellerLocatorByResourceId("%s:id/tvSelectedState");
-    By loc_txtForeignZipcode = getSellerLocatorByResourceId("%s:id/edtZipCode");
-    By loc_lblSelectedResponsibleStaff = getSellerLocatorByResourceId("%s:id/tvSelectedResponsibleStaff");
+    By loc_btnHeaderSave = getLocatorByResourceId("%s:id/tvActionBarButtonRight");
+    By loc_txtSupplierName = getLocatorByResourceId("%s:id/edtSupplierName");
+    By loc_txtSupplierCode = getLocatorByResourceId("%s:id/edtSupplierCode");
+    By loc_txtPhoneNumber = getLocatorByResourceId("%s:id/edtPhoneNumber");
+    By loc_txtEmail = getLocatorByResourceId("%s:id/edtEmail");
+    By loc_ddvSelectedCountry = getLocatorByResourceId("%s:id/tvSelectedCountry");
+    By loc_txtVietnamAddress = getLocatorByResourceId("%s:id/edtAddress");
+    By loc_lblSelectedVietnamCity = getLocatorByResourceId("%s:id/tvSelectedCity");
+    By loc_lblSelectedVietnamDistrict = getLocatorByResourceId("%s:id/tvSelectedDistrict");
+    By loc_lblSelectedVietnamWard = getLocatorByResourceId("%s:id/tvSelectedWard");
+    By loc_txtForeignStreetAddress = getLocatorByResourceId("%s:id/edtAddress");
+    By loc_txtForeignAddress2 = getLocatorByResourceId("%s:id/edtAddress2");
+    By loc_txtForeignCity = getLocatorByResourceId("%s:id/edtCityOutSideVN");
+    By loc_lblSelectedForeignProvince = getLocatorByResourceId("%s:id/tvSelectedState");
+    By loc_txtForeignZipcode = getLocatorByResourceId("%s:id/edtZipCode");
+    By loc_lblSelectedResponsibleStaff = getLocatorByResourceId("%s:id/tvSelectedResponsibleStaff");
     By loc_ddvResponsibleStaff(String staffName) {
         return By.xpath("//*[@text = '%s']".formatted(staffName));
     }
-    By loc_txtDescription = getSellerLocatorByResourceId("%s:id/edtDescription");
+    By loc_txtDescription = getLocatorByResourceId("%s:id/edtDescription");
 
     /**
      * Fetches supplier information from the API based on the credentials provided and stores it
@@ -82,7 +81,7 @@ public class AndroidBaseSupplierScreen {
      */
     public void navigateToCreateSupplierPage() {
         // Navigate to product management screen
-        androidUtils.navigateToScreenUsingScreenActivity(sellerBundleId, sellerCreateSupplierActivity);
+        androidUtils.navigateToScreenUsingScreenActivity(sellerCreateSupplierActivity);
 
         // Log
         logger.info("Navigate to create supplier screen by activity.");
@@ -402,9 +401,9 @@ public class AndroidBaseSupplierScreen {
             this.androidUtils = new AndroidUtils(driver);
         }
 
-        private final By loc_btnClose = getSellerLocatorByResourceId("%s:id/btnClose");
-        private final By loc_icnSearch = getSellerLocatorByResourceId("%s:id/btnSearch");
-        private final By loc_txtSearch = getSellerLocatorByResourceId("%s:id/search_src_text");
+        private final By loc_btnClose = getLocatorByResourceId("%s:id/btnClose");
+        private final By loc_icnSearch = getLocatorByResourceId("%s:id/btnSearch");
+        private final By loc_txtSearch = getLocatorByResourceId("%s:id/search_src_text");
 
         /**
          * Constructs the XPath locator for dropdown items containing the specified text.

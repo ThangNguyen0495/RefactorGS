@@ -6,9 +6,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import utility.AndroidUtils;
 
-import static utility.AndroidUtils.getSellerLocatorByResourceId;
-import static utility.AndroidUtils.getSellerLocatorByResourceIdAndInstance;
-import static utility.helper.ActivityHelper.sellerBundleId;
+import static utility.AndroidUtils.getLocatorByResourceId;
+import static utility.AndroidUtils.getLocatorByResourceIdAndInstance;
 
 public class FilterScreen {
     WebDriver driver;
@@ -23,23 +22,23 @@ public class FilterScreen {
         androidUtils = new AndroidUtils(driver);
     }
 
-    By loc_btnReset = getSellerLocatorByResourceId("%s:id/btnReset");
+    By loc_btnReset = getLocatorByResourceId("%s:id/btnReset");
 
     By loc_btnFilterByStatus(int actionsIndex) {
-        return getSellerLocatorByResourceIdAndInstance("%s:id/tag_container", actionsIndex);
+        return getLocatorByResourceIdAndInstance("%s:id/tag_container", actionsIndex);
     }
 
     By loc_btnFilterByChannel(int actionsIndex) {
-        return getSellerLocatorByResourceIdAndInstance("%s:id/tag_container", actionsIndex + 4);
+        return getLocatorByResourceIdAndInstance("%s:id/tag_container", actionsIndex + 4);
     }
 
     By loc_btnFilterByPlatform(int actionsIndex) {
-        return getSellerLocatorByResourceIdAndInstance("%s:id/tag_container", actionsIndex + 7);
+        return getLocatorByResourceIdAndInstance("%s:id/tag_container", actionsIndex + 7);
     }
 
-    By loc_btnSeeAllBranches = getSellerLocatorByResourceId("%s:id/btnSeeAllBranches");
-    By loc_btnSeeAllCollections = getSellerLocatorByResourceId("%s:id/btnSeeAllCollections");
-    By loc_btnApply = getSellerLocatorByResourceId("%s:id/btnApply");
+    By loc_btnSeeAllBranches = getLocatorByResourceId("%s:id/btnSeeAllBranches");
+    By loc_btnSeeAllCollections = getLocatorByResourceId("%s:id/btnSeeAllCollections");
+    By loc_btnApply = getLocatorByResourceId("%s:id/btnApply");
 
     public void filterByStatus(String status) {
         // Reset all filters

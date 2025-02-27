@@ -32,8 +32,6 @@ import java.util.stream.IntStream;
 import static api.seller.user_feature.APIGetUserFeature.*;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static pages.ios.seller.product.product_management.ProductManagementElement.loc_txtSearchBox;
-import static utility.helper.ActivityHelper.sellerBundleId;
-
 
 public class IOSBaseProductScreen extends IOSBaseProductElement {
     // WebDriver and WebUtils
@@ -211,7 +209,7 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
 
     public IOSBaseProductScreen navigateToCreateProductScreen() {
         // Relaunch app
-        iosUtils.relaunchApp(sellerBundleId);
+        iosUtils.relaunchApp();
 
         // Navigate to create product screen
         new HomeScreen(driver).navigateToCreateProductScreen();
@@ -804,16 +802,6 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         manageProduct(false, this.currentProductInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER"), hasModel, branchStock);
         return this;
     }
-
-
-    public void updateEachVariationInformation(int... branchStock) {
-        // Update variation information
-        updateVariationInformation(true);
-
-        // Save changes
-        saveChanges();
-    }
-
     private void updateVariationInformation(boolean isCreate) {
         // Init variation POM
         ProductVariationScreen productVariationScreen = new ProductVariationScreen(driver);

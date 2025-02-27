@@ -5,9 +5,6 @@ import org.openqa.selenium.WebDriver;
 import pages.ios.seller.home.HomeScreen;
 import utility.IOSUtils;
 
-import static utility.AndroidUtils.getSellerLocatorByResourceId;
-import static utility.helper.ActivityHelper.sellerBundleId;
-
 public class IOSSupplierManagementScreen {
     private final WebDriver driver;
     private final IOSUtils iosUtils;
@@ -26,7 +23,7 @@ public class IOSSupplierManagementScreen {
 
     public IOSSupplierManagementScreen navigateToSupplierManagementScreen() {
         // Relaunch app
-        iosUtils.relaunchApp(sellerBundleId);
+        iosUtils.relaunchApp();
 
         new HomeScreen(driver).navigateToSupplierManagementScreen();
         return this;

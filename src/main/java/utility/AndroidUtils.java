@@ -20,8 +20,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static io.appium.java_client.AppiumBy.androidUIAutomator;
-import static utility.helper.ActivityHelper.buyerBundleId;
-import static utility.helper.ActivityHelper.sellerBundleId;
+import static utility.WebDriverManager.appBundleId;
 
 /**
  * Provides utility functions for interacting with Android devices in an Appium-based
@@ -32,16 +31,12 @@ import static utility.helper.ActivityHelper.sellerBundleId;
 public class AndroidUtils {
 
     private static final Logger logger = LogManager.getLogger(AndroidUtils.class);
-    public static By getSellerLocatorByResourceId(String resourceId) {
-        return AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\"))".formatted(resourceId.formatted(sellerBundleId)));
+    public static By getLocatorByResourceId(String resourceId) {
+        return AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\"))".formatted(resourceId.formatted(appBundleId)));
     }
 
-    public static By getBuyerLocatorByResourceId(String resourceId) {
-        return AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\"))".formatted(resourceId.formatted(buyerBundleId)));
-    }
-
-    public static By getSellerLocatorByResourceIdAndInstance(String resourceId, int index) {
-        return AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\").instance(%d))".formatted(resourceId.formatted(sellerBundleId), index));
+    public static By getLocatorByResourceIdAndInstance(String resourceId, int index) {
+        return AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\").instance(%d))".formatted(resourceId.formatted(appBundleId), index));
     }
 
     public static By getLocatorByText(String text) {
@@ -248,28 +243,26 @@ public class AndroidUtils {
     /**
      * Relaunches the app by terminating and then activating it again.
      *
-     * @param appPackage The package name of the app.
      */
-    public void relaunchApp(String appPackage) {
-        ((AndroidDriver) driver).terminateApp(appPackage);
-        ((AndroidDriver) driver).activateApp(appPackage);
-        logger.info("Relaunched app with package: {}", appPackage);
+    public void relaunchApp() {
+        ((AndroidDriver) driver).terminateApp(appBundleId);
+        ((AndroidDriver) driver).activateApp(appBundleId);
+        logger.info("Relaunched app with package: {}", appBundleId);
     }
 
     /**
      * Navigates to a specific screen using the provided app package and activity.
      *
-     * @param appPackage  The package name of the app.
      * @param appActivity The activity name of the screen to navigate to.
      */
-    public void navigateToScreenUsingScreenActivity(String appPackage, String appActivity) {
+    public void navigateToScreenUsingScreenActivity(String appActivity) {
         // Return early if the current activity is already the desired activity
         if (Objects.equals(((AndroidDriver) driver).currentActivity(), appActivity)) {
             return; // Early exit if the current activity matches the target activity
         }
 
         // Navigate to screen by activity
-        Activity activity = new Activity(appPackage, appActivity);
+        Activity activity = new Activity(appBundleId, appActivity);
         activity.setStopApp(false);
         ((AndroidDriver) driver).startActivity(activity);
         logger.info("Navigated to screen activity: {}", appActivity);

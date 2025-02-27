@@ -26,9 +26,9 @@ public class AndroidBuyerHomeScreen {
         androidUtils = new AndroidUtils(driver);
     }
 
-    private final By loc_icnSearch = getBuyerLocatorByResourceId("%s:id/bottom_navigation_tab_product");
-    private final By loc_btnSearch = getBuyerLocatorByResourceId("%s:id/btn_action_bar_search");
-    private final By loc_txtSearchBox = getBuyerLocatorByResourceId("%s:id/search_src_text");
+    private final By loc_icnSearch = getLocatorByResourceId("%s:id/bottom_navigation_tab_product");
+    private final By loc_btnSearch = getLocatorByResourceId("%s:id/btn_action_bar_search");
+    private final By loc_txtSearchBox = getLocatorByResourceId("%s:id/search_src_text");
     private By loc_lblSearchResult(String productName) {
         return By.xpath("//android.widget.TextView[@text = '%s']".formatted(productName));
     }

@@ -15,7 +15,7 @@ public class AndroidSellerHomeScreen {
         androidUtils = new AndroidUtils(driver);
     }
 
-    private final By loc_icnAccount = getSellerLocatorByResourceId("%s:id/bottom_navigation_tab_account");
+    private final By loc_icnAccount = getLocatorByResourceId("%s:id/bottom_navigation_tab_account");
 
     public void changeApplicationLanguage() {
         // Navigate to Account screen

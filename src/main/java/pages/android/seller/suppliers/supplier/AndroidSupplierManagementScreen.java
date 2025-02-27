@@ -4,8 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import utility.AndroidUtils;
 
-import static utility.AndroidUtils.getSellerLocatorByResourceId;
-import static utility.helper.ActivityHelper.sellerBundleId;
+import static utility.AndroidUtils.getLocatorByResourceId;
 import static utility.helper.ActivityHelper.sellerSupplierMgmtActivity;
 
 public class AndroidSupplierManagementScreen {
@@ -17,14 +16,14 @@ public class AndroidSupplierManagementScreen {
         this.androidUtils = new AndroidUtils(driver);
     }
 
-    private final By loc_txtSearchBox = getSellerLocatorByResourceId("%s:id/edtSupplierSearch");
+    private final By loc_txtSearchBox = getLocatorByResourceId("%s:id/edtSupplierSearch");
 
     private By loc_lstSupplier(String supplierName) {
         return By.xpath("(//*[contains(@text, '%s')])[last()]".formatted(supplierName));
     }
 
     public AndroidSupplierManagementScreen navigateToSupplierManagementScreenByActivity() {
-        androidUtils.navigateToScreenUsingScreenActivity(sellerBundleId, sellerSupplierMgmtActivity);
+        androidUtils.navigateToScreenUsingScreenActivity(sellerSupplierMgmtActivity);
         return this;
     }
 

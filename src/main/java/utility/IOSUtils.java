@@ -11,6 +11,8 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 
+import static utility.WebDriverManager.appBundleId;
+
 /**
  * Provides utility functions for interacting with iOS devices in an Appium-based
  * test automation framework. This class offers methods to manage iOS app interactions,
@@ -264,11 +266,10 @@ public class IOSUtils {
     /**
      * Relaunches the app by terminating and then activating it again.
      *
-     * @param bundleId The bundle ID of the app.
      */
-    public void relaunchApp(String bundleId) {
-        ((IOSDriver) driver).terminateApp(bundleId);
-        ((IOSDriver) driver).activateApp(bundleId);
+    public void relaunchApp() {
+        ((IOSDriver) driver).terminateApp(appBundleId);
+        ((IOSDriver) driver).activateApp(appBundleId);
         logger.info("Relaunch app.");
     }
 }

@@ -12,6 +12,7 @@ import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.safari.SafariDriver;
+import utility.helper.ActivityHelper;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -22,6 +23,7 @@ import java.net.URISyntaxException;
  * for browser and mobile testing.
  */
 public class WebDriverManager {
+    public static String appBundleId;
     private static final String url = "http://127.0.0.1:4723/wd/hub";
 
     /**
@@ -48,7 +50,9 @@ public class WebDriverManager {
         options.setCapability("appium:adbExecTimeout", 300_000);
         options.setCapability("appium:app", appPath);
 
-        return new AndroidDriver(new URI(url).toURL(), options);
+        AndroidDriver driver = new AndroidDriver(new URI(url).toURL(), options);
+        appBundleId = driver.getCurrentPackage();
+        return driver;
     }
 
     /**
@@ -70,7 +74,11 @@ public class WebDriverManager {
         options.setCapability("appium:automationName", "XCUITest");
         options.setCapability("appium:app", appPath);
 
-        return new IOSDriver(new URI(url).toURL(), options);
+
+        IOSDriver driver = new IOSDriver(new URI(url).toURL(), options);
+        appBundleId = driver.getCapabilities().getCapability("bundleId").toString();
+
+        return driver;
     }
 
     /**

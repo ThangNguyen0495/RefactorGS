@@ -35,6 +35,7 @@ import static api.seller.user_feature.APIGetUserFeature.*;
 import static java.lang.String.format;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static utility.AndroidUtils.*;
+import static utility.WebDriverManager.appBundleId;
 import static utility.helper.ActivityHelper.*;
 
 
@@ -214,7 +215,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
 
     public AndroidBaseProductScreen navigateToCreateProductScreen() {
         // Navigate to create product screen
-        androidUtils.navigateToScreenUsingScreenActivity(PropertiesUtils.getSellerBundleId(), ActivityHelper.sellerCreateProductActivity);
+        androidUtils.navigateToScreenUsingScreenActivity( ActivityHelper.sellerCreateProductActivity);
 
         // Log
         logger.info("Navigate to create product screen.");
@@ -874,18 +875,18 @@ public class AndroidBaseProductScreen extends BaseProductElement {
             androidUtils = new AndroidUtils(driver);
         }
 
-        By loc_btnSave = getSellerLocatorByResourceId("%s:id/tvActionBarIconRight");
-        By loc_btnSelectImage = By.xpath("//android.widget.FrameLayout[*[@resource-id = '%s:id/rlSelectImages']]".formatted(sellerBundleId));
-        By loc_txtVariationName = getSellerLocatorByResourceId("%s:id/edtVersionName");
-        By loc_chkReuseProductDescription = getSellerLocatorByResourceId("%s:id/ivUseProductDescription");
-        By loc_btnVariationDescription = getSellerLocatorByResourceId("%s:id/tvVariationDescription");
-        By loc_txtVariationListingPrice = By.xpath("//*[@*= '%s:id/edtVariationOrgPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(sellerBundleId, sellerBundleId));
-        By loc_txtVariationSellingPrice = By.xpath("//*[@*= '%s:id/edtVariationNewPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(sellerBundleId, sellerBundleId));
-        By loc_txtVariationCostPrice = By.xpath("//*[@*= '%s:id/edtVariationCostPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(sellerBundleId, sellerBundleId));
-        By loc_txtVariationSKU = getSellerLocatorByResourceId("%s:id/edtSKU");
-        By loc_txtVariationBarcode = getSellerLocatorByResourceId("%s:id/edtBarcode");
-        By loc_btnInventory = getSellerLocatorByResourceId("%s:id/clInventoryContainer");
-        By loc_btnDeactivate = getSellerLocatorByResourceId("%s:id/tvActiveDeactive");
+        By loc_btnSave = getLocatorByResourceId("%s:id/tvActionBarIconRight");
+        By loc_btnSelectImage = By.xpath("//android.widget.FrameLayout[*[@resource-id = '%s:id/rlSelectImages']]".formatted(appBundleId));
+        By loc_txtVariationName = getLocatorByResourceId("%s:id/edtVersionName");
+        By loc_chkReuseProductDescription = getLocatorByResourceId("%s:id/ivUseProductDescription");
+        By loc_btnVariationDescription = getLocatorByResourceId("%s:id/tvVariationDescription");
+        By loc_txtVariationListingPrice = By.xpath("//*[@*= '%s:id/edtVariationOrgPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(appBundleId, appBundleId));
+        By loc_txtVariationSellingPrice = By.xpath("//*[@*= '%s:id/edtVariationNewPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(appBundleId, appBundleId));
+        By loc_txtVariationCostPrice = By.xpath("//*[@*= '%s:id/edtVariationCostPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(appBundleId, appBundleId));
+        By loc_txtVariationSKU = getLocatorByResourceId("%s:id/edtSKU");
+        By loc_txtVariationBarcode = getLocatorByResourceId("%s:id/edtBarcode");
+        By loc_btnInventory = getLocatorByResourceId("%s:id/clInventoryContainer");
+        By loc_btnDeactivate = getLocatorByResourceId("%s:id/tvActiveDeactive");
 
         public ProductVariationScreen getVariationInformation(List<APIGetBranchList.BranchInformation> branchInfos, int variationIndex, APIGetProductDetail.ProductInformation productInfo) {
             // Get branch information
@@ -1062,15 +1063,15 @@ public class AndroidBaseProductScreen extends BaseProductElement {
             androidUtils = new AndroidUtils(driver);
         }
 
-        By loc_btnRemoveVariationGroup = getSellerLocatorByResourceId("%s:id/ivDeleteVariation1");
-        By loc_btnAddVariation = getSellerLocatorByResourceId("%s:id/tvAddVariation");
-        By loc_txtVariationName1 = getSellerLocatorByResourceId("%s:id/edtVariation1Name");
-        By loc_txtVariationValue1 = getSellerLocatorByResourceId("%s:id/edtInputImeiSerialNumberValue");
-        By loc_btnAddVariationValue1 = getSellerLocatorByResourceId("%s:id/ivAddNewImeiSerialNumber");
-        By loc_txtVariationName2 = getSellerLocatorByResourceId("%s:id/edtVariation2Name");
-        By loc_txtVariationValue2 = getSellerLocatorByResourceId("%s:id/edtVariation2Value");
-        By loc_btnAddVariationValue2 = getSellerLocatorByResourceId("%s:id/ivAddValueForVariation2");
-        By loc_btnSave = getSellerLocatorByResourceId("%s:id/ivActionBarIconRight");
+        By loc_btnRemoveVariationGroup = getLocatorByResourceId("%s:id/ivDeleteVariation1");
+        By loc_btnAddVariation = getLocatorByResourceId("%s:id/tvAddVariation");
+        By loc_txtVariationName1 = getLocatorByResourceId("%s:id/edtVariation1Name");
+        By loc_txtVariationValue1 = getLocatorByResourceId("%s:id/edtInputImeiSerialNumberValue");
+        By loc_btnAddVariationValue1 = getLocatorByResourceId("%s:id/ivAddNewImeiSerialNumber");
+        By loc_txtVariationName2 = getLocatorByResourceId("%s:id/edtVariation2Name");
+        By loc_txtVariationValue2 = getLocatorByResourceId("%s:id/edtVariation2Value");
+        By loc_btnAddVariationValue2 = getLocatorByResourceId("%s:id/ivAddValueForVariation2");
+        By loc_btnSave = getLocatorByResourceId("%s:id/ivActionBarIconRight");
 
         private void removeOldVariation(int numOfVariationGroups) {
             // Check number of variation groups
@@ -1134,7 +1135,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
 
         // Locator for the save button
         private final By locBtnSave =
-                AndroidUtils.getSellerLocatorByResourceId("%s:id/ivActionBarIconRight");
+                AndroidUtils.getLocatorByResourceId("%s:id/ivActionBarIconRight");
 
         /**
          * Constructor for the ProductDescriptionScreen class.
@@ -1178,11 +1179,11 @@ public class AndroidBaseProductScreen extends BaseProductElement {
             return By.xpath("//*[*/*[@text = '%s']]/android.widget.EditText".formatted(branchName));
         }
 
-        By loc_btnSave = getSellerLocatorByResourceId("%s:id/tvActionBarIconRight");
-        By loc_dlgUpdateStock = getSellerLocatorByResourceId("%s:id/tabLayoutUpdateStockType");
-        By loc_dlgUpdateStock_tabChange = By.xpath("(//*[@* = '%s:id/tabLayoutUpdateStockType']//android.widget.TextView)[2]".formatted(sellerBundleId));
-        By loc_dlgUpdateStock_txtQuantity = getSellerLocatorByResourceId("%s:id/edtStock");
-        By loc_dlgUpdateStock_btnOK = getSellerLocatorByResourceId("%s:id/tvUpdateStock");
+        By loc_btnSave = getLocatorByResourceId("%s:id/tvActionBarIconRight");
+        By loc_dlgUpdateStock = getLocatorByResourceId("%s:id/tabLayoutUpdateStockType");
+        By loc_dlgUpdateStock_tabChange = By.xpath("(//*[@* = '%s:id/tabLayoutUpdateStockType']//android.widget.TextView)[2]".formatted(appBundleId));
+        By loc_dlgUpdateStock_txtQuantity = getLocatorByResourceId("%s:id/edtStock");
+        By loc_dlgUpdateStock_btnOK = getLocatorByResourceId("%s:id/tvUpdateStock");
 
         /**
          * Manages stock for branches by either adding or updating based on the operation.
@@ -1254,22 +1255,22 @@ public class AndroidBaseProductScreen extends BaseProductElement {
             androidUtils = new AndroidUtils(driver);
         }
 
-        By loc_btnSave = getSellerLocatorByResourceId("%s:id/tvActionBarIconRight");
-        By loc_ddvSelectedBranch = getSellerLocatorByResourceId("%s:id/tvFilterBranches");
+        By loc_btnSave = getLocatorByResourceId("%s:id/tvActionBarIconRight");
+        By loc_ddvSelectedBranch = getLocatorByResourceId("%s:id/tvFilterBranches");
 
         By loc_lstBranches(int branchIndex) {
-            return getSellerLocatorByResourceIdAndInstance("%s:id/ivUnChecked", branchIndex);
+            return getLocatorByResourceIdAndInstance("%s:id/ivUnChecked", branchIndex);
         }
 
-        By loc_lblActions = getSellerLocatorByResourceId("%s:id/ivAction");
-        By loc_lblUpdatePriceActions = By.xpath("(//*[@* = '%s:id/title'])[1]".formatted(sellerBundleId));
-        By loc_lblUpdateStockActions = By.xpath("(//*[@* = '%s:id/title'])[2]".formatted(sellerBundleId));
-        By loc_dlgUpdatePrice_txtListingPrice = By.xpath("//*[@* = '%s:id/edtOrgPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(sellerBundleId, sellerBundleId));
-        By loc_dlgUpdatePrice_txtSellingPrice = By.xpath("//*[@* = '%s:id/edtNewPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(sellerBundleId, sellerBundleId));
-        By loc_dlgUpdatePrice_btnOK = getSellerLocatorByResourceId("%s:id/tvOK");
-        By loc_dlgUpdateStock_tabChange = By.xpath("(//*[@* = '%s:id/tabLayoutUpdateStockType']//android.widget.TextView)[2]".formatted(sellerBundleId));
-        By loc_dlgUpdateStock_txtQuantity = getSellerLocatorByResourceId("%s:id/edtStock");
-        By loc_dlgUpdateStock_btnOK = getSellerLocatorByResourceId("%s:id/tvUpdateStock");
+        By loc_lblActions = getLocatorByResourceId("%s:id/ivAction");
+        By loc_lblUpdatePriceActions = By.xpath("(//*[@* = '%s:id/title'])[1]".formatted(appBundleId));
+        By loc_lblUpdateStockActions = By.xpath("(//*[@* = '%s:id/title'])[2]".formatted(appBundleId));
+        By loc_dlgUpdatePrice_txtListingPrice = By.xpath("//*[@* = '%s:id/edtOrgPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(appBundleId, appBundleId));
+        By loc_dlgUpdatePrice_txtSellingPrice = By.xpath("//*[@* = '%s:id/edtNewPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(appBundleId, appBundleId));
+        By loc_dlgUpdatePrice_btnOK = getLocatorByResourceId("%s:id/tvOK");
+        By loc_dlgUpdateStock_tabChange = By.xpath("(//*[@* = '%s:id/tabLayoutUpdateStockType']//android.widget.TextView)[2]".formatted(appBundleId));
+        By loc_dlgUpdateStock_txtQuantity = getLocatorByResourceId("%s:id/edtStock");
+        By loc_dlgUpdateStock_btnOK = getLocatorByResourceId("%s:id/tvUpdateStock");
 
         public void bulkUpdatePrice(long listingPrice, long sellingPrice) {
             // Open list actions
@@ -1355,10 +1356,10 @@ public class AndroidBaseProductScreen extends BaseProductElement {
             androidUtils = new AndroidUtils(driver);
         }
 
-        By loc_icnRemoveIMEI = getSellerLocatorByResourceId("%s:id/ivDeleteIcon");
-        By loc_txtIMEI = getSellerLocatorByResourceId("%s:id/edtInputImeiSerialNumberValue");
-        By loc_btnAdd = getSellerLocatorByResourceId("%s:id/ivAddNewImeiSerialNumber");
-        By loc_btnSave = getSellerLocatorByResourceId("%s:id/tvActionBarIconRight");
+        By loc_icnRemoveIMEI = getLocatorByResourceId("%s:id/ivDeleteIcon");
+        By loc_txtIMEI = getLocatorByResourceId("%s:id/edtInputImeiSerialNumberValue");
+        By loc_btnAdd = getLocatorByResourceId("%s:id/ivAddNewImeiSerialNumber");
+        By loc_btnSave = getLocatorByResourceId("%s:id/tvActionBarIconRight");
 
         public void addIMEI(int quantity, String branchName, String variation) {
             // Remove old IMEI
