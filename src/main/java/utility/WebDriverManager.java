@@ -85,6 +85,7 @@ public class WebDriverManager {
         IOSDriver driver = new IOSDriver(new URI(url).toURL(), options);
         LogEntries serverLogs = driver.manage().logs().get(LogType.SERVER);
         for (LogEntry log : serverLogs) {
+            System.out.println(log.toString());
             if (log.getMessage().contains("already installed")) {
                 appBundleId = log.getMessage().split("'")[1];
                 break;
