@@ -78,7 +78,6 @@ public class ListenerUtils implements ITestListener, ISuiteListener {
     @Override
     public void onFinish(ISuite suite) {
         if (extent == null) return;
-        // Log the summary at the end of the test execution
 
         // Flushes the ExtentReports
         extent.flush();
@@ -173,16 +172,7 @@ public class ListenerUtils implements ITestListener, ISuiteListener {
         test.log(Status.FAIL, result.getThrowable());
 
         // Capture screenshot on test failure and add it to ExtentReport
-        WebDriver driver = getDriver(result);
-        if (driver == null) return;
-
-        try {
-            // Capture screenshot and save it as Base64 string
-            String base64Image = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BASE64);
-            test.addScreenCaptureFromBase64String(base64Image);
-        } catch (Exception e) {
-            logger.error("Failed to capture screenshot for {}", testName, e);
-        }
+        takeScreenshotToDebug(result);
     }
 
     /**
@@ -193,6 +183,22 @@ public class ListenerUtils implements ITestListener, ISuiteListener {
     @Override
     public void onTestSkipped(ITestResult result) {
         if (test == null || result == null) return;
+        // Capture screenshot on test failure and add it to ExtentReport
+        takeScreenshotToDebug(result);
         test.skip("Test Skipped: " + testName);
+    }
+
+    private void takeScreenshotToDebug(ITestResult result) {
+        // Capture screenshot on test failure and add it to ExtentReport
+        WebDriver driver = getDriver(result);
+        if (driver == null) return;
+
+        try {
+            // Capture screenshot and save it as Base64 string
+            String base64Image = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BASE64);
+            test.addScreenCaptureFromBase64String(base64Image);
+        } catch (Exception e) {
+            logger.error("Failed to capture screenshot for {}", testName, e);
+        }
     }
 }
