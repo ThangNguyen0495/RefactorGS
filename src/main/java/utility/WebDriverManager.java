@@ -4,6 +4,7 @@ import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
 import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.ios.options.XCUITestOptions;
+import org.apache.logging.log4j.LogManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -56,6 +57,7 @@ public class WebDriverManager {
 
         AndroidDriver driver = new AndroidDriver(new URI(url).toURL(), options);
         appBundleId = driver.getCurrentPackage();
+        LogManager.getLogger().info("Android app bundle ID: {}", appBundleId);
         return driver;
     }
 
@@ -89,6 +91,7 @@ public class WebDriverManager {
             }
         }
 
+        LogManager.getLogger().info("IOS app bundle ID: {}", appBundleId);
         return driver;
     }
 
