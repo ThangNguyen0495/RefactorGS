@@ -16,12 +16,10 @@ import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.safari.SafariDriver;
-import utility.helper.ActivityHelper;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 
 /**
  * WebDriverManager is a utility class for setting up and managing different types of WebDriver instances
@@ -85,9 +83,8 @@ public class WebDriverManager {
         IOSDriver driver = new IOSDriver(new URI(url).toURL(), options);
         LogEntries serverLogs = driver.manage().logs().get(LogType.SERVER);
         for (LogEntry log : serverLogs) {
-            System.out.println(log.toString());
-            if (log.getMessage().contains("already installed")) {
-                appBundleId = log.getMessage().split("'")[1];
+            if (log.getMessage().contains("CFBundleIdentifier: ")) {
+                appBundleId = log.getMessage().split("\"")[1];
                 break;
             }
         }
