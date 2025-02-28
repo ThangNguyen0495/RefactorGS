@@ -37,7 +37,6 @@ public class BaseTest {
                 String androidAppPath = System.getProperty("user.dir") + "/app/app.apk";
                 String androidAppURL = getAndroidAppURL(testType);
                 downloadAppFile(androidAppURL, androidAppPath);
-
                 driver = WebDriverManager.getAndroidDriver(PropertiesUtils.getAndroidEmulatorUdid(), androidAppPath);
                 break;
 

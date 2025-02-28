@@ -1,6 +1,7 @@
 package api.seller.setting;
 
 import api.seller.login.APISellerLogin;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ public class APIGetStaffList {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class StaffInformation {
         private int id;
         private long userId;

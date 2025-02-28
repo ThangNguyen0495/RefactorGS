@@ -11,12 +11,16 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.logging.LogEntries;
+import org.openqa.selenium.logging.LogEntry;
+import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.safari.SafariDriver;
 import utility.helper.ActivityHelper;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 
 /**
  * WebDriverManager is a utility class for setting up and managing different types of WebDriver instances
@@ -57,6 +61,8 @@ public class WebDriverManager {
 
     /**
      * Initializes and returns an IOSDriver instance.
+     * It also attempts to extract the app's bundle ID from the Appium server logs
+     * if the app is already installed on the device.
      *
      * @param udid    The unique device identifier.
      * @param appPath The path to the app to be tested.
@@ -74,9 +80,14 @@ public class WebDriverManager {
         options.setCapability("appium:automationName", "XCUITest");
         options.setCapability("appium:app", appPath);
 
-
         IOSDriver driver = new IOSDriver(new URI(url).toURL(), options);
-        appBundleId = driver.getCapabilities().getCapability("bundleId").toString();
+        LogEntries serverLogs = driver.manage().logs().get(LogType.SERVER);
+        for (LogEntry log : serverLogs) {
+            if (log.getMessage().contains("already installed")) {
+                appBundleId = log.getMessage().split("'")[1];
+                break;
+            }
+        }
 
         return driver;
     }
