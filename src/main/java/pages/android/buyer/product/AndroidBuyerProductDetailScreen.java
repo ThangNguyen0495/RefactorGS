@@ -142,7 +142,7 @@ public class AndroidBuyerProductDetailScreen {
             }
 
             long actualSellingPrice = Long.parseLong(androidUtils.getText(loc_lblSellingPrice).replaceAll("\\D+", ""));
-            Assert.assertTrue(Math.abs(actualSellingPrice - expectedSellingPrice) <= 1, "%s Selling price should be approximately %,d ±1, but found %,d.".formatted(branchInfo, expectedSellingPrice, actualSellingPrice));
+            Assert.assertTrue(Math.abs(actualSellingPrice - expectedSellingPrice) <= 1, "%s Selling price should be %,d, but found %,d.".formatted(branchInfo, expectedSellingPrice, actualSellingPrice));
             logger.info("{} Checked product prices and store currency.", branchInfo);
 
             // Close cart after verify selling price

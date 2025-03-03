@@ -42,7 +42,7 @@ public class AndroidUtils {
     }
 
     public static By getLocatorByPartialText(String partialText) {
-        return  AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().textStartsWith(\"%s\"))".formatted(partialText));
+        return  AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollForward().scrollIntoView(new UiSelector().textStartsWith(\"%s\"))".formatted(partialText));
     }
 
 

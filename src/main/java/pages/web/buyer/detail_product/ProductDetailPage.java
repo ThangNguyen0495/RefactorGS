@@ -178,7 +178,7 @@ public class ProductDetailPage {
             }
 
             long actualSellingPrice = Long.parseLong(webUtils.getText(loc_lblSellingPrice).replaceAll("\\D+", ""));
-            Assert.assertTrue(Math.abs(actualSellingPrice - expectedSellingPrice) <= 1, "%s Selling price should be approximately %,d ±1, but found %,d.".formatted(branchInfo, expectedSellingPrice, actualSellingPrice));
+            Assert.assertTrue(Math.abs(actualSellingPrice - expectedSellingPrice) <= 1, "%s Selling price should be %,d, but found %,d.".formatted(branchInfo, expectedSellingPrice, actualSellingPrice));
             logger.info("{} Checked product prices and store currency.", branchInfo);
         } else {
             logger.info("{} Website listing is enabled, so listing/selling price is hidden.", branchInfo);
@@ -235,7 +235,6 @@ public class ProductDetailPage {
             }
 
             // Validate each attribute
-            int storefrontAttributeIndex = 0;
             for (int attributeIndex = 0; attributeIndex < attributeGroups.size(); attributeIndex++) {
                 if (displayAttributes.get(attributeIndex)) {
                     // Validate attribute name
@@ -247,8 +246,6 @@ public class ProductDetailPage {
                     String actualAttributeValue = webUtils.getText(loc_cntAttributeValue);
                     Assert.assertEquals(actualAttributeValue, attributeValues.get(attributeIndex),
                             "Attribute value must be '%s', but found '%s'.".formatted(attributeValues.get(attributeIndex), actualAttributeValue));
-
-                    storefrontAttributeIndex++;
                 }
             }
         }
@@ -328,12 +325,11 @@ public class ProductDetailPage {
      * Compares the stock quantity of a branch between the storefront and the dashboard.
      *
      * @param branchName    the name of the branch
-     * @param branchIndex   the index of the branch in the list
      * @param isVisible     the visibility status of the branch
      * @param expectedStock the expected stock count of the branch
      * @param variationName the name of the variation being checked
      */
-    private void validateBranchStock(String branchName, int branchIndex, boolean isVisible, int expectedStock, String variationName) {
+    private void validateBranchStock(String branchName, boolean isVisible, int expectedStock, String variationName) {
         String varName = !variationName.isEmpty() ? "[Variation: %s]".formatted(variationName) : "";
         if (!productInfo.getIsHideStock() && isVisible) {
             String actualStockText = webUtils.getText(loc_lblBranchStock);
@@ -708,7 +704,7 @@ public class ProductDetailPage {
             int branchIndex = getBranchIndexByName(branchName);
             int branchId = branchIds.get(branchIndex);
 
-            validateBranchInfo(branchName, brElementIndex, branchIndex, branchId, variationIndex, customerId, variationName);
+            validateBranchInfo(branchName, branchIndex, branchId, variationIndex, customerId, variationName);
         });
     }
 
@@ -737,18 +733,17 @@ public class ProductDetailPage {
      * Validates the stock, pricing, and other information for a branch.
      *
      * @param branchName    the name of the branch
-     * @param brElementIndex the index of the branch element on the storefront
      * @param branchIndex   the index of the branch in the API data
      * @param branchId      the ID of the branch
      * @param variationIndex the index of the variation being validated
      * @param customerId    the ID of the customer
      * @param variationName the name of the variation
      */
-    private void validateBranchInfo(String branchName, int brElementIndex, int branchIndex, int branchId, int variationIndex, int customerId, String variationName) {
+    private void validateBranchInfo(String branchName, int branchIndex, int branchId, int variationIndex, int customerId, String variationName) {
         boolean isBranchShown = isBranchShownOnStorefront(branchInfos, branchIndex);
         int expectedStock = APIGetProductDetail.getStockByModelAndBranch(productInfo, fetchModelId(variationIndex), branchId);
 
-        validateBranchStock(branchName, brElementIndex, isBranchShown, expectedStock, variationName);
+        validateBranchStock(branchName, isBranchShown, expectedStock, variationName);
         validateBranchName(branchName, isBranchShown, expectedStock, variationName);
         verifyVariationPriceAndDiscount(productInfo.getId(), variationIndex, branchId, customerId, branchName);
     }
