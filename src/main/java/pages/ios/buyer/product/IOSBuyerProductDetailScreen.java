@@ -60,7 +60,7 @@ public class IOSBuyerProductDetailScreen {
 
     // Locators
     private By loc_lblProductName(String productName) {
-        return AppiumBy.iOSClassChain("**/XCUIElementTypeStaticText[`name == \"%s\"`][1]".formatted(productName));
+        return AppiumBy.iOSClassChain("**/XCUIElementTypeCell/**/XCUIElementTypeStaticText[`name == \"%s\"`][1]".formatted(productName));
     }
 
     private By loc_lblSellingPrice(long sellingPrice) {
@@ -76,12 +76,12 @@ public class IOSBuyerProductDetailScreen {
     }
 
     private By loc_lblBranchStock(String branchName) {
-        return By.xpath("//*[contains(@name, '%s')]".formatted(branchName));
+        return AppiumBy.iOSClassChain("**/XCUIElementTypeStaticText[`name BEGINSWITH \"%s\"`]".formatted(branchName));
     }
 
     // Using this to scroll to description section
     private By loc_cntDescription(String productDescription) {
-        return AppiumBy.iOSNsPredicateString("name == \"%s\"".formatted(productDescription));
+        return AppiumBy.iOSClassChain("**/XCUIElementTypeCell/**/XCUIElementTypeStaticText[`name == \"%s\"`]".formatted(productDescription));
     }
 
     private final By loc_lblSoldOut = By.xpath("//XCUIElementTypeStaticText[@name=\"Hết Hàng\"]");

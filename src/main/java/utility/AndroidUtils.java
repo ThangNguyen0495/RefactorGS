@@ -121,10 +121,20 @@ public class AndroidUtils {
      *
      * @param locator The {@link By} locator used to identify the element.
      * @return The fully visible {@link WebElement}.
-     * @throws RuntimeException If the element cannot be made fully visible after 5 retries.
+     * @throws RuntimeException If the element cannot be made fully visible after retries.
      */
     public WebElement getElement(By locator) {
-        return WebUtils.retryOnStaleElement(() -> wait.until(ExpectedConditions.presenceOfElementLocated(locator)));
+        if (locator instanceof AppiumBy) {
+            // When searching with Android UiAutomator,
+            // Try finding it twice to ensure it is located.
+            WebUtils.retryOnStaleElement(() ->
+                    wait.until(ExpectedConditions.presenceOfElementLocated(locator))
+            );
+        }
+
+        return WebUtils.retryOnStaleElement(() ->
+                wait.until(ExpectedConditions.presenceOfElementLocated(locator))
+        );
     }
 
     /**
