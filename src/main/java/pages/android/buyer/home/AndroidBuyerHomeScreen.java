@@ -11,8 +11,6 @@ import utility.PropertiesUtils;
 
 import java.time.Duration;
 
-import static utility.AndroidUtils.*;
-
 public class AndroidBuyerHomeScreen {
     final static Logger logger = LogManager.getLogger(AndroidBuyerHomeScreen.class);
 
@@ -26,9 +24,10 @@ public class AndroidBuyerHomeScreen {
         androidUtils = new AndroidUtils(driver);
     }
 
-    private final By loc_icnSearch = getLocatorByResourceId("%s:id/bottom_navigation_tab_product");
-    private final By loc_btnSearch = getLocatorByResourceId("%s:id/btn_action_bar_search");
-    private final By loc_txtSearchBox = getLocatorByResourceId("%s:id/search_src_text");
+    private final By loc_icnSearch = By.xpath("//*[contains(@resource-id, ':id/bottom_navigation_tab_product')]");
+    private final By loc_btnSearch = By.xpath("//*[contains(@resource-id, ':id/btn_action_bar_search')]");
+    private final By loc_txtSearchBox = By.xpath("//*[contains(@resource-id, ':id/search_src_text')]");
+
     private By loc_lblSearchResult(String productName) {
         return By.xpath("//android.widget.TextView[@text = '%s']".formatted(productName));
     }

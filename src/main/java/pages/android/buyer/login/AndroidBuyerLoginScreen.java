@@ -52,6 +52,9 @@ public class AndroidBuyerLoginScreen {
         inputUsername(credentials.getUsername());
         inputPassword(credentials.getPassword());
         clickLoginBtn();
+
+        // Accept saving password in Google Password Manager if prompted
+        androidUtils.acceptSavePasswordToGooglePasswordManager();
         return this;
     }
 }

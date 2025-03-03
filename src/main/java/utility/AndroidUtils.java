@@ -3,8 +3,6 @@ package utility;
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.Activity;
 import io.appium.java_client.android.AndroidDriver;
-import io.appium.java_client.android.nativekey.AndroidKey;
-import io.appium.java_client.android.nativekey.KeyEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
@@ -100,16 +98,6 @@ public class AndroidUtils {
     }
 
     /**
-     * Closes the notification screen if it is visible.
-     */
-    private void closeNotificationScreen() {
-        if (driver.getPageSource().contains("Appium Settings")) {
-            ((AndroidDriver) driver).pressKey(new KeyEvent(AndroidKey.BACK));
-            logger.info("Closed the notification screen.");
-        }
-    }
-
-    /**
      * Retrieves a list of web elements identified by the locator.
      * It waits for the elements to be present before retrieving them.
      *
@@ -120,12 +108,10 @@ public class AndroidUtils {
         // Determine the wait time, using the provided timeout or defaulting to 3000 ms
         int waitTime = (milliseconds.length != 0) ? milliseconds[0] : 3000;
         try {
-            closeNotificationScreen();
             customWait(waitTime).until(ExpectedConditions.presenceOfElementLocated(locator));
         } catch (TimeoutException ignored) {
         }
 
-        closeNotificationScreen();
         return driver.findElements(locator);
     }
 
@@ -138,10 +124,7 @@ public class AndroidUtils {
      * @throws RuntimeException If the element cannot be made fully visible after 5 retries.
      */
     public WebElement getElement(By locator) {
-        return WebUtils.retryOnStaleElement(() -> {
-            closeNotificationScreen(); // Close notification screen
-            return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
-        });
+        return WebUtils.retryOnStaleElement(() -> wait.until(ExpectedConditions.presenceOfElementLocated(locator)));
     }
 
     /**
@@ -273,7 +256,7 @@ public class AndroidUtils {
      * <p>
      * This method uploads a specified file to the mobile device's download directory.
      * The file path provided should be the full path to the file on the local machine,
-     * not just the file name in the resources directory.
+     * not just the file name in the resource's directory.
      *
      * @param filePath The full path of the file to be uploaded. It can be located anywhere on the local machine.
      * @throws IllegalArgumentException if the specified file does not exist.
@@ -299,6 +282,19 @@ public class AndroidUtils {
         } catch (IOException e) {
             // If an IOException occurs, wrap it in a RuntimeException and throw
             throw new RuntimeException("Failed to push file to mobile device: " + filePath, e);
+        }
+    }
+
+    /**
+     * Accepts the prompt to save the password in Google Password Manager if it is displayed.
+     * This method checks if the "Save Password" prompt appears on the screen and clicks
+     * the accept button if it is present.
+    */
+    public void acceptSavePasswordToGooglePasswordManager() {
+        By loc_btnAcceptSavePassword = By.xpath("//android.widget.Button[@resource-id=\"android:id/autofill_save_yes\"]");
+        if (!getListElement(loc_btnAcceptSavePassword).isEmpty()) {
+            click(loc_btnAcceptSavePassword);
+            logger.info("Accepted saving password in Google Password Manager.");
         }
     }
 }

@@ -35,7 +35,6 @@ public class AndroidSellerLoginScreen {
     private final By loc_txtPassword = By.xpath("//*[ends-with(@resource-id,'edtPassword')]");
     private final By loc_chkTermOfUse = By.xpath("//*[ends-with(@resource-id,'cbxTermAndPrivacy')]");
     private final By loc_btnLogin = By.xpath("//*[ends-with(@resource-id,'tvLogin')]");
-    private final By loc_btnAcceptSavePassword = By.xpath("//android.widget.Button[@resource-id=\"android:id/autofill_save_yes\"]");
 
     /**
      * Inputs the username into the username field.
@@ -104,9 +103,6 @@ public class AndroidSellerLoginScreen {
         clickLoginBtn();
 
         // Accept saving password in Google Password Manager if prompted
-        if (!androidUtils.getListElement(loc_btnAcceptSavePassword).isEmpty()) {
-            androidUtils.click(loc_btnAcceptSavePassword);
-            logger.info("Accepted saving password in Google Password Manager.");
-        }
+        androidUtils.acceptSavePasswordToGooglePasswordManager();
     }
 }
