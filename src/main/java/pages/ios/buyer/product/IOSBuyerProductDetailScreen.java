@@ -60,7 +60,7 @@ public class IOSBuyerProductDetailScreen {
 
     // Locators
     private By loc_lblProductName(String productName) {
-        return AppiumBy.iOSClassChain("**/XCUIElementTypeCell/**/XCUIElementTypeStaticText[`name == \"%s\"`][1]".formatted(productName));
+        return By.xpath("(//XCUIElementTypeStaticText[@name=\"%s\"])[1]".formatted(productName));
     }
 
     private By loc_lblSellingPrice(long sellingPrice) {
@@ -68,11 +68,11 @@ public class IOSBuyerProductDetailScreen {
     }
 
     private By loc_ddvVariationName(String variationName) {
-        return By.xpath("//*[@name='%s']".formatted(variationName));
+        return AppiumBy.iOSClassChain("**/XCUIElementTypeCell/**/XCUIElementTypeStaticText[`name == \"%s\"`]".formatted(variationName));
     }
 
     private By loc_ddvVariationValue(String variationValue) {
-        return By.xpath("//*[@name='%s']".formatted(variationValue));
+        return AppiumBy.iOSClassChain("**/XCUIElementTypeCell/**/XCUIElementTypeStaticText[`name == \"%s\"`]".formatted(variationValue));
     }
 
     private By loc_lblBranchStock(String branchName) {
@@ -81,7 +81,7 @@ public class IOSBuyerProductDetailScreen {
 
     // Using this to scroll to description section
     private By loc_cntDescription(String productDescription) {
-        return AppiumBy.iOSClassChain("**/XCUIElementTypeCell/**/XCUIElementTypeStaticText[`name == \"%s\"`]".formatted(productDescription));
+        return By.xpath("//XCUIElementTypeStaticText[@name=\"%s\"]".formatted(productDescription));
     }
 
     private final By loc_lblSoldOut = By.xpath("//XCUIElementTypeStaticText[@name=\"Hết Hàng\"]");
@@ -93,7 +93,8 @@ public class IOSBuyerProductDetailScreen {
     private final By loc_btnBuyNow = By.xpath("//XCUIElementTypeButton[@name=\"Mua ngay\" or @name=\"Buy now\"]");
     private final By loc_btnAddToCart = By.xpath("//XCUIElementTypeButton[@name=\"  \"]");
     private final By loc_btnCloseCart = By.xpath("//*[XCUIElementTypeImage[@name=\"bg_variation_popup_close_button\"]]/XCUIElementTypeButton");
-    private final By loc_icnSearchBranch = By.xpath("//XCUIElementTypeButton[@name=\"ic booking search\"]");
+    private final By loc_icnSearchBranch = AppiumBy.iOSClassChain("**/XCUIElementTypeCell/**/XCUIElementTypeButton[`name == \"ic booking search\"`]");
+    private final By loc_lblCartVariations = By.xpath("(//*[*/XCUIElementTypeImage[@name=\"btn_close_small_gray\"]]//XCUIElementTypeStaticText)[last()]");
 
     /**
      * Compares the product name displayed in the storefront with the product name from the dashboard.
@@ -502,8 +503,8 @@ public class IOSBuyerProductDetailScreen {
             verifyBranchStockNameAndPrice(variationName, visibleBranches, branchIds, variationIndex, customerId);
         }
 
-//        // Validate product description
-//        validateProductDescription(modelId, langKey);
+        // Validate product description
+        validateProductDescription(modelId, langKey);
     }
 
     /**
@@ -656,28 +657,15 @@ public class IOSBuyerProductDetailScreen {
 
                 // If the product has variations, select the variation and display its value
                 if (productInfo.isHasModel()) {
-                    // Reset the variation to its default value before selecting the new variation.
-                    // On the iOS app, if a variation is duplicated, it will always select the first available value.
-                    // To prevent re-selecting an already selected variation, we first reset it to default.
-                    List<String> defaultVariations = Arrays.stream(APIGetProductDetail.getVariationValue(productInfo,
-                            langKey,
-                            0).split("\\|")).toList();
-
-                    defaultVariations.forEach(this::selectVariation);
-
-                    // Then, we check the variation index. If variationIndex is not zero, we extract the first value from
-                    // the variation string (split by "|") and apply the change.
-                    // If the selected variation is already the default, no further action is needed.
+                    variationIndex = 2;
                     variationValue = APIGetProductDetail.getVariationValue(productInfo, language, variationIndex);
-                    if (variationIndex != 0) {
-                        List<String> varNames = Arrays.stream(variationValue.split("\\|")).toList();
+                    var varNames = variationValue.split("\\|");
 
-                        // Log the variation value
-                        logger.info("*** var: {} ***", variationValue);
+                    // Log the variation value
+                    logger.info("*** var: {} ***", variationValue);
 
-                        // Loop through each variation and select it from the dropdown
-                        varNames.forEach(this::selectVariation);
-                    }
+                    // Select the variation value from the dropdown options
+                    selectVariation(varNames);
                 }
 
                 // Validate the variation's information
@@ -686,17 +674,35 @@ public class IOSBuyerProductDetailScreen {
         }
     }
 
+    private String getSelectedVariation() {
+        // Open cart popup to verify the variation is selected
+        iosUtils.click(loc_btnAddToCart);
+        String selectedVariation = iosUtils.getText(loc_lblCartVariations);
+        logger.info("Selected variation: {}", selectedVariation);
+        iosUtils.click(loc_btnCloseCart);
+
+        return selectedVariation;
+    }
+
     /**
      * Selects the specified variation from the dropdown based on the variation name and index.
      * <p>
      * This method ensures that the correct variation is chosen from the UI dropdown for further validation.
      *
-     * @param variation the name of the variation to select
+     * @param variationNames the name of the variation to select
      */
-    private void selectVariation(String variation) {
-        // Select the variation value from the dropdown options
-        iosUtils.click(loc_ddvVariationValue(variation));
-        logger.info("Selected variation: {}.", variation);
+    private void selectVariation(String[] variationNames) {
+        // Loop through each variation and select it if not already selected
+        for (String varName : variationNames) {
+            logger.info("Selected variation: {}.", varName);
+
+            WebUtils.retryUntil(5, 3000, "Can not select '%s' variation.".formatted(varName),
+                    () -> getSelectedVariation().contains(varName),
+                    () -> {
+                        iosUtils.swipeToElement(loc_ddvVariationValue(varName));
+                        iosUtils.click(loc_ddvVariationValue(varName));
+                    });
+        }
     }
 
     private final String langKey = PropertiesUtils.getLangKey();

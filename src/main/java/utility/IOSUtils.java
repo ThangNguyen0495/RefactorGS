@@ -4,10 +4,13 @@ import io.appium.java_client.ios.IOSDriver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.PointerInput;
+import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -102,13 +105,7 @@ public class IOSUtils {
      * @return The found WebElement.
      */
     public WebElement getElement(By locator) {
-        return WebUtils.retryOnStaleElement(() -> {
-            try {
-                return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
-            } catch (TimeoutException ex) {
-                throw new TimeoutException("Cannot find element");
-            }
-        });
+        return WebUtils.retryOnStaleElement(() -> wait.until(ExpectedConditions.presenceOfElementLocated(locator)));
     }
 
     /**
@@ -265,11 +262,62 @@ public class IOSUtils {
 
     /**
      * Relaunches the app by terminating and then activating it again.
-     *
      */
     public void relaunchApp() {
         ((IOSDriver) driver).terminateApp(appBundleId);
         ((IOSDriver) driver).activateApp(appBundleId);
         logger.info("Relaunch app.");
+    }
+
+    public void swipeToElement(By locator) {
+        WebElement element = driver.findElement(locator);
+        Dimension screenSize = driver.manage().window().getSize();
+
+        int screenHeight = screenSize.getHeight();
+        int minY = (int) (screenHeight * 0.15); // 15% of screen height
+        int maxY = (int) (screenHeight * 0.85); // 85% of screen height
+
+        int elementY = element.getLocation().getY();
+
+        while (elementY < minY || elementY > maxY) {
+            System.out.println(elementY);
+            System.out.println(minY);
+            System.out.println(maxY);
+            if (elementY < minY) {
+                swipeDown();
+            } else {
+                swipeUp();
+            }
+            elementY = driver.findElement(locator).getLocation().getY();
+        }
+    }
+
+    private void swipeUp() {
+        Dimension screenSize = driver.manage().window().getSize();
+        int startX = screenSize.getWidth() / 2;
+        int startY = (int) (screenSize.getHeight() * 0.7); // Start at 70%
+        int endY = (int) (screenSize.getHeight() * 0.3);   // Move to 30%
+
+        performSwipe(startX, startY, startX, endY);
+    }
+
+    private void swipeDown() {
+        Dimension screenSize = driver.manage().window().getSize();
+        int startX = screenSize.getWidth() / 2;
+        int startY = (int) (screenSize.getHeight() * 0.3); // Start at 30%
+        int endY = (int) (screenSize.getHeight() * 0.7);   // Move to 70%
+
+        performSwipe(startX, startY, startX, endY);
+    }
+
+    private void performSwipe(int startX, int startY, int endX, int endY) {
+        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+        Sequence swipe = new Sequence(finger, 1)
+                .addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), startX, startY))
+                .addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
+                .addAction(finger.createPointerMove(Duration.ofMillis(500), PointerInput.Origin.viewport(), endX, endY))
+                .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+        ((IOSDriver) driver).perform(Collections.singletonList(swipe));
     }
 }
