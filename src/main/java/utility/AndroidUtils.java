@@ -29,6 +29,7 @@ import static utility.WebDriverManager.appBundleId;
 public class AndroidUtils {
 
     private static final Logger logger = LogManager.getLogger(AndroidUtils.class);
+
     public static By getLocatorByResourceId(String resourceId) {
         return AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\"))".formatted(resourceId.formatted(appBundleId)));
     }
@@ -42,7 +43,7 @@ public class AndroidUtils {
     }
 
     public static By getLocatorByPartialText(String partialText) {
-        return  AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollForward().scrollIntoView(new UiSelector().textStartsWith(\"%s\"))".formatted(partialText));
+        return AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().textStartsWith(\"%s\"))".formatted(partialText));
     }
 
 
@@ -84,6 +85,16 @@ public class AndroidUtils {
         }
     }
 
+    public void scrollDown() {
+        try {
+            driver.findElement(androidUIAutomator(
+                    "new UiScrollable(new UiSelector().scrollable(true)).scrollForward()"));
+            logger.info("Scrolled down.");
+        } catch (NoSuchElementException e) {
+            logger.warn("Failed to scrolled down: {}", e.getMessage());
+        }
+    }
+
     /**
      * Scrolls to the end of the screen using UiScrollable.
      */
@@ -94,6 +105,16 @@ public class AndroidUtils {
             logger.info("Scrolled to the end of the screen.");
         } catch (NoSuchElementException e) {
             logger.warn("Failed to scroll to the end of the screen: {}", e.getMessage());
+        }
+    }
+
+    public void scrollUp() {
+        try {
+            driver.findElement(androidUIAutomator(
+                    "new UiScrollable(new UiSelector().scrollable(true)).scrollBackward()"));
+            logger.info("Scrolled up.");
+        } catch (NoSuchElementException e) {
+            logger.warn("Failed to scrolled up: {}", e.getMessage());
         }
     }
 
@@ -125,17 +146,58 @@ public class AndroidUtils {
      */
     public WebElement getElement(By locator) {
         if (locator instanceof AppiumBy) {
-            // When searching with Android UiAutomator,
-            // Try finding it twice to ensure it is located.
-            WebUtils.retryOnStaleElement(() ->
-                    wait.until(ExpectedConditions.presenceOfElementLocated(locator))
-            );
+            return findElementWithScroll(locator);
         }
 
         return WebUtils.retryOnStaleElement(() ->
                 wait.until(ExpectedConditions.presenceOfElementLocated(locator))
         );
     }
+
+    private WebElement findElementWithScroll(By locator) {
+        List<WebElement> elements = getListElement(locator);
+
+        if (!elements.isEmpty()) {
+            return elements.getFirst(); // Return first found element
+        }
+
+        String keyword = extractKeywordFromLocator(locator);
+        String xpathString = constructXPathString(locator, keyword);
+
+        // Try scrolling down
+        for (int index = 0; index < 2; index++) {
+            scrollDown();
+            elements = driver.findElements(By.xpath(xpathString));
+            if (!elements.isEmpty()) {
+                return elements.getFirst();
+            }
+        }
+
+        // Try scrolling up
+        for (int index = 0; index < 4; index++) {
+            scrollUp();
+            elements = driver.findElements(By.xpath(xpathString));
+            if (!elements.isEmpty()) {
+                return elements.getFirst();
+            }
+        }
+
+        throw new RuntimeException("Element not found after scrolling attempts: " + locator);
+    }
+
+    private String extractKeywordFromLocator(By locator) {
+        // Extract the keyword from the locator in a more robust way
+        return locator.toString().split("\"")[1];
+    }
+
+    private String constructXPathString(By locator, String keyword) {
+        if (locator.toString().contains("resourceId")) {
+            return "//*[contains(@resourceId, '%s')]".formatted(keyword);
+        } else {
+            return "//*[contains(@text, '%s')]".formatted(keyword);
+        }
+    }
+
 
     /**
      * Clicks the element located by the specified locator.
@@ -235,7 +297,6 @@ public class AndroidUtils {
 
     /**
      * Relaunches the app by terminating and then activating it again.
-     *
      */
     public void relaunchApp() {
         ((AndroidDriver) driver).terminateApp(appBundleId);
@@ -299,7 +360,7 @@ public class AndroidUtils {
      * Accepts the prompt to save the password in Google Password Manager if it is displayed.
      * This method checks if the "Save Password" prompt appears on the screen and clicks
      * the accept button if it is present.
-    */
+     */
     public void acceptSavePasswordToGooglePasswordManager() {
         By loc_btnAcceptSavePassword = By.xpath("//android.widget.Button[@resource-id=\"android:id/autofill_save_yes\"]");
         if (!getListElement(loc_btnAcceptSavePassword).isEmpty()) {
