@@ -16,7 +16,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import pages.ios.buyer.login.IOSBuyerLoginScreen;
 import pages.ios.buyer.product.IOSBuyerProductDetailScreen;
-import utility.IOSUtils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -52,7 +51,7 @@ public class IOSGoBUYERProductDetailTest extends BaseTest {
 
     @AfterClass
     void tearDown() {
-//        if (driver != null)   driver.quit();
+        if (driver != null)   driver.quit();
     }
 
     /**

@@ -81,7 +81,7 @@ public class IOSBuyerProductDetailScreen {
 
     // Using this to scroll to description section
     private By loc_cntDescription(String productDescription) {
-        return By.xpath("//XCUIElementTypeStaticText[@name=\"%s\"]".formatted(productDescription));
+        return AppiumBy.iOSNsPredicateString("label == '%s'".formatted(productDescription));
     }
 
     private final By loc_lblSoldOut = By.xpath("//XCUIElementTypeStaticText[@name=\"Hết Hàng\"]");
@@ -95,7 +95,7 @@ public class IOSBuyerProductDetailScreen {
     private final By loc_btnCloseCart = By.xpath("//*[XCUIElementTypeImage[@name=\"bg_variation_popup_close_button\"]]/XCUIElementTypeButton");
     private final By loc_icnSearchBranch = AppiumBy.iOSClassChain("**/XCUIElementTypeCell/**/XCUIElementTypeButton[`name == \"ic booking search\"`]");
     private final By loc_lblCartVariations = By.xpath("(//*[*/XCUIElementTypeImage[@name=\"btn_close_small_gray\"]]//XCUIElementTypeStaticText)[last()]");
-
+    private final By loc_lblSimilarProduct = AppiumBy.iOSNsPredicateString("label == 'Sản phẩm tương tự' or label == 'Similar products'");
     /**
      * Compares the product name displayed in the storefront with the product name from the dashboard.
      *
@@ -257,6 +257,7 @@ public class IOSBuyerProductDetailScreen {
         expectedDescription = expectedDescription.replaceAll("<.*?>", "").replaceAll("amp;", "");
 
         // Assert descriptions match
+        iosUtils.click(loc_lblSimilarProduct);
         try {
             Assert.assertFalse(iosUtils.getListElement(loc_cntDescription(expectedDescription)).isEmpty(),
                     "[Check description] Product description should be '%s', but it does not match'".formatted(expectedDescription));
