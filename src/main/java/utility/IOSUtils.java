@@ -270,12 +270,12 @@ public class IOSUtils {
     }
 
     public void swipeToElement(By locator) {
-        WebElement element = driver.findElement(locator);
+        WebElement element = getElement(locator);
         Dimension screenSize = driver.manage().window().getSize();
 
         int screenHeight = screenSize.getHeight();
-        int minY = (int) (screenHeight * 0.15); // 15% of screen height
-        int maxY = (int) (screenHeight * 0.85); // 85% of screen height
+        int minY = (int) (screenHeight * 0.1); // 10% of screen height
+        int maxY = (int) (screenHeight * 1.0); // 100% of screen height
 
         int elementY = element.getLocation().getY();
 

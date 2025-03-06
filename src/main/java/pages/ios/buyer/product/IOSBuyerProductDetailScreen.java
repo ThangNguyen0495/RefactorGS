@@ -257,9 +257,14 @@ public class IOSBuyerProductDetailScreen {
         expectedDescription = expectedDescription.replaceAll("<.*?>", "").replaceAll("amp;", "");
 
         // Assert descriptions match
-        Assert.assertFalse(iosUtils.getListElement(loc_cntDescription(expectedDescription)).isEmpty(),
-                "[Check description] Product description should be '%s', but it does not match'".formatted(expectedDescription));
-        logger.info("[Check description] Product description is shown correctly.");
+        try {
+            Assert.assertFalse(iosUtils.getListElement(loc_cntDescription(expectedDescription)).isEmpty(),
+                    "[Check description] Product description should be '%s', but it does not match'".formatted(expectedDescription));
+            logger.info("[Check description] Product description is shown correctly.");
+        } catch (AssertionError e) {
+            System.out.println(driver.getPageSource());
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -657,7 +662,6 @@ public class IOSBuyerProductDetailScreen {
 
                 // If the product has variations, select the variation and display its value
                 if (productInfo.isHasModel()) {
-                    variationIndex = 2;
                     variationValue = APIGetProductDetail.getVariationValue(productInfo, language, variationIndex);
                     var varNames = variationValue.split("\\|");
 
@@ -696,7 +700,9 @@ public class IOSBuyerProductDetailScreen {
         for (String varName : variationNames) {
             logger.info("Selected variation: {}.", varName);
 
-            WebUtils.retryUntil(5, 3000, "Can not select '%s' variation.".formatted(varName),
+            WebUtils.retryUntil(5,
+                    3000,
+                    "Can not select '%s' variation.".formatted(varName),
                     () -> getSelectedVariation().contains(varName),
                     () -> {
                         iosUtils.swipeToElement(loc_ddvVariationValue(varName));
