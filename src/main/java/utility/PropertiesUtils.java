@@ -1,6 +1,7 @@
 package utility;
 
 import api.seller.login.APISellerLogin;
+import api.seller.setting.APIGetStoreURL;
 import org.testng.Assert;
 
 import java.io.InputStream;
@@ -162,7 +163,7 @@ public class PropertiesUtils {
      * This is typically used to access the Storefront endpoint.
      */
     public static String getStoreURL() {
-        return getProperty("storeURL");
+        return new APIGetStoreURL(getSellerCredentials()).getStoreURL();
     }
 
     /**
@@ -172,24 +173,6 @@ public class PropertiesUtils {
      */
     public static boolean getEnableProxy() {
         return Boolean.parseBoolean(getProperty("enableProxy"));
-    }
-
-    /**
-     * Retrieves the seller bundle ID from the application properties.
-     *
-     * @return the seller bundle ID as a String.
-     */
-    public static String getSellerBundleId() {
-        return getProperty("goSELLERBundleId");
-    }
-
-    /**
-     * Retrieves the buyer bundle ID from the application properties.
-     *
-     * @return the buyer bundle ID as a String.
-     */
-    public static String getBuyerBundleId() {
-        return getProperty("goBUYERBundleId");
     }
 
     public static String getAndroidEmulatorUdid() {

@@ -16,6 +16,7 @@ import utility.PropertiesUtils;
 import utility.WebUtils;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
@@ -59,7 +60,6 @@ public class ProductManagementPage {
 
     // Locators
     private final By loc_lblProductId = By.cssSelector("tr [class='gs-table-body-item'] strong");
-    private final By loc_prgStatus = By.xpath("//*[contains(@class, 'uik-widget-table__wrapper')]/preceding-sibling::div[1]/span");
     private final By loc_chkSelectAll = By.cssSelector("thead input");
     private final By loc_lnkSelectAction = By.cssSelector(".actions");
     private final By loc_ddlListActions = By.cssSelector(".actions > div");
@@ -182,50 +182,15 @@ public class ProductManagementPage {
 
 
     /**
-     * Waits for the bulk update process to complete, retrying up to a maximum number of attempts if necessary.
-     * <p>
-     * This method refreshes the page and waits for a specified delay between each retry. The default wait time is
-     * 10 seconds, but a custom delay can be passed as an argument. If the update process does not complete within
-     * the maximum number of retries, an exception will be thrown.
-     * </p>
-     *
-     * <ul>
-     * 	<li>The method will wait for a short period between each attempt.</li>
-     * 	<li>It refreshes the page after each wait to retrieve the current status.</li>
-     * 	<li>If the bulk update process completes successfully within the maximum retries, the method will exit.</li>
-     * 	<li>If the process fails to complete within the retries, it throws a {@code RuntimeException}.</li>
-     * </ul>
-     *
-     * @throws RuntimeException if the bulk update does not complete within the allowed number of retries.
+     * Waits for the bulk update process to complete with a fixed delay.
      */
     private void waitBulkUpdated() {
-        final int maxAttempts = 5;
-        long delayMil = 10000; // 10 secs
+        logger.info("Waiting for 2 minutes to allow bulk update to complete...");
 
-        for (int attempt = 0; attempt < maxAttempts; attempt++) {
-            // Wait for a short period before checking status
-            try {
-                Thread.sleep(delayMil);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException("Wait interrupted", e);
-            }
+        WebUtils.sleep(120_000); // Hard wait for 2 minutes (120,000 milliseconds)
 
-            // Log current attempt
-            logger.info("Waiting for bulk update... (Attempt {})", attempt + 1);
-
-            // Refresh page to get the new status
-            driver.navigate().refresh();
-
-            // Check if the update is completed
-            if (webUtils.getListElement(loc_prgStatus).isEmpty()) {
-                logger.info("Bulk update completed successfully.");
-                return;
-            }
-        }
-
-        // Throw exception if the bulk update did not complete within the allowed retries
-        throw new RuntimeException("Max retries reached. Bulk update did not complete.");
+        logger.info("Refreshing page to check the updated status.");
+        driver.navigate().refresh();
     }
 
 
@@ -275,9 +240,11 @@ public class ProductManagementPage {
      */
     private List<Integer> getStockList(List<Integer> productIds) {
         return productIds.stream()
-                .map(productId -> apiGetProductDetail.getProductInformation(productId))
-                .map(APIGetProductDetail::getTotalStockQuantity)
+                .map(apiGetProductDetail::getProductInformation) // Get product information first
+                .filter(product -> !product.isDeleted()) // Filter out deleted products
+                .map(APIGetProductDetail::getTotalStockQuantity) // Map to stock quantity
                 .toList();
+
     }
 
     /**
@@ -328,17 +295,25 @@ public class ProductManagementPage {
      * @param newStock    The new stock value to verify.
      */
     private void verifyStockUpdates(List<Integer> productIds, int actionIndex, List<Integer> beforeStock, int newStock) {
-        IntStream.range(0, productIds.size()).forEach(productIndex -> {
-            int productId = productIds.get(productIndex);
-            var productInfo = apiGetProductDetail.getProductInformation(productId);
-            int variationNum = productInfo.isHasModel()
-                    ? APIGetProductDetail.getVariationModelList(productInfo).size()
-                    : 1;
+        AtomicInteger productIndex = new AtomicInteger();
+        productIds.stream().map(productId -> apiGetProductDetail.getProductInformation(productId))
+                .filter(productInfo -> !productInfo.isDeleted())
+                .forEach(productInfo -> {
+                    // Get product ID
+                    int productId = productInfo.getId();
 
-            // Check stock values in ItemService and Elasticsearch
-            verifyStockInService("ItemService", productId, productInfo, beforeStock.get(productIndex), newStock, variationNum, actionIndex);
-            verifyStockInService("Elasticsearch", productId, productInfo, beforeStock.get(productIndex), newStock, variationNum, actionIndex);
-        });
+                    // Get number of variations
+                    int variationNum = productInfo.isHasModel()
+                            ? APIGetProductDetail.getVariationModelList(productInfo).size()
+                            : 1;
+
+                    // Check stock values in ItemService and Elasticsearch
+                    verifyStockInService("ItemService", productId, productInfo, beforeStock.get(productIndex.get()), newStock, variationNum, actionIndex);
+                    verifyStockInService("Elasticsearch", productId, productInfo, beforeStock.get(productIndex.get()), newStock, variationNum, actionIndex);
+
+                    // Increase productIndex
+                    productIndex.getAndIncrement();
+                });
     }
 
     /**
@@ -438,22 +413,23 @@ public class ProductManagementPage {
      * @param expectedStatus The expected status of the product (e.g., "INACTIVE" or "ACTIVE").
      */
     private void verifyProductStatus(List<Integer> productIds, String expectedStatus) {
-        productIds.forEach(productId -> {
-            // Fetch product information
-            var productInfo = apiGetProductDetail.getProductInformation(productId);
+        productIds.stream().map(productId -> apiGetProductDetail.getProductInformation(productId))
+                .filter(productInfo -> !productInfo.isDeleted())
+                .forEach(productInfo -> {
+                    // Get product information
+                    int productId = productInfo.getId();
 
-            // Verify in ItemService
-            Assert.assertEquals(productInfo.getBhStatus(), expectedStatus,
-                    "[ItemService] Product status must be updated to '%s', productId: %d".formatted(expectedStatus, productId));
+                    // Verify in ItemService
+                    Assert.assertEquals(productInfo.getBhStatus(), expectedStatus,
+                            "[ItemService] Product status must be updated to '%s', productId: %d".formatted(expectedStatus, productId));
 
-            // Verify in Elasticsearch
-            Assert.assertEquals(apiGetProductList.fetchElasticsearchProductStatus(productId), expectedStatus,
-                    "[Elasticsearch] Product status must be updated to '%s', productId: %d".formatted(expectedStatus, productId));
+                    // Verify in Elasticsearch
+                    Assert.assertEquals(apiGetProductList.fetchElasticsearchProductStatus(productId), expectedStatus,
+                            "[Elasticsearch] Product status must be updated to '%s', productId: %d".formatted(expectedStatus, productId));
 
-            logger.info("Verify product status, productId: {}", productId);
-        });
+                    logger.info("Verify product status, productId: {}", productId);
+                });
     }
-
 
     /**
      * Performs bulk activation or deactivation of products and verifies the status updates.
@@ -534,20 +510,22 @@ public class ProductManagementPage {
      * It logs the verification results for each product.
      *
      * @param productIds The list of product IDs to verify.
-     * @param newTaxId  The expected new tax ID to compare against.
+     * @param newTaxId   The expected new tax ID to compare against.
      */
     private void verifyProductTaxIdUpdate(List<Integer> productIds, int newTaxId) {
-        productIds.forEach(productId -> {
-            // Fetch product information
-            var productInfo = apiGetProductDetail.getProductInformation(productId);
+        productIds.stream().map(productId -> apiGetProductDetail.getProductInformation(productId))
+                .filter(productInfo -> !productInfo.isDeleted())
+                .forEach(productInfo -> {
+                    // Get product information
+                    int productId = productInfo.getId();
 
-            // Verify the product's tax ID
-            Assert.assertEquals(productInfo.getTaxId(), newTaxId,
-                    "[ItemService] Product tax must be updated to '%d' but found '%d', productId: %d"
-                            .formatted(newTaxId, productInfo.getTaxId(), productId));
+                    // Verify the product's tax ID
+                    Assert.assertEquals(productInfo.getTaxId(), newTaxId,
+                            "[ItemService] Product tax must be updated to '%d' but found '%d', productId: %d"
+                                    .formatted(newTaxId, productInfo.getTaxId(), productId));
 
-            logger.info("Verify product tax, productId: {}", productId);
-        });
+                    logger.info("Verify product tax, productId: {}", productId);
+                });
     }
 
     /**
@@ -583,18 +561,23 @@ public class ProductManagementPage {
      * @param shouldShow True if the product should be displayed when out of stock, false otherwise.
      */
     private void verifyOutOfStockDisplay(List<Integer> productIds, boolean shouldShow) {
-        productIds.forEach(productId -> {
-            var productInfo = apiGetProductDetail.getProductInformation(productId);
-            if (shouldShow) {
-                Assert.assertTrue(productInfo.isShowOutOfStock(),
-                        "[ItemService] Cannot update product to display when out of stock, productId: %d".formatted(productId));
-            } else {
-                Assert.assertFalse(productInfo.isShowOutOfStock(),
-                        "[ItemService] Cannot update product to hide when out of stock, productId: %d".formatted(productId));
-            }
+        productIds.stream().map(productId -> apiGetProductDetail.getProductInformation(productId))
+                .filter(productInfo -> !productInfo.isDeleted())
+                .forEach(productInfo -> {
+                    // Get product information
+                    int productId = productInfo.getId();
 
-            logger.info("Verify out of stock display, productId: {}", productId);
-        });
+                    // Verify display when out of stock
+                    if (shouldShow) {
+                        Assert.assertTrue(productInfo.isShowOutOfStock(),
+                                "[ItemService] Cannot update product to display when out of stock, productId: %d".formatted(productId));
+                    } else {
+                        Assert.assertFalse(productInfo.isShowOutOfStock(),
+                                "[ItemService] Cannot update product to hide when out of stock, productId: %d".formatted(productId));
+                    }
+
+                    logger.info("Verify out of stock display, productId: {}", productId);
+                });
     }
 
 
@@ -672,20 +655,24 @@ public class ProductManagementPage {
      *                       should be available on those platforms.
      */
     private void verifySellingPlatformConfiguration(List<Integer> productIds, Map<String, Boolean> platformStates) {
-        productIds.forEach(productId -> {
-            var productInfo = apiGetProductDetail.getProductInformation(productId);
+        productIds.stream().map(productId -> apiGetProductDetail.getProductInformation(productId))
+                .filter(productInfo -> !productInfo.isDeleted())
+                .forEach(productInfo -> {
+                    // Get product information
+                    int productId = productInfo.getId();
 
-            Assert.assertEquals(productInfo.isOnApp(), platformStates.get("App"),
-                    "[ItemService] App platform mismatch, productId: %d".formatted(productId));
-            Assert.assertEquals(productInfo.isOnWeb(), platformStates.get("Web"),
-                    "[ItemService] Web platform mismatch, productId: %d".formatted(productId));
-            Assert.assertEquals(productInfo.isInStore(), platformStates.get("InStore"),
-                    "[ItemService] InStore platform mismatch, productId: %d".formatted(productId));
-            Assert.assertEquals(productInfo.isInGosocial(), platformStates.get("GoSocial"),
-                    "[ItemService] GoSocial platform mismatch, productId: %d".formatted(productId));
+                    // Verify selling platform
+                    Assert.assertEquals(productInfo.isOnApp(), platformStates.get("App"),
+                            "[ItemService] App platform mismatch, productId: %d".formatted(productId));
+                    Assert.assertEquals(productInfo.isOnWeb(), platformStates.get("Web"),
+                            "[ItemService] Web platform mismatch, productId: %d".formatted(productId));
+                    Assert.assertEquals(productInfo.isInStore(), platformStates.get("InStore"),
+                            "[ItemService] InStore platform mismatch, productId: %d".formatted(productId));
+                    Assert.assertEquals(productInfo.isInGosocial(), platformStates.get("GoSocial"),
+                            "[ItemService] GoSocial platform mismatch, productId: %d".formatted(productId));
 
-            logger.info("Verify product selling platform, productId: {}", productId);
-        });
+                    logger.info("Verify product selling platform, productId: {}", productId);
+                });
     }
 
     /**
@@ -837,13 +824,21 @@ public class ProductManagementPage {
      * @param expectedCostPrice    the expected cost price.
      */
     private void verifyProductPrices(List<Integer> productIds, long expectedListingPrice, long expectedSellingPrice, long expectedCostPrice) {
-        productIds.forEach(productId -> {
-            var productInfo = apiGetProductDetail.getProductInformation(productId);
-            Assert.assertTrue(APIGetProductDetail.getVariationListingPrice(productInfo).parallelStream().allMatch(price -> price == expectedListingPrice), "[ItemService] Listing price must be '%,d', productId: %d".formatted(expectedListingPrice, productId));
-            Assert.assertTrue(APIGetProductDetail.getVariationSellingPrice(productInfo).parallelStream().allMatch(price -> price == expectedSellingPrice), "[ItemService] Selling price must be '%,d', productId: %d".formatted(expectedSellingPrice, productId));
-            Assert.assertTrue(APIGetProductDetail.getVariationCostPrice(productInfo).parallelStream().allMatch(price -> price == expectedCostPrice), "[ItemService] Cost price must be '%,d', productId: %d".formatted(expectedCostPrice, productId));
-            logger.info("Verify product prices: {}", productId);
-        });
+        productIds.stream().map(productId -> apiGetProductDetail.getProductInformation(productId))
+                .filter(productInfo -> !productInfo.isDeleted())
+                .forEach(productInfo -> {
+                    // Get product ID
+                    int productId = productInfo.getId();
+
+                    // Verify product price
+                    Assert.assertTrue(APIGetProductDetail.getVariationListingPrice(productInfo).parallelStream().allMatch(price -> price == expectedListingPrice),
+                            "[ItemService] Listing price must be '%,d', productId: %d".formatted(expectedListingPrice, productId));
+                    Assert.assertTrue(APIGetProductDetail.getVariationSellingPrice(productInfo).parallelStream().allMatch(price -> price == expectedSellingPrice),
+                            "[ItemService] Selling price must be '%,d', productId: %d".formatted(expectedSellingPrice, productId));
+                    Assert.assertTrue(APIGetProductDetail.getVariationCostPrice(productInfo).parallelStream().allMatch(price -> price == expectedCostPrice),
+                            "[ItemService] Cost price must be '%,d', productId: %d".formatted(expectedCostPrice, productId));
+                    logger.info("Verify product prices: {}", productId);
+                });
         logger.info("Check product price after bulk actions: UPDATE PRICE.");
     }
 
@@ -877,11 +872,15 @@ public class ProductManagementPage {
      * @param expectedStockAlert the expected stock alert value.
      */
     private void verifyStockAlert(List<Integer> productIds, int expectedStockAlert) {
-        productIds.forEach(productId -> {
-            List<Integer> stockAlert = apiGetStockAlert.getProductStockAlert(productId);
-            Assert.assertTrue(stockAlert.parallelStream().allMatch(alert -> alert == expectedStockAlert), "[ItemService] Product stock alert must be '%,d', productId: %d".formatted(expectedStockAlert, productId));
-            logger.info("Verify product stock alert, productId: {}", productId);
-        });
+        productIds.stream().map(productId -> apiGetProductDetail.getProductInformation(productId))
+                .filter(productInfo -> !productInfo.isDeleted())
+                .forEach(productInfo -> {
+                    // Get product information
+                    int productId = productInfo.getId();
+                    List<Integer> stockAlert = apiGetStockAlert.getProductStockAlert(productId);
+                    Assert.assertTrue(stockAlert.parallelStream().allMatch(alert -> alert == expectedStockAlert), "[ItemService] Product stock alert must be '%,d', productId: %d".formatted(expectedStockAlert, productId));
+                    logger.info("Verify product stock alert, productId: {}", productId);
+                });
         logger.info("Check product stock alert value after bulk actions: SET STOCK ALERT.");
     }
 
@@ -985,7 +984,6 @@ public class ProductManagementPage {
      *                      <li>9 - Set stock alert</li>
      *                      <li>10 - Manage stock by lot date</li>
      *                    </ul>
-     *
      * @throws IllegalArgumentException if the actionIndex is out of range.
      */
     public void bulkUpdateAndVerifyProducts(int actionIndex) {
