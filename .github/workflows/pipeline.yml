@@ -45,11 +45,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.inputs.environment }}-${{ github.event.inputs.testType }}-${{ github.event.inputs.platform }}
   cancel-in-progress: true
 
-env:
-  TEST_TYPE: ${{ github.event.inputs.testType == 'Smoke Test' && 'smoke' || 'regression' }}
-
 jobs:
   Dashboard:
+    env:
+      TEST_TYPE: ${{ github.event.inputs.testType == 'Smoke Test' && 'smoke' || 'regression' }}
     strategy:
       fail-fast: false
       matrix:
@@ -77,6 +76,8 @@ jobs:
             mvn test "-DsuiteFile=test_configs/${{ TEST_TYPE }}/web/seller/${{ matrix.test_config_path }}"
 
   StoreFront:
+    env:
+      TEST_TYPE: ${{ github.event.inputs.testType == 'Smoke Test' && 'smoke' || 'regression' }}
     strategy:
       fail-fast: false
       matrix:
@@ -100,6 +101,8 @@ jobs:
             mvn test "-DsuiteFile=test_configs/${{ TEST_TYPE }}/web/buyer/${{ matrix.test_config_path }}"
 
   AndroidSeller:
+    env:
+      TEST_TYPE: ${{ github.event.inputs.testType == 'Smoke Test' && 'smoke' || 'regression' }}
     strategy:
       fail-fast: false
       matrix:
@@ -127,6 +130,8 @@ jobs:
             
 
   AndroidBuyer:
+    env:
+      TEST_TYPE: ${{ github.event.inputs.testType == 'Smoke Test' && 'smoke' || 'regression' }}
     strategy:
       fail-fast: false
       matrix:
@@ -151,6 +156,8 @@ jobs:
             mvn test "-DsuiteFile=test_configs/${{ TEST_TYPE }}/android/buyer/${{ matrix.test_config_path }}"
 
   iOSSeller:
+    env:
+      TEST_TYPE: ${{ github.event.inputs.testType == 'Smoke Test' && 'smoke' || 'regression' }}
     strategy:
       fail-fast: false
       matrix:
@@ -186,6 +193,8 @@ jobs:
             mvn test "-DsuiteFile=test_configs/${{ TEST_TYPE }}/ios/seller/${{ matrix.test_config_path }}"
 
   iOSBuyer:
+    env:
+      TEST_TYPE: ${{ github.event.inputs.testType == 'Smoke Test' && 'smoke' || 'regression' }}
     strategy:
       fail-fast: false
       matrix:
