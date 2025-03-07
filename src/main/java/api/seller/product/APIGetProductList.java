@@ -148,13 +148,19 @@ public class APIGetProductList {
     /**
      * Retrieves the remaining stock quantity for a product by its ID.
      * <p>
-     * This method searches through all product information to find a product with the matching ID
-     * and returns the product's remaining stock. If the product is not found, it returns 0.
+     * This method fetches product information from Elasticsearch and searches for a product with the given ID.
+     * If the product is found, it returns the remaining stock quantity. If the product is not found, it returns 0.
+     * </p>
+     * <p>
+     * The search is performed across all branches specified in {@code branchIds}. If no branch IDs are provided,
+     * the search will include all available branches.
+     * </p>
      *
      * @param productId The ID of the product to search for.
-     * @return The remaining stock of the product, or {@code 0} if the product is not found.
+     * @param branchIds (Optional) The branch IDs to filter the search. If none are provided, all branches are considered.
+     * @return The remaining stock quantity of the product, or {@code 0} if the product is not found.
      */
-    public int fetchRemainingStockByProductId(int productId) {
+    public int fetchRemainingStockByProductId(int productId, int... branchIds) {
         // Logger
         LogManager.getLogger().info("Get product stock from Elasticsearch, id: {} ", productId);
 
@@ -162,7 +168,7 @@ public class APIGetProductList {
         String productName = new APIGetProductDetail(credentials).getProductInformation(productId).getName();
 
         // Fetch and return product's remaining stock
-        return getAllProductInformation(productName).parallelStream()
+        return getAllProductInformation(productName, branchIds).parallelStream()
                 .filter(product -> product.getId() == productId)
                 .findAny()
                 .map(Product::getRemainingStock)

@@ -5,6 +5,7 @@ import api.seller.product.APIGetInventoryHistory;
 import api.seller.product.APIGetProductDetail;
 import api.seller.product.APIGetProductList;
 import api.seller.product.APIGetStockAlert;
+import api.seller.setting.APIGetBranchList;
 import org.apache.commons.lang.math.JVMRandom;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.logging.log4j.LogManager;
@@ -32,6 +33,7 @@ public class ProductManagementPage {
     private APIGetProductList apiGetProductList;
     private APIGetInventoryHistory apiGetInventoryHistory;
     private APIGetStockAlert apiGetStockAlert;
+    private APIGetBranchList apiGetBranchList;
 
     /**
      * Constructs a ProductManagementPage instance with the given WebDriver.
@@ -54,6 +56,7 @@ public class ProductManagementPage {
         this.apiGetProductList = new APIGetProductList(credentials);
         this.apiGetInventoryHistory = new APIGetInventoryHistory(credentials);
         this.apiGetStockAlert = new APIGetStockAlert(credentials);
+        this.apiGetBranchList = new APIGetBranchList(credentials);
 
         return this;
     }
@@ -70,6 +73,7 @@ public class ProductManagementPage {
     private final By loc_dlgUpdateStock_actionsChange = By.cssSelector("[class *= 'gs-button__blue']:nth-child(2)");
     private final By loc_dlgUpdateStock_txtStockValue = By.xpath("//*[@name='quantity']/parent::div/parent::div/preceding-sibling::input");
     private final By loc_dlgUpdateStock_btnUpdate = By.cssSelector(".product-multiple-stock_updater_modal .gs-button__green");
+    private final By loc_dlgUpdateStock_ddvSelectedBranch = By.cssSelector(".product-multiple-stock_updater_modal__branch-select .uik-select__valueWrapper");
     private final By loc_dlgUpdateTax_ddlTaxOptions = By.cssSelector("input[name='taxRadioGroup']");
     private final By loc_dlgUpdateTax_btnOK = By.cssSelector(".modalActivateProduct .gs-button__green");
     private final By loc_dlgDisplayOutOfStockProduct_listOptions = By.cssSelector("input[name='productRadioGroup']");
@@ -176,7 +180,9 @@ public class ProductManagementPage {
 
         // Collect product IDs into a list
         return IntStream.range(0, productCount)
-                .mapToObj(index -> Integer.parseInt(webUtils.getText(loc_lblProductId, index)))
+                .mapToObj(index -> webUtils.getText(loc_lblProductId, index))
+                .filter(productId -> !productId.isEmpty())
+                .map(Integer::parseInt)
                 .toList();
     }
 
@@ -222,27 +228,27 @@ public class ProductManagementPage {
         List<Integer> productIds = fetchSelectedProductIds();
 
         // Get product stock before the action
-        List<Integer> beforeStock = getStockList(productIds);
+        List<Map<Integer, Integer>> beforeStock = getStockList(productIds);
 
         // Perform the bulk action
-        performBulkStockAction(actionIndex, confirmButtonLocator, actionDescription, stockValue);
+        String branchName = performBulkStockAction(actionIndex, confirmButtonLocator, actionDescription, stockValue);
 
         // Verify stock updates on ItemService and Elasticsearch
         int newStock = stockValue.length > 0 ? stockValue[0] : 0;
-        verifyStockUpdates(productIds, actionIndex, beforeStock, newStock);
+        verifyStockUpdates(productIds, actionIndex, beforeStock, newStock, branchName);
     }
 
     /**
-     * Retrieves the current stock for each product in the provided list of product IDs.
+     * Retrieves the current stock for each valid product in the provided list of product IDs.
      *
      * @param productIds The list of product IDs.
-     * @return A list of stock quantities before the bulk action.
+     * @return A list of maps, where each map represents stock quantities per branch for a product.
      */
-    private List<Integer> getStockList(List<Integer> productIds) {
+    private List<Map<Integer, Integer>> getStockList(List<Integer> productIds) {
         return productIds.stream()
                 .map(apiGetProductDetail::getProductInformation) // Get product information first
                 .filter(product -> !product.isDeleted()) // Filter out deleted products
-                .map(APIGetProductDetail::getTotalStockQuantity) // Map to stock quantity
+                .map(APIGetProductDetail::getTotalStockByBranch) // Map to stock quantity
                 .toList();
 
     }
@@ -263,27 +269,37 @@ public class ProductManagementPage {
      * @param actionIndex          The index of the action to be performed in the bulk action's dropdown.
      * @param confirmButtonLocator The locator of the confirm button for the action.
      * @param actionDescription    A description of the action being performed for logging purposes.
-     * @param stockValue           The stock value to input for update actions (ignored for clear stock).
+     * @param stockValue           (Optional) The stock value to input for update actions. Ignored for clearing stock.
+     * @return The branch name if updating stock; empty string("") if clearing stock.
      */
-    private void performBulkStockAction(int actionIndex, By confirmButtonLocator, String actionDescription, int... stockValue) {
+    private String performBulkStockAction(int actionIndex, By confirmButtonLocator, String actionDescription, int... stockValue) {
         selectBulkAction(actionIndex);
 
-        if (stockValue.length > 0) {
+        OptionalInt stockVal = (stockValue.length > 0) ? OptionalInt.of(stockValue[0]) : OptionalInt.empty();
+
+        if (stockVal.isPresent()) {
             // Input stock value and confirm the update
             webUtils.clickJS(loc_dlgUpdateStock_actionsChange);
-            webUtils.sendKeys(loc_dlgUpdateStock_txtStockValue, String.valueOf(stockValue[0]));
-            logger.info("Input stock value: {}.", String.format("%,d", stockValue[0]));
+            webUtils.sendKeys(loc_dlgUpdateStock_txtStockValue, String.valueOf(stockVal.getAsInt()));
+            logger.info("Input stock value: {}.", String.format("%,d", stockVal.getAsInt()));
+
+            String branchName = webUtils.getText(loc_dlgUpdateStock_ddvSelectedBranch);
+            logger.info("Bulk update stock for branch: {}", branchName);
+
             webUtils.click(loc_dlgUpdateStock_btnUpdate);
+
+            waitBulkUpdated();
+            logger.info("Checked product information after bulk action: {}.", actionDescription);
+
+            return branchName;
         } else {
             // Confirm the clear stock action
             webUtils.click(confirmButtonLocator);
+            waitBulkUpdated();
+
+            logger.info("Stock cleared successfully. Action: {}", actionDescription);
+            return "";
         }
-
-        // Wait for the bulk update to complete
-        waitBulkUpdated();
-
-        // Log action completion
-        logger.info("Checked product information after bulk action: {}.", actionDescription);
     }
 
     /**
@@ -293,56 +309,109 @@ public class ProductManagementPage {
      * @param actionIndex The index of the performed action (0 for clear stock, 4 for update stock).
      * @param beforeStock The stock quantities before the bulk action.
      * @param newStock    The new stock value to verify.
+     * @param branchName  The name of the branch where the update was performed.
      */
-    private void verifyStockUpdates(List<Integer> productIds, int actionIndex, List<Integer> beforeStock, int newStock) {
-        AtomicInteger productIndex = new AtomicInteger();
-        productIds.stream().map(productId -> apiGetProductDetail.getProductInformation(productId))
-                .filter(productInfo -> !productInfo.isDeleted())
+    private void verifyStockUpdates(List<Integer> productIds, int actionIndex, List<Map<Integer, Integer>> beforeStock, int newStock, String branchName) {
+        AtomicInteger productIndex = new AtomicInteger(0);
+
+        // Get branch ID
+        int branchId = apiGetBranchList.getBranchInformation().stream()
+                .filter(branchInfo -> branchInfo.getName().equals(branchName))
+                .map(APIGetBranchList.BranchInformation::getId)
+                .findFirst()
+                .orElse(0);
+
+        productIds.stream()
+                .map(apiGetProductDetail::getProductInformation) // Fetch product info
+                .filter(productInfo -> !productInfo.isDeleted()) // Exclude deleted products
                 .forEach(productInfo -> {
-                    // Get product ID
                     int productId = productInfo.getId();
 
-                    // Get number of variations
+                    // Get product variations count
                     int variationNum = productInfo.isHasModel()
                             ? APIGetProductDetail.getVariationModelList(productInfo).size()
                             : 1;
 
-                    // Check stock values in ItemService and Elasticsearch
-                    verifyStockInService("ItemService", productId, productInfo, beforeStock.get(productIndex.get()), newStock, variationNum, actionIndex);
-                    verifyStockInService("Elasticsearch", productId, productInfo, beforeStock.get(productIndex.get()), newStock, variationNum, actionIndex);
+                    // Ensure `beforeStock` has enough data to avoid out-of-bounds errors
+                    int index = productIndex.getAndIncrement();
+                    if (index >= beforeStock.size()) {
+                        logger.warn("Mismatch in product stock data. Skipping productId: {}", productId);
+                        return;
+                    }
 
-                    // Increase productIndex
-                    productIndex.getAndIncrement();
+                    // Get previous stock
+                    Map<Integer, Integer> previousStock = beforeStock.get(index);
+
+                    // Determine if stock should remain unchanged
+                    boolean shouldStockRemainUnchanged = productInfo.isLotAvailable() ||
+                                                         ("IMEI_SERIAL_NUMBER".equals(productInfo.getInventoryManageType()) && actionIndex == 4);
+
+                    // Get expected stock
+                    int expectedStock = calculateExpectedStock(previousStock, newStock, variationNum, actionIndex, branchId, shouldStockRemainUnchanged);
+
+                    // Verify stock in both services
+                    verifyStockInService("ItemService", productInfo, expectedStock);
+                    verifyStockInService("Elasticsearch", productInfo, expectedStock);
                 });
+
+        logger.info("Stock verification completed for {} products.", productIds.size());
     }
 
     /**
-     * Verifies the stock in the specified service (ItemService/Elasticsearch).
+     * Verifies that the stock in the specified service (ItemService/Elasticsearch) matches the expected value.
      *
-     * @param serviceName  The name of the service (ItemService or Elasticsearch).
-     * @param productId    The ID of the product.
-     * @param productInfo  The product information.
-     * @param beforeStock  The stock value before the action.
-     * @param newStock     The new stock value to verify.
-     * @param variationNum The number of variations for the product.
-     * @param actionIndex  The index of the performed action (0 for clear stock, 4 for update stock).
+     * @param serviceName   The name of the service (ItemService or Elasticsearch).
+     * @param productInfo   The product information containing stock details.
+     * @param expectedStock The expected stock quantity after an update or action.
      */
-    private void verifyStockInService(String serviceName, int productId, APIGetProductDetail.ProductInformation productInfo, int beforeStock, int newStock, int variationNum, int actionIndex) {
+    private void verifyStockInService(String serviceName, APIGetProductDetail.ProductInformation productInfo, int expectedStock) {
+        int productId = productInfo.getId();
+
+        // Retrieve actual stock from the appropriate service
         int actualStock = serviceName.equals("ItemService")
                 ? APIGetProductDetail.getTotalStockQuantity(productInfo)
                 : apiGetProductList.fetchRemainingStockByProductId(productId);
 
-        // Check if stock should remain unchanged for certain conditions
-        boolean shouldStockRemainUnchanged = productInfo.isLotAvailable() ||
-                                             (productInfo.getInventoryManageType().equals("IMEI_SERIAL_NUMBER") && actionIndex == 4);
-
-        int expectedStock = shouldStockRemainUnchanged ? beforeStock : newStock * variationNum;
-
+        // Assert stock matches expected value
         Assert.assertEquals(actualStock, expectedStock,
-                "[%s] Product stock is not as expected, productId: %d".formatted(serviceName, productId));
+                "[%s] Product stock is incorrect. Expected: %,d, Actual: %,d, productId: %d"
+                        .formatted(serviceName, expectedStock, actualStock, productId));
 
-        logger.info("Verify product stock, productId: {}", productId);
+        logger.info("Stock verification successful. Service: {}, ProductId: {}, Expected: {}, Actual: {}",
+                serviceName, productId, String.format("%,d", expectedStock), String.format("%,d", actualStock));
     }
+
+    /**
+     * Calculates the expected stock quantity based on the given action type and stock conditions.
+     *
+     * @param beforeStock                A map of branch IDs to their stock values before the action.
+     * @param newStock                   The new stock value being set.
+     * @param variationNum               The number of variations for the product.
+     * @param actionIndex                The index of the performed action (0 for clear stock, 4 for update stock).
+     * @param branchId                   The branch ID where the stock action is performed.
+     * @param shouldStockRemainUnchanged A flag indicating if stock should remain unchanged due to product conditions.
+     * @return The expected stock quantity after the action.
+     */
+    private int calculateExpectedStock(Map<Integer, Integer> beforeStock, int newStock, int variationNum, int actionIndex, int branchId, boolean shouldStockRemainUnchanged) {
+        // If stock should remain unchanged, return the sum of all stock before the action.
+        if (shouldStockRemainUnchanged) {
+            return beforeStock.values().stream().mapToInt(Integer::intValue).sum();
+        }
+
+        // If the action is to clear stock, set stock to newStock * variationNum.
+        if (actionIndex == 0) {
+            return newStock * variationNum;
+        }
+
+        // If updating stock, sum up the new stock and existing stock from other branches.
+        int otherBranchStock = beforeStock.entrySet().stream()
+                .filter(entry -> entry.getKey() != branchId)
+                .mapToInt(Map.Entry::getValue)
+                .sum();
+
+        return (newStock * variationNum) + otherBranchStock;
+    }
+
 
     /**
      * Performs a bulk delete operation on products and verifies the deletion status.

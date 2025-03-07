@@ -559,6 +559,28 @@ public class APIGetProductDetail {
                 .sum();
     }
 
+    public static Map<Integer, Integer> getTotalStockByBranch(ProductInformation productInformation) {
+        // Get the stock map: ModelId -> (BranchId -> Stock)
+        Map<Integer, Map<Integer, Integer>> stockMap = getModelBranchStockMap(productInformation);
+
+        // Result map: BranchId -> TotalStock
+        Map<Integer, Integer> branchStockMap = new HashMap<>();
+
+        // Iterate over each model's stock data
+        for (Map<Integer, Integer> branchMap : stockMap.values()) {
+            for (Map.Entry<Integer, Integer> entry : branchMap.entrySet()) {
+                int branchId = entry.getKey();
+                int stock = entry.getValue();
+
+                // Accumulate stock for each branch
+                branchStockMap.merge(branchId, stock, Integer::sum);
+            }
+        }
+
+        return branchStockMap;
+    }
+
+
     /**
      * Checks if the product is in stock based on the stock quantities for its models across all branches.
      * <p>

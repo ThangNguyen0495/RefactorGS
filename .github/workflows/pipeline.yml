@@ -3,28 +3,28 @@ name: Automation pipeline
 on:
   workflow_dispatch:
     inputs:
-      target_env:
+      environment:
         description: "Select the target environment"
         required: true
         type: choice
         options:
-          - CA2_VN
-          - CA2_BIZ
-          - CA_VN
-          - CA_BIZ
-          - STAG_VN
-          - STAG_BIZ
-          - PROD_VN
-          - PROD_BIZ
-        default: "STAG_VN"
-      test_type:
+          - CA2 VN
+          - CA2 BIZ
+          - CA VN
+          - CA BIZ
+          - Staging VN
+          - Staging BIZ
+          - Production VN
+          - Production BIZ
+        default: "Staging VN"
+      testType:
         description: "Select the test type"
         required: true
         type: choice
         options:
-          - smoke_test
-          - regression_test
-        default: "smoke_test"
+          - Smoke Test
+          - Regression Test
+        default: "Smoke Test"
       platform:
         description: "Select the test platform"
         required: true
@@ -39,9 +39,14 @@ on:
           - iOS Buyer
         default: "All Platforms"
 
+run-name: "[${{ github.event.inputs.environment }}] Automation test -${{ github.event.inputs.testType }}-${{ github.event.inputs.platform }}"
+
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.inputs.target_env }}-${{ github.event.inputs.test_type }}-${{ github.event.inputs.platform }}
+  group: ${{ github.workflow }}-${{ github.event.inputs.environment }}-${{ github.event.inputs.testType }}-${{ github.event.inputs.platform }}
   cancel-in-progress: true
+
+env:
+  TEST_TYPE: ${{ github.event.inputs.testType == 'Smoke Test' && 'smoke' || 'regression' }}
 
 jobs:
   Dashboard:
@@ -56,7 +61,7 @@ jobs:
           - DashboardProductManagementTest.xml
     runs-on: ubuntu-latest
     if: github.event.inputs.platform == 'Dashboard' || github.event.inputs.platform == 'All Platforms'
-    environment: ${{ github.event.inputs.target_env }}
+    environment: ${{ github.event.inputs.environment }}
     steps:
       - name: Extract test name from config path
         run: |
@@ -69,7 +74,7 @@ jobs:
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/web/seller/${{ matrix.test_config_path }}"
+            mvn test "-DsuiteFile=test_configs/${{ TEST_TYPE }}/web/seller/${{ matrix.test_config_path }}"
 
   StoreFront:
     strategy:
@@ -79,7 +84,7 @@ jobs:
           - StorefrontProductDetailTest.xml
     runs-on: ubuntu-latest
     if: github.event.inputs.platform == 'StoreFront' || github.event.inputs.platform == 'All Platforms'
-    environment: ${{ github.event.inputs.target_env }}
+    environment: ${{ github.event.inputs.environment }}
     steps:
       - name: Extract test name from config path
         run: |
@@ -92,7 +97,7 @@ jobs:
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/web/buyer/${{ matrix.test_config_path }}"
+            mvn test "-DsuiteFile=test_configs/${{ TEST_TYPE }}/web/buyer/${{ matrix.test_config_path }}"
 
   AndroidSeller:
     strategy:
@@ -104,7 +109,7 @@ jobs:
           - AndroidGoSELLERSupplierTest.xml
     runs-on: ubuntu-latest
     if: github.event.inputs.platform == 'Android Seller' || github.event.inputs.platform == 'All Platforms'
-    environment: ${{ github.event.inputs.target_env }}
+    environment: ${{ github.event.inputs.environment }}
     steps:
       - name: Extract test name from config path
         run: |
@@ -118,7 +123,7 @@ jobs:
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo '${{ vars.APP_URL }}' >> src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/android/seller/${{ matrix.test_config_path }}"
+            mvn test "-DsuiteFile=test_configs/${{ TEST_TYPE }}/android/seller/${{ matrix.test_config_path }}"
             
 
   AndroidBuyer:
@@ -129,7 +134,7 @@ jobs:
           - AndroidGoBuyerProductDetail.xml
     runs-on: ubuntu-latest
     if: github.event.inputs.platform == 'Android Buyer' || github.event.inputs.platform == 'All Platforms'
-    environment: ${{ github.event.inputs.target_env }}
+    environment: ${{ github.event.inputs.environment }}
     steps:
       - name: Extract test name from config path
         run: |
@@ -143,7 +148,7 @@ jobs:
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo '${{ vars.APP_URL }}' >> src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/android/buyer/${{ matrix.test_config_path }}"
+            mvn test "-DsuiteFile=test_configs/${{ TEST_TYPE }}/android/buyer/${{ matrix.test_config_path }}"
 
   iOSSeller:
     strategy:
@@ -155,7 +160,7 @@ jobs:
           - IOSGoSELLERSupplierTest.xml
     runs-on: macos-latest
     if: github.event.inputs.platform == 'iOS Seller' || github.event.inputs.platform == 'All Platforms'
-    environment: ${{ github.event.inputs.target_env }}
+    environment: ${{ github.event.inputs.environment }}
     steps:
       - name: Create an iOS simulator
         uses: ThangNguyen0495/create-ios-simulator@main
@@ -178,7 +183,7 @@ jobs:
             echo '${{ vars.APP_URL }}' >> src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
             echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/ios/seller/${{ matrix.test_config_path }}"
+            mvn test "-DsuiteFile=test_configs/${{ TEST_TYPE }}/ios/seller/${{ matrix.test_config_path }}"
 
   iOSBuyer:
     strategy:
@@ -188,7 +193,7 @@ jobs:
           - IOSGoBuyerProductDetail.xml
     runs-on: macos-latest
     if: github.event.inputs.platform == 'iOS Buyer' || github.event.inputs.platform == 'All Platforms'
-    environment: ${{ github.event.inputs.target_env }}
+    environment: ${{ github.event.inputs.environment }}
     steps:
       - name: Create an iOS simulator
         uses: ThangNguyen0495/create-ios-simulator@main
@@ -211,4 +216,4 @@ jobs:
             echo '${{ vars.APP_URL }}' >> src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
             echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/${{ github.event.inputs.test_type }}/ios/buyer/${{ matrix.test_config_path }}"
+            mvn test "-DsuiteFile=test_configs/${{ TEST_TYPE }}/ios/buyer/${{ matrix.test_config_path }}"
