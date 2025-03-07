@@ -4,17 +4,13 @@ import api.seller.login.APISellerLogin;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.pagefactory.ByChained;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import utility.PropertiesUtils;
 import utility.WebUtils;
-
-import java.time.Duration;
 
 /**
  * Represents the login page of the seller's dashboard.
@@ -48,13 +44,6 @@ public class DashboardLoginPage {
     By loc_lblUsernameError = By.cssSelector("#username + .invalid-feedback");
     By loc_lblPasswordError = By.cssSelector("#password + .invalid-feedback");
     By loc_lblLoginFailError = By.cssSelector("div[class~='alert__wrapper']:not(div[hidden])");
-
-    By loc_ddlLanguage = By.cssSelector(".change-language__wrapper");
-    By loc_ddvLanguage(String langKey) {
-        String displayLanguage = langKey.equals("vi") ? "VIE" : "ENG";
-        return By.xpath("//div[starts-with(@class,'select-country__option')]//div[@class='label' and .='%s']"
-                .formatted(displayLanguage));
-    }
 
     /**
      * Navigates to the login page of the seller's dashboard.
@@ -217,7 +206,7 @@ public class DashboardLoginPage {
     public void verifyLoginWithCorrectAccount() {
         try {
             logger.info("Verifying that the user is redirected to the home page after login.");
-            new WebDriverWait(driver, Duration.ofSeconds(3)).until(ExpectedConditions.urlContains("/home"));
+            webUtils.waitForCondition(ExpectedConditions.urlContains("/home"), 30_000);
         } catch (TimeoutException exception) {
             throw new RuntimeException("Cannot navigate to home screen", exception);
         }
