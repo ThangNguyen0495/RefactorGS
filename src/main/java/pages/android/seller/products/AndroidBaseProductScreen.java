@@ -14,11 +14,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import pages.android.seller.login.AndroidSellerLoginScreen;
 import pages.android.seller.products.product_management.ProductManagementScreen;
 import utility.AndroidUtils;
-import utility.PropertiesUtils;
 import utility.WebUtils;
 import utility.helper.ActivityHelper;
 import utility.helper.ProductHelper;
@@ -882,7 +882,10 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         By loc_btnVariationDescription = getLocatorByResourceId("%s:id/tvVariationDescription");
         By loc_txtVariationListingPrice = By.xpath("//*[@*= '%s:id/edtVariationOrgPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(appBundleId, appBundleId));
         By loc_txtVariationSellingPrice = By.xpath("//*[@*= '%s:id/edtVariationNewPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(appBundleId, appBundleId));
-        By loc_txtVariationCostPrice = By.xpath("//*[@*= '%s:id/edtVariationCostPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(appBundleId, appBundleId));
+        WebElement web_txtVariationCostPrice(AndroidUtils androidUtils) {
+            WebElement element = androidUtils.getElement(getLocatorByResourceId("%s:id/edtVariationCostPrice"));
+            return element.findElement(By.xpath("%s:id/edtPriceCustom".formatted(appBundleId)));
+        }
         By loc_txtVariationSKU = getLocatorByResourceId("%s:id/edtSKU");
         By loc_txtVariationBarcode = getLocatorByResourceId("%s:id/edtBarcode");
         By loc_btnInventory = getLocatorByResourceId("%s:id/clInventoryContainer");
@@ -977,7 +980,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
 
             // Input cost price
             long costPrice = model.getCostPrice();
-            androidUtils.sendKeys(loc_txtVariationCostPrice, String.valueOf(costPrice));
+            web_txtVariationCostPrice(androidUtils).sendKeys(String.valueOf(costPrice));
             logger.info("Input variation cost price: {}", format("%,d", costPrice));
         }
 
