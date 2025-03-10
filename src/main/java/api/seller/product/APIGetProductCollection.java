@@ -1,6 +1,7 @@
 package api.seller.product;
 
 import api.seller.login.APISellerLogin;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import utility.APIUtils;
 
@@ -18,6 +19,7 @@ public class APIGetProductCollection {
      * Class representing a product collection.
      */
     @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ProductCollection {
         private int id; // ID of the collection
         private String collectionName; // Name of the collection
