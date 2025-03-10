@@ -24,4 +24,8 @@ public class AndroidSellerHomeScreen {
         // Change language
         new AndroidSellerAccountScreen(driver).selectLanguage();
     }
+
+    public void navigateToCreateProductScreen() {
+
+    }
 }

@@ -149,9 +149,9 @@ public class AndroidUtils {
      * @throws RuntimeException If the element cannot be made fully visible after retries.
      */
     public WebElement getElement(By locator) {
-//        if (locator instanceof AppiumBy) {
-//            return findElementWithScroll(locator);
-//        }
+        if (locator instanceof AppiumBy) {
+            return findElementWithScroll(locator);
+        }
 
         return WebUtils.retryOnStaleElement(() ->
                 wait.until(ExpectedConditions.presenceOfElementLocated(locator))
@@ -162,7 +162,7 @@ public class AndroidUtils {
         List<WebElement> elements = getListElement(locator);
 
         if (!elements.isEmpty()) {
-            return elements.getFirst();
+            return elements.getFirst(); // Return first found element
         }
 
         String keyword = extractKeywordFromLocator(locator);
@@ -209,7 +209,7 @@ public class AndroidUtils {
      * @param locator The locator for the element.
      */
     public void click(By locator) {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).click();
+        getElement(locator).click();
     }
 
     /**
@@ -271,7 +271,7 @@ public class AndroidUtils {
             AndroidDriver androidDriver = (AndroidDriver) driver;
             assert androidDriver != null;
             assert androidDriver.currentActivity() != null;
-            return androidDriver.currentActivity().equals(screenActivity);
+            return screenActivity.contains(androidDriver.currentActivity());
         });
     }
 
@@ -314,6 +314,10 @@ public class AndroidUtils {
      * @param appActivity The activity name of the screen to navigate to.
      */
     public void navigateToScreenUsingScreenActivity(String appActivity) {
+        String currentAppActivity = ((AndroidDriver)driver).currentActivity();
+        if (!currentAppActivity.contains("com.mediastep.gosellseller")) {
+            appActivity = appActivity.replace("com.mediastep.gosellseller", "");
+        }
         // Return early if the current activity is already the desired activity
         if (Objects.equals(((AndroidDriver) driver).currentActivity(), appActivity)) {
             return; // Early exit if the current activity matches the target activity
@@ -366,7 +370,7 @@ public class AndroidUtils {
      * the accept button if it is present.
      */
     public void acceptSavePasswordToGooglePasswordManager() {
-        By loc_btnAcceptSavePassword = By.id("android:id/autofill_save_yes");
+        By loc_btnAcceptSavePassword = By.xpath("//android.widget.Button[@resource-id=\"android:id/autofill_save_yes\"]");
         if (!getListElement(loc_btnAcceptSavePassword).isEmpty()) {
             click(loc_btnAcceptSavePassword);
             logger.info("Accepted saving password in Google Password Manager.");
@@ -379,7 +383,5 @@ public class AndroidUtils {
             click(loc_btnCloseCrashPopup);
             logger.info("Close crash popup");
         }
-
-        relaunchApp();
     }
 }

@@ -7,7 +7,8 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import utility.AndroidUtils;
-import utility.helper.ActivityHelper;
+
+import static utility.AndroidUtils.getLocatorById;
 
 /**
  * Represents the login screen for the seller application.
@@ -31,10 +32,10 @@ public class AndroidSellerLoginScreen {
     }
 
     // Locators for UI elements
-    private final By loc_txtUsername = By.xpath("//*[ends-with(@resource-id,'edtUserName')]");
-    private final By loc_txtPassword = By.xpath("//*[ends-with(@resource-id,'edtPassword')]");
-    private final By loc_chkTermOfUse = By.xpath("//*[ends-with(@resource-id,'cbxTermAndPrivacy')]");
-    private final By loc_btnLogin = By.xpath("//*[ends-with(@resource-id,'tvLogin')]");
+    private final By loc_txtUsername = getLocatorById("%s:id/edtUserName");
+    private final By loc_txtPassword = getLocatorById("%s:id/edtPassword");
+    private final By loc_chkTermOfUse = getLocatorById("%s:id/cbxTermAndPrivacy");
+    private final By loc_btnLogin = getLocatorById("%s:id/tvLogin");
 
     /**
      * Inputs the username into the username field.
@@ -93,6 +94,9 @@ public class AndroidSellerLoginScreen {
      * @param loginInformation the credentials to use for login.
      */
     public void performLogin(APISellerLogin.Credentials loginInformation) {
+        // If app crashed, restart app then actions
+        androidUtils.relaunchAppIfAppCrashed();
+
         // Set login information for later use
         AndroidSellerLoginScreen.credentials = loginInformation;
 
