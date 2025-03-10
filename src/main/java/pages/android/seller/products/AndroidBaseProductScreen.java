@@ -884,7 +884,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         By loc_txtVariationSellingPrice = By.xpath("//*[@*= '%s:id/edtVariationNewPrice']//*[@* = '%s:id/edtPriceCustom']".formatted(appBundleId, appBundleId));
         WebElement web_txtVariationCostPrice(AndroidUtils androidUtils) {
             WebElement element = androidUtils.getElement(getLocatorByResourceId("%s:id/edtVariationCostPrice"));
-            return element.findElement(By.xpath("%s:id/edtPriceCustom".formatted(appBundleId)));
+            return element.findElement(By.xpath("//*[@resource-id = '%s:id/edtPriceCustom']".formatted(appBundleId)));
         }
         By loc_txtVariationSKU = getLocatorByResourceId("%s:id/edtSKU");
         By loc_txtVariationBarcode = getLocatorByResourceId("%s:id/edtBarcode");
