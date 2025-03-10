@@ -55,6 +55,9 @@ public class AndroidBuyerLoginScreen {
 
         // Accept saving password in Google Password Manager if prompted
         androidUtils.acceptSavePasswordToGooglePasswordManager();
+
+        // Relaunch app if it's crashed
+        androidUtils.relaunchAppIfAppCrashed();
         return this;
     }
 }

@@ -8,11 +8,9 @@ import static utility.AndroidUtils.getLocatorByResourceId;
 import static utility.helper.ActivityHelper.sellerSupplierMgmtActivity;
 
 public class AndroidSupplierManagementScreen {
-    private final WebDriver driver;
     private final AndroidUtils androidUtils;
 
     public AndroidSupplierManagementScreen(WebDriver driver) {
-        this.driver = driver;
         this.androidUtils = new AndroidUtils(driver);
     }
 

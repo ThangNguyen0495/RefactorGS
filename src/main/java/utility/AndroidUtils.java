@@ -30,6 +30,10 @@ public class AndroidUtils {
 
     private static final Logger logger = LogManager.getLogger(AndroidUtils.class);
 
+    public static By getLocatorById(String id) {
+        return By.id(id.formatted(appBundleId));
+    }
+
     public static By getLocatorByResourceId(String resourceId) {
         return AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId(\"%s\"))".formatted(resourceId.formatted(appBundleId)));
     }
@@ -145,9 +149,9 @@ public class AndroidUtils {
      * @throws RuntimeException If the element cannot be made fully visible after retries.
      */
     public WebElement getElement(By locator) {
-        if (locator instanceof AppiumBy) {
-            return findElementWithScroll(locator);
-        }
+//        if (locator instanceof AppiumBy) {
+//            return findElementWithScroll(locator);
+//        }
 
         return WebUtils.retryOnStaleElement(() ->
                 wait.until(ExpectedConditions.presenceOfElementLocated(locator))
@@ -158,7 +162,7 @@ public class AndroidUtils {
         List<WebElement> elements = getListElement(locator);
 
         if (!elements.isEmpty()) {
-            return elements.getFirst(); // Return first found element
+            return elements.getFirst();
         }
 
         String keyword = extractKeywordFromLocator(locator);
@@ -205,7 +209,7 @@ public class AndroidUtils {
      * @param locator The locator for the element.
      */
     public void click(By locator) {
-        getElement(locator).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).click();
     }
 
     /**
@@ -362,10 +366,20 @@ public class AndroidUtils {
      * the accept button if it is present.
      */
     public void acceptSavePasswordToGooglePasswordManager() {
-        By loc_btnAcceptSavePassword = By.xpath("//android.widget.Button[@resource-id=\"android:id/autofill_save_yes\"]");
+        By loc_btnAcceptSavePassword = By.id("android:id/autofill_save_yes");
         if (!getListElement(loc_btnAcceptSavePassword).isEmpty()) {
             click(loc_btnAcceptSavePassword);
             logger.info("Accepted saving password in Google Password Manager.");
         }
+    }
+
+    public void relaunchAppIfAppCrashed() {
+        By loc_btnCloseCrashPopup = By.id("android:id/aerr_close");
+        if (!getListElement(loc_btnCloseCrashPopup).isEmpty()) {
+            click(loc_btnCloseCrashPopup);
+            logger.info("Close crash popup");
+        }
+
+        relaunchApp();
     }
 }

@@ -16,6 +16,7 @@ import utility.helper.SupplierHelper;
 
 import java.util.Optional;
 
+import static utility.AndroidUtils.getLocatorById;
 import static utility.AndroidUtils.getLocatorByResourceId;
 import static utility.helper.ActivityHelper.sellerCreateSupplierActivity;
 
@@ -53,9 +54,11 @@ public class AndroidBaseSupplierScreen {
     By loc_lblSelectedForeignProvince = getLocatorByResourceId("%s:id/tvSelectedState");
     By loc_txtForeignZipcode = getLocatorByResourceId("%s:id/edtZipCode");
     By loc_lblSelectedResponsibleStaff = getLocatorByResourceId("%s:id/tvSelectedResponsibleStaff");
+
     By loc_ddvResponsibleStaff(String staffName) {
         return By.xpath("//*[@text = '%s']".formatted(staffName));
     }
+
     By loc_txtDescription = getLocatorByResourceId("%s:id/edtDescription");
 
     /**
@@ -192,7 +195,16 @@ public class AndroidBaseSupplierScreen {
      */
     private void selectVietnamWard() {
         String wardName = supplierInfo.getVietnamWardName();
+        // Scroll to the "Ward" dropdown to ensure it's visible
+        androidUtils.getElement(loc_lblSelectedVietnamWard);
+
+        // Wait for the dropdown to fully load before interacting
+        WebUtils.sleep(1000);
+
+        // Click to open the "Ward" dropdown
         androidUtils.click(loc_lblSelectedVietnamWard);
+
+        // Select the specified ward from the dropdown
         new PopupHandler(driver).selectItem(wardName);
         logger.info("Select ward: {}", wardName);
     }
@@ -253,10 +265,21 @@ public class AndroidBaseSupplierScreen {
     private void selectResponsibleStaff() {
         String staffName = supplierInfo.getResponsibleStaffName();
         if (!staffName.isEmpty()) {
+            // Scroll to the "Responsible Staff" dropdown to ensure it's visible
+            androidUtils.getElement(loc_lblSelectedResponsibleStaff);
+
+            // Wait for the dropdown to fully load before interacting
+            WebUtils.sleep(1000);
+
+            // Click to open the "Responsible Staff" dropdown
             androidUtils.click(loc_lblSelectedResponsibleStaff);
+
+            // Select the specified staff member from the dropdown
             androidUtils.click(loc_ddvResponsibleStaff(staffName));
-            logger.info("Select responsible staff: {}", staffName);
+
+            logger.info("Selected responsible staff: {}", staffName);
             return;
+
         }
 
         logger.info("Store does not have any staff, so we cannot select responsible staff for the supplier.");
@@ -401,19 +424,10 @@ public class AndroidBaseSupplierScreen {
             this.androidUtils = new AndroidUtils(driver);
         }
 
-        private final By loc_btnClose = getLocatorByResourceId("%s:id/btnClose");
-        private final By loc_icnSearch = getLocatorByResourceId("%s:id/btnSearch");
-        private final By loc_txtSearch = getLocatorByResourceId("%s:id/search_src_text");
-
-        /**
-         * Constructs the XPath locator for dropdown items containing the specified text.
-         *
-         * @param text the text to locate in the dropdown items
-         * @return a By object representing the XPath for the dropdown value
-         */
-        private By getDropdownValueLocator(String text) {
-            return By.xpath("(//*[contains(@text,\"%s\")])[last()]".formatted(text));
-        }
+        private final By loc_btnClose = getLocatorById("%s:id/btnClose");
+        private final By loc_icnSearch = getLocatorById("%s:id/btnSearch");
+        private final By loc_txtSearch = getLocatorById("%s:id/search_src_text");
+        private final By getDropdownValueLocator = getLocatorById("%s:id/item_list_region_name");
 
         /**
          * Selects an item in the popup by searching for it and clicking the result.
@@ -424,7 +438,7 @@ public class AndroidBaseSupplierScreen {
         public void selectItem(String itemName) {
             androidUtils.click(loc_icnSearch);
             androidUtils.sendKeys(loc_txtSearch, itemName);
-            androidUtils.click(getDropdownValueLocator(itemName));
+            androidUtils.click(getDropdownValueLocator);
 
             if (!androidUtils.getListElement(loc_btnClose).isEmpty()) {
                 androidUtils.click(loc_btnClose);

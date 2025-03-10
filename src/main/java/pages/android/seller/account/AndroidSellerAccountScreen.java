@@ -5,7 +5,7 @@ import org.openqa.selenium.WebDriver;
 import utility.AndroidUtils;
 import utility.PropertiesUtils;
 
-import static utility.AndroidUtils.getLocatorByResourceId;
+import static utility.AndroidUtils.getLocatorById;
 
 public class AndroidSellerAccountScreen {
     private final AndroidUtils androidUtils;
@@ -14,9 +14,9 @@ public class AndroidSellerAccountScreen {
         androidUtils = new AndroidUtils(driver);
     }
 
-    private final By loc_btnLanguage = getLocatorByResourceId("%s:id/llLanguage");
-    private final By loc_ddvVietnamese = getLocatorByResourceId("%s:id/llVietnamese");
-    private final By loc_ddvEnglish = getLocatorByResourceId("%s:id/llEnglish");
+    private final By loc_btnLanguage = getLocatorById("%s:id/llLanguage");
+    private final By loc_ddvVietnamese = getLocatorById("%s:id/llVietnamese");
+    private final By loc_ddvEnglish = getLocatorById("%s:id/llEnglish");
 
     public void selectLanguage() {
         androidUtils.click(loc_btnLanguage);
