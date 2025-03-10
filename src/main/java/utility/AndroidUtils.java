@@ -209,7 +209,7 @@ public class AndroidUtils {
      * @param locator The locator for the element.
      */
     public void click(By locator) {
-        getElement(locator).click();
+        WebUtils.retryOnStaleElement(() -> getElement(locator).click());
     }
 
     /**
@@ -314,7 +314,7 @@ public class AndroidUtils {
      * @param appActivity The activity name of the screen to navigate to.
      */
     public void navigateToScreenUsingScreenActivity(String appActivity) {
-        String currentAppActivity = ((AndroidDriver)driver).currentActivity();
+        String currentAppActivity = ((AndroidDriver) driver).currentActivity();
         if (!currentAppActivity.contains("com.mediastep.gosellseller")) {
             appActivity = appActivity.replace("com.mediastep.gosellseller", "");
         }
