@@ -12,18 +12,19 @@ before_script:
   - echo "$STAG_ENV_CONFIGS" > src/main/resources/config.properties
 selenium-test-job:
   stage: test
+  parallel:
+    matrix:
+      - TEST_CONFIG_PATH: 
+          - test_configs/smoke/web/seller/DashboardLoginTest.xml
+          - test_configs/smoke/web/seller/DashboardSupplierTest.xml
+          - test_configs/smoke/web/seller/DashboardCreateProductTest.xml
+          - test_configs/smoke/web/seller/DashboardUpdateProductTest.xml
+          - test_configs/smoke/web/seller/DashboardProductManagementTest.xml
   script:
     - mvn install -DskipTests > /dev/null 2>&1
-    - mvn test "-DsuiteFile=test_configs/smoke/web/seller/DashboardLoginTest.xml"
+    - mvn test "-DsuiteFile=test_configs/$TEST_TYPE/web/seller/$TEST_CONFIG_PATH"
   artifacts:
     paths:
       - target/ExtentReport.html
       - target/BufferLog.log
     when: always
-  # when: manual  # Allows manual execution
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "push"'
-  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  #   - if: '$CI_PIPELINE_SOURCE == "schedule"'
-  #   - if: '$CI_PIPELINE_SOURCE == "web"'  
-  #     when: manual  # Enables manual trigger in the UI
