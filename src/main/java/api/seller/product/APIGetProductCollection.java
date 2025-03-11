@@ -21,14 +21,12 @@ public class APIGetProductCollection {
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ProductCollection {
-        private int id; // ID of the collection
-        private String collectionName; // Name of the collection
-        private String collectionType; // Type of the collection (e.g., MANUAL)
-        private int sellerId; // ID of the seller
-        private String itemType; // Type of the items in the collection (e.g., BUSINESS_PRODUCT)
-        private List<String> images; // List of images associated with the collection
-        private List<String> filterOptions; // List of filter options for the collection
-        private List<String> sortOptions; // List of sort options for the collection
+        private int id;
+        private String collectionName;
+        private String collectionType;
+        private int sellerId;
+        private String itemType;
+        private List<String> images;
     }
 
     public List<ProductCollection> getProductCollections(int productId){
