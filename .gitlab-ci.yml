@@ -15,11 +15,11 @@ selenium-test-job:
   parallel:
     matrix:
       - TEST_CONFIG_PATH: 
-          - test_configs/smoke/web/seller/DashboardLoginTest.xml
-          - test_configs/smoke/web/seller/DashboardSupplierTest.xml
-          - test_configs/smoke/web/seller/DashboardCreateProductTest.xml
-          - test_configs/smoke/web/seller/DashboardUpdateProductTest.xml
-          - test_configs/smoke/web/seller/DashboardProductManagementTest.xml
+          - DashboardLoginTest.xml
+          - DashboardSupplierTest.xml
+          - DashboardCreateProductTest.xml
+          - DashboardUpdateProductTest.xml
+          - DashboardProductManagementTest.xml
   script:
     - mvn install -DskipTests > /dev/null 2>&1
     - mvn test "-DsuiteFile=test_configs/$TEST_TYPE/web/seller/$TEST_CONFIG_PATH"
