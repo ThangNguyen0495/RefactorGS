@@ -9,7 +9,19 @@ before_script:
   - echo "deb [signed-by=/usr/share/keyrings/google-chrome.asc] http://dl.google.com/linux/chrome/deb/ stable main" | tee /etc/apt/sources.list.d/google-chrome.list > /dev/null 2>&1
   - apt-get update > /dev/null 2>&1
   - apt-get install -y google-chrome-stable > /dev/null 2>&1
-  - echo "$STAG_ENV_CONFIGS" > src/main/resources/config.properties
+  - |
+    case "$TARGET_ENV" in
+      "STAG")
+        echo "$STAG_ENV_CONFIGS" > src/main/resources/config.properties;;
+      "CA")
+        echo "$CA_ENV_CONFIGS" > src/main/resources/config.properties;;
+      "DEV")
+        echo "$DEV_ENV_CONFIGS" > src/main/resources/config.properties;;
+      *)
+        echo "Unknown environment! Using default production settings."
+        echo "$PROD_ENV_CONFIGS" > src/main/resources/config.properties;;
+    esac
+
 selenium-test-job:
   stage: test
   parallel:
@@ -28,3 +40,5 @@ selenium-test-job:
       - target/ExtentReport.html
       - target/BufferLog.log
     when: always
+  when:
+    manual
