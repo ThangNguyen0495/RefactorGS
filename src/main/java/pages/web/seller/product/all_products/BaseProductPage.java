@@ -17,6 +17,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.testng.Assert;
 import utility.PropertiesUtils;
 import utility.WebUtils;
@@ -1189,6 +1190,7 @@ public class BaseProductPage extends BaseProductElement {
      * @param groupIndex The index of the variation group
      */
     private void inputVariationName(String varName, int groupIndex) {
+        new Actions(driver).moveToElement(webUtils.getElement(loc_txtVariationName)).perform();
         webUtils.sendKeys(loc_txtVariationName, groupIndex, varName);
     }
 

@@ -64,8 +64,8 @@ public class BaseProductElement {
     }
 
     protected final By loc_dlgAddIMEI_btnSave = By.cssSelector(".modal-footer > .gs-button__green");
-    protected final By loc_btnAddVariation = By.xpath("//span[text() = 'Thêm nhóm' or text() = 'Add variation']");
-    protected final By loc_txtVariationName = By.cssSelector("div.first-item > div > div > input");
+    protected final By loc_btnAddVariation = By.xpath("(//*[contains(@class, 'gs-widget__header')]//span[@class = 'gs-fake-link '])[1]");
+    protected final By loc_txtVariationName = By.cssSelector("[name^=\"variationName\"]");
     protected final By loc_txtVariationValue = By.cssSelector(".second-item .box-input input");
     protected final By loc_tblVariation_chkSelectAll = By.cssSelector(".product-form-variation-selector__table  th:nth-child(1) input");
     protected final By loc_tblVariation_lnkSelectAction = By.cssSelector("th .gs-fake-link");
