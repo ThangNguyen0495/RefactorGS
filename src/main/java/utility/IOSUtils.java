@@ -44,7 +44,8 @@ public class IOSUtils {
      */
     public void allowPermission(String optionText) {
         try {
-            createCustomWait(3000).until(ExpectedConditions.alertIsPresent());
+            logger.info("Waiting for the permission alert to show.");
+            createCustomWait(10_000).until(ExpectedConditions.alertIsPresent());
             HashMap<String, Object> args = new HashMap<>();
             args.put("action", "accept");
             args.put("buttonLabel", optionText);
