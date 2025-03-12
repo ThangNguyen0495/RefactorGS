@@ -4,7 +4,7 @@ import io.appium.java_client.AppiumBy;
 import org.openqa.selenium.By;
 
 public class IOSBaseProductElement {
-    By loc_icnDeleteImages = By.xpath("//*[XCUIElementTypeImage[@name=\"icon_close_product_image_selected\"]]/XCUIElementTypeButton");
+    By loc_icnDeleteImages = By.xpath("//*[XCUIElementTypeImage[@name=\"ic_close_circle\"]]/XCUIElementTypeButton");
     By loc_icnProductImage = By.xpath("//*[XCUIElementTypeImage[@name=\"icon_selected_image_default\"]]/XCUIElementTypeButton");
     By loc_txtProductName = By.xpath("//*[XCUIElementTypeStaticText[@name=\"Product name *\" or @name=\"Tên sản phẩm *\"]]/XCUIElementTypeTextView");
     By loc_btnProductDescription = By.xpath("//*[XCUIElementTypeStaticText[@name=\"Description\" or @name=\"Mô tả\"]]/XCUIElementTypeButton");
