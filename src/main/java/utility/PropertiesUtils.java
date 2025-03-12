@@ -4,8 +4,8 @@ import api.seller.login.APISellerLogin;
 import api.seller.setting.APIGetStoreURL;
 import org.testng.Assert;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Properties;
@@ -163,7 +163,7 @@ public class PropertiesUtils {
      * This is typically used to access the Storefront endpoint.
      */
     public static String getStoreURL() {
-        return new APIGetStoreURL(getSellerCredentials()).getStoreURL();
+        return "https://" + new APIGetStoreURL(getSellerCredentials()).getStoreURL();
     }
 
     /**
