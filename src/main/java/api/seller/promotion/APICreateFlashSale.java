@@ -3,8 +3,6 @@ package api.seller.promotion;
 import api.seller.login.APISellerLogin;
 import api.seller.product.APIGetProductDetail;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.response.Response;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,10 +14,12 @@ import utility.WebUtils;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
-import static java.lang.Thread.sleep;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 
@@ -230,11 +230,7 @@ public class APICreateFlashSale {
         // Ensure wait time is positive; if it's negative, the flash sale has already started
         if (waitTimeMillis > 0) {
             LogManager.getLogger().info("Waiting for flash sale to start. Wait time: {} milliseconds.", String.format("%,d", waitTimeMillis));
-            try {
-                Thread.sleep(waitTimeMillis); // Pause execution
-            } catch (InterruptedException e) {
-                throw new RuntimeException("Thread sleep was interrupted", e);
-            }
+            WebUtils.sleep(waitTimeMillis);
         }
     }
 

@@ -1205,14 +1205,7 @@ public class BaseProductPage extends BaseProductElement {
         varValues.forEach(varValue -> {
             webUtils.getElement(loc_txtVariationValue, groupIndex).sendKeys(varValue);
             // Wait for suggestion to appear
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                // Restore the interrupted status
-                Thread.currentThread().interrupt();
-                // Throw an exception to indicate that the thread was interrupted while waiting
-                throw new IllegalStateException("Thread interrupted while waiting for variation value suggestion to appear", e);
-            }
+            WebUtils.sleep(1000);
 
             // Complete the input of variation value by pressing Enter
             webUtils.getElement(loc_txtVariationValue, groupIndex).sendKeys(Keys.chord(Keys.ENTER));
@@ -1935,7 +1928,7 @@ public class BaseProductPage extends BaseProductElement {
             openEditTranslationPopup();
 
             // Add translation then close popup
-            new EditTranslationPopup(driver).addTranslation(newProductInfo, languageCode, languageName, defaultLanguage)
+            new EditTranslationPopup(driver).addTranslation(newProductInfo, languageCode, languageName)
                     .closeTranslationPopup();
         });
 

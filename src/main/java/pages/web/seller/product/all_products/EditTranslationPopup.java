@@ -62,10 +62,9 @@ public class EditTranslationPopup {
      * @param productInfo         The product information to be translated, including general details and variations (if any).
      * @param translationLangCode The language code for the translation (e.g., "en" for English).
      * @param translationLangName The display name of the language (e.g., "English").
-     * @param defaultLangCode     The default language code of the product.
      * @return The current EditTranslationPopup instance.
      */
-    public EditTranslationPopup addTranslation(APIGetProductDetail.ProductInformation productInfo, String translationLangCode, String translationLangName, String defaultLangCode) {
+    public EditTranslationPopup addTranslation(APIGetProductDetail.ProductInformation productInfo, String translationLangCode, String translationLangName) {
         this.translationLangCode = translationLangCode;
 
         // Ensure the edit translation popup is available
@@ -208,12 +207,7 @@ public class EditTranslationPopup {
     public void closeTranslationPopup() {
         webUtils.click(loc_dlgEditTranslation_btnClose);
         logger.info("Close translation popup");
-        try {
-            Thread.sleep(1000); // Wait 1 second after click to allow for status change
-        } catch (InterruptedException e) {
-            // Handle the interrupted exception silently
-            Thread.currentThread().interrupt();
-        }
+        WebUtils.sleep(1000);
     }
 
 }

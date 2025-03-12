@@ -14,13 +14,17 @@ import api.seller.sale_channel.APIGetPreferences;
 import api.seller.setting.APIGetBranchList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import utility.PropertiesUtils;
 import utility.WebUtils;
 
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import static api.seller.setting.APIGetBranchList.*;
@@ -69,9 +73,19 @@ public class ProductDetailPage {
     private final By loc_lblSellingPrice = By.cssSelector(".price-disc");
     private final By loc_lblListingPrice = By.cssSelector(".price-org");
     private final By loc_lblVariationName = By.cssSelector("span[rv-text='variation.label']");
-    private  By loc_ddvVariationName(int variationGroupIndex) { return By.cssSelector("[aria-owns='bs-select-%s']".formatted(variationGroupIndex)); }
-    private By loc_ddvVariationValue(String variationValue) { return By.xpath("//span[contains(text(), '%s ') or text() = '%s']".formatted(variationValue, variationValue)); }
-    private By loc_ddvSelectedVariationValue(int variationGroupIndex) { return By.cssSelector("[aria-owns='bs-select-%s']".formatted(variationGroupIndex));}
+
+    private By loc_ddvVariationName(int variationGroupIndex) {
+        return By.cssSelector("[aria-owns='bs-select-%s']".formatted(variationGroupIndex));
+    }
+
+    private By loc_ddvVariationValue(String variationValue) {
+        return By.xpath("//span[contains(text(), '%s ') or text() = '%s']".formatted(variationValue, variationValue));
+    }
+
+    private By loc_ddvSelectedVariationValue(int variationGroupIndex) {
+        return By.cssSelector("[aria-owns='bs-select-%s']".formatted(variationGroupIndex));
+    }
+
     private final By loc_lblBranchStock = By.cssSelector("#branch-list .stock");
     private final By loc_pnlDescription = By.cssSelector("#product-description");
     private final By loc_lblSoldOut = By.cssSelector(".sold-out");
@@ -592,12 +606,7 @@ public class ProductDetailPage {
 
             logger.warn("Attempt {} to set quantity failed. Retrying...", attempt);
 
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new IllegalStateException("Thread interrupted while waiting to retry setting quantity", e);
-            }
+            WebUtils.sleep(200);
         }
         throw new IllegalStateException("Failed to set quantity after 5 attempts.");
     }
@@ -687,11 +696,11 @@ public class ProductDetailPage {
     /**
      * Validates the branches that have stock available and are visible on the storefront.
      *
-     * @param variationName         the name of the variation being validated
+     * @param variationName           the name of the variation being validated
      * @param numberOfDisplayBranches the number of branches with visible stock
-     * @param branchIds             the list of branch IDs
-     * @param variationIndex        the index of the variation being validated
-     * @param customerId            the ID of the customer for pricing and discounts
+     * @param branchIds               the list of branch IDs
+     * @param variationIndex          the index of the variation being validated
+     * @param customerId              the ID of the customer for pricing and discounts
      */
     private void verifyBranchStockNameAndPrice(String variationName, int numberOfDisplayBranches, List<Integer> branchIds, int variationIndex, int customerId) {
         // Verify branch filter and Buy Now/Add to Cart button visibility
@@ -732,12 +741,12 @@ public class ProductDetailPage {
     /**
      * Validates the stock, pricing, and other information for a branch.
      *
-     * @param branchName    the name of the branch
-     * @param branchIndex   the index of the branch in the API data
-     * @param branchId      the ID of the branch
+     * @param branchName     the name of the branch
+     * @param branchIndex    the index of the branch in the API data
+     * @param branchId       the ID of the branch
      * @param variationIndex the index of the variation being validated
-     * @param customerId    the ID of the customer
-     * @param variationName the name of the variation
+     * @param customerId     the ID of the customer
+     * @param variationName  the name of the variation
      */
     private void validateBranchInfo(String branchName, int branchIndex, int branchId, int variationIndex, int customerId, String variationName) {
         boolean isBranchShown = isBranchShownOnStorefront(branchInfos, branchIndex);
@@ -765,7 +774,7 @@ public class ProductDetailPage {
      *
      * @param branchInfos A list of branch information used to determine visibility and stock.
      * @param productInfo The product information, including stock availability per model and branch.
-     * @param modelId The identifier for the product model whose stock is being checked.
+     * @param modelId     The identifier for the product model whose stock is being checked.
      * @return The number of branches with stock and visible on the storefront.
      */
     private int countVisibleBranchesWithStock(List<BranchInformation> branchInfos, ProductInformation productInfo, Integer modelId) {
@@ -784,8 +793,8 @@ public class ProductDetailPage {
      * @param branchInfos A list of branch information used to determine visibility.
      * @param branchIndex The index of the branch to check.
      * @param productInfo The product information, including stock details.
-     * @param modelId The identifier for the product model.
-     * @param branchId The identifier for the branch whose stock is being checked.
+     * @param modelId     The identifier for the product model.
+     * @param branchId    The identifier for the branch whose stock is being checked.
      * @return true if the branch is visible and has stock, false otherwise.
      */
     private boolean isBranchVisibleWithStock(List<BranchInformation> branchInfos, int branchIndex, ProductInformation productInfo, Integer modelId, int branchId) {
@@ -841,7 +850,7 @@ public class ProductDetailPage {
                 }
 
                 // Validate the variation's information
-                validateVariationInformation(variationIndex, customerId , variationValue);
+                validateVariationInformation(variationIndex, customerId, variationValue);
             }
 
             // Refresh the page before moving to the next variation
@@ -872,6 +881,7 @@ public class ProductDetailPage {
     }
 
     private String langKey;
+
     /**
      * Navigates to the product detail page by constructing the SEO or default URL based on the language
      * and product information. The page is then refreshed to ensure all content is loaded properly.
@@ -903,13 +913,7 @@ public class ProductDetailPage {
 
         logger.info("Navigate to Product detail page by URL, id: {}", productId);
 
-        try {
-            // Wait for 1 second to allow the page to fully load
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            // Handle any interruptions that occur during the sleep period
-            throw new RuntimeException(e);
-        }
+        WebUtils.sleep(1000);
 
         // Return the current instance of ProductDetailPage for method chaining
         return this;

@@ -775,13 +775,7 @@ public class AndroidBuyerProductDetailScreen {
 
         logger.info("Navigate to Product detail screen by URL, id: {}", productId);
 
-        try {
-            // Wait for 1 second to allow the page to fully load
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            // Handle any interruptions that occur during the sleep period
-            throw new RuntimeException(e);
-        }
+        WebUtils.sleep(1000);
 
         // Return the current instance of ProductDetailPage for method chaining
         return this;

@@ -26,7 +26,6 @@ public class APIGetProductCollection {
         private String collectionType;
         private int sellerId;
         private String itemType;
-        private List<String> images;
     }
 
     public List<ProductCollection> getProductCollections(int productId){
