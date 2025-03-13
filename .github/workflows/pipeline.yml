@@ -73,7 +73,7 @@ jobs:
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/${{ env.TEST_TYPE }}/web/seller/${{ matrix.test_config_path }}"
+            mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/web/seller/${{ matrix.test_config_path }}"
 
   StoreFront:
     env:
@@ -98,7 +98,7 @@ jobs:
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/${{ env.TEST_TYPE }}/web/buyer/${{ matrix.test_config_path }}"
+            mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/web/buyer/${{ matrix.test_config_path }}"
 
   AndroidSeller:
     env:
@@ -126,7 +126,7 @@ jobs:
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo '${{ vars.APP_URL }}' >> src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/${{ env.TEST_TYPE }}/android/seller/${{ matrix.test_config_path }}"
+            mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/android/seller/${{ matrix.test_config_path }}"
             
 
   AndroidBuyer:
@@ -153,7 +153,7 @@ jobs:
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo '${{ vars.APP_URL }}' >> src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/${{ env.TEST_TYPE }}/android/buyer/${{ matrix.test_config_path }}"
+            mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/android/buyer/${{ matrix.test_config_path }}"
 
   iOSSeller:
     env:
@@ -190,7 +190,7 @@ jobs:
             echo '${{ vars.APP_URL }}' >> src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
             echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/${{ env.TEST_TYPE }}/ios/seller/${{ matrix.test_config_path }}"
+            mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/ios/seller/${{ matrix.test_config_path }}"
 
   iOSBuyer:
     env:
@@ -225,4 +225,4 @@ jobs:
             echo '${{ vars.APP_URL }}' >> src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
             echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
-            mvn test "-DsuiteFile=test_configs/${{ env.TEST_TYPE }}/ios/buyer/${{ matrix.test_config_path }}"
+            mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/ios/buyer/${{ matrix.test_config_path }}"

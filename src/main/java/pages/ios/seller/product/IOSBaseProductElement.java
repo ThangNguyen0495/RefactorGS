@@ -1,6 +1,5 @@
 package pages.ios.seller.product;
 
-import io.appium.java_client.AppiumBy;
 import org.openqa.selenium.By;
 
 public class IOSBaseProductElement {
