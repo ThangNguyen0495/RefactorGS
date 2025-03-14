@@ -69,7 +69,7 @@ jobs:
           test_name=$(basename "${{ matrix.test_config_path }}" .xml)
           echo "test_name=$test_name" >> $GITHUB_ENV
 
-          if [[ "$test_name" == *"Dashboard"* || "$test_name" == *"SELLER"* ]]; then
+          if echo "$test_name" | grep -qE "Dashboard|SELLER"; then
             user_type="seller"
           else
             user_type="buyer"
@@ -77,8 +77,6 @@ jobs:
 
           echo "user_type=$user_type" >> $GITHUB_ENV
           
-          echo "$test_name"
-          echo "user_type"
 
       - if: |
           !contains(matrix.xmlConfiguration, 'IOS') 
