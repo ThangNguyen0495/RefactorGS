@@ -86,7 +86,7 @@ jobs:
           scripts: |
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
-            mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/web/${{ env.test_name }}/${{ matrix.xmlConfiguration }}"
+            mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/web/${{ env.user_type }}/${{ matrix.xmlConfiguration }}"
 
       - if: contains(matrix.xmlConfiguration, 'Android')
         uses: ThangNguyen0495/execute-appium-android-test@main
@@ -96,7 +96,7 @@ jobs:
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo '${{ vars.APP_URL }}' >> src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
-            mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/android/${{ env.test_name }}/${{ matrix.xmlConfiguration }}"
+            mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/android/${{ env.user_type }}/${{ matrix.xmlConfiguration }}"
 
       - if: contains(matrix.xmlConfiguration, 'IOS')
         name: Create an iOS simulator
@@ -117,4 +117,4 @@ jobs:
             echo '${{ vars.APP_URL }}' >> src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
             echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
-            mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/ios/${{ env.test_name }}/${{ matrix.xmlConfiguration }}"
+            mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/ios/${{ env.user_type }}/${{ matrix.xmlConfiguration }}"
