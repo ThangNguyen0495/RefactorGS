@@ -1,4 +1,4 @@
-name: Automation pipeline
+name: Automation pipeline v2 (Feature-Based Test Execution)
 
 on:
   workflow_dispatch:

@@ -1,4 +1,4 @@
-name: Automation pipeline
+name: Automation pipeline v1 (Full Test Suite Execution)
 
 on:
   workflow_dispatch:
