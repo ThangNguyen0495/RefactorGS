@@ -49,7 +49,7 @@ on:
 run-name: "[${{ github.event.inputs.environment }}][${{ github.event.inputs.testType }}] Automation pipeline ver2.0 ${{ github.event.inputs.test_configs }}"
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.inputs.environment }}-${{ github.event.inputs.testType }}
+  group: ${{ github.workflow }}-${{ github.event.inputs.environment }}-${{ github.event.inputs.testType }}-${{ github.event.inputs.test_configs }}
   cancel-in-progress: true
 
 jobs:
