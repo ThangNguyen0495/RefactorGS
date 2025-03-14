@@ -26,25 +26,28 @@ on:
           - Regression Test
         default: "Smoke Test"
       test_configs:
-        description: 'List of test configurations (JSON format)'
+        description: >
+          List of test configurations (JSON format). 
+          Example: 
+          [
+            "DashboardLoginTest.xml",
+            "DashboardSupplierTest.xml",
+            "DashboardCreateProductTest.xml",
+            "DashboardUpdateProductTest.xml",
+            "DashboardProductManagementTest.xml",
+            "StorefrontProductDetailTest.xml",
+            "AndroidGoSELLERCreateProductTest.xml",
+            "AndroidGoSELLERUpdateProductTest.xml",
+            "AndroidGoSELLERSupplierTest.xml",
+            "AndroidGoBuyerProductDetail.xml",
+            "IOSGoSELLERCreateProductTest.xml",
+            "IOSGoSELLERUpdateProductTest.xml",
+            "IOSGoSELLERSupplierTest.xml",
+            "IOSGoBuyerProductDetail.xml"
+          ]
         required: true
         type: string
-        default: '[
-          "DashboardLoginTest.xml",
-          "DashboardSupplierTest.xml",
-          "DashboardCreateProductTest.xml",
-          "DashboardUpdateProductTest.xml",
-          "DashboardProductManagementTest.xml",
-          "StorefrontProductDetailTest.xml",
-          "AndroidGoSELLERCreateProductTest.xml",
-          "AndroidGoSELLERUpdateProductTest.xml",
-          "AndroidGoSELLERSupplierTest.xml",
-          "AndroidGoBuyerProductDetail.xml",
-          "IOSGoSELLERCreateProductTest.xml",
-          "IOSGoSELLERUpdateProductTest.xml",
-          "IOSGoSELLERSupplierTest.xml",
-          "IOSGoBuyerProductDetail.xml"
-        ]'
+        default: '[]'
 
 run-name: "[${{ github.event.inputs.environment }}][${{ github.event.inputs.testType }}] Automation pipeline ver2.0 ${{ github.event.inputs.test_configs }}"
 
