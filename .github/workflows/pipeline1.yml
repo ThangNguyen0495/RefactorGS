@@ -76,6 +76,9 @@ jobs:
           fi
 
           echo "user_type=$user_type" >> $GITHUB_ENV
+          
+          echo "$test_name"
+          echo "user_type"
 
       - if: |
           !contains(matrix.xmlConfiguration, 'IOS') 
