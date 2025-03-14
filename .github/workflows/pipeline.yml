@@ -39,7 +39,7 @@ on:
           - iOS Buyer
         default: "All Platforms"
 
-run-name: "[${{ github.event.inputs.environment }}][${{ github.event.inputs.testType }}][${{ github.event.inputs.platform }}] Automation pipeline"
+run-name: "[${{ github.event.inputs.environment }}][${{ github.event.inputs.testType }}][${{ github.event.inputs.platform }}] Automation pipeline ver1.0"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.inputs.environment }}-${{ github.event.inputs.testType }}-${{ github.event.inputs.platform }}

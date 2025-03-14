@@ -1,4 +1,4 @@
-name: Automation pipeline - try the new configs
+name: Automation pipeline
 
 on:
   workflow_dispatch:
@@ -46,14 +46,14 @@ on:
           "IOSGoBuyerProductDetail.xml"
         ]'
 
-run-name: "[${{ github.event.inputs.environment }}][${{ github.event.inputs.testType }}] Automation pipeline [${{ github.event.inputs.test_configs }}]"
+run-name: "[${{ github.event.inputs.environment }}][${{ github.event.inputs.testType }}] Automation pipeline ver2.0 ${{ github.event.inputs.test_configs }}"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.inputs.environment }}-${{ github.event.inputs.testType }}
   cancel-in-progress: true
 
 jobs:
-  Dashboard:
+  JOB:
     env:
       TEST_TYPE: ${{ github.event.inputs.testType == 'Smoke Test' && 'smoke' || 'regression' }}
     strategy:
@@ -68,15 +68,12 @@ jobs:
         run: |
           test_name=$(basename "${{ matrix.xmlConfiguration }}" .xml)
           echo "test_name=$test_name" >> $GITHUB_ENV
-
           if echo "$test_name" | grep -qE "Dashboard|SELLER"; then
             user_type="seller"
           else
             user_type="buyer"
           fi
-
           echo "user_type=$user_type" >> $GITHUB_ENV
-          
 
       - if: |
           !contains(matrix.xmlConfiguration, 'IOS') 
