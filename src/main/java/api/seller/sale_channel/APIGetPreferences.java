@@ -1,6 +1,7 @@
 package api.seller.sale_channel;
 
 import api.seller.login.APISellerLogin;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import utility.APIUtils;
@@ -26,6 +27,7 @@ public class APIGetPreferences {
      * Represents the store listing preferences for web platforms, including contact and service details.
      */
     @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class StoreListingWebs {
         private String createdBy;
         private String createdDate;
