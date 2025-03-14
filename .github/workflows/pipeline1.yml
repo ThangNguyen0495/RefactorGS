@@ -1,0 +1,120 @@
+name: Automation pipeline - try the new configs
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Select the target environment"
+        required: true
+        type: choice
+        options:
+          - CA2 VN
+          - CA2 BIZ
+          - CA VN
+          - CA BIZ
+          - Staging VN
+          - Staging BIZ
+          - Production VN
+          - Production BIZ
+        default: "Staging VN"
+      testType:
+        description: "Select the test type"
+        required: true
+        type: choice
+        options:
+          - Smoke Test
+          - Regression Test
+        default: "Smoke Test"
+      test_configs:
+        description: 'List of test configurations (JSON format)'
+        required: true
+        type: string
+        default: '[
+          "DashboardLoginTest.xml",
+          "DashboardSupplierTest.xml",
+          "DashboardCreateProductTest.xml",
+          "DashboardUpdateProductTest.xml",
+          "DashboardProductManagementTest.xml",
+          "StorefrontProductDetailTest.xml",
+          "AndroidGoSELLERCreateProductTest.xml",
+          "AndroidGoSELLERUpdateProductTest.xml",
+          "AndroidGoSELLERSupplierTest.xml",
+          "AndroidGoBuyerProductDetail.xml",
+          "IOSGoSELLERCreateProductTest.xml",
+          "IOSGoSELLERUpdateProductTest.xml",
+          "IOSGoSELLERSupplierTest.xml",
+          "IOSGoBuyerProductDetail.xml"
+        ]'
+
+run-name: "[${{ github.event.inputs.environment }}][${{ github.event.inputs.testType }}] Automation pipeline [${{ github.event.inputs.test_configs }}]"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.inputs.environment }}-${{ github.event.inputs.testType }}
+  cancel-in-progress: true
+
+jobs:
+  Dashboard:
+    env:
+      TEST_TYPE: ${{ github.event.inputs.testType == 'Smoke Test' && 'smoke' || 'regression' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        xmlConfiguration: ${{ fromJson(inputs.test_configs) }}
+
+    runs-on: ${{ contains(matrix.xmlConfiguration, 'IOS') && 'macos-latest' || 'ubuntu-latest' }}
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Set User Type
+        run: |
+          test_name=$(basename "${{ matrix.test_config_path }}" .xml)
+          echo "test_name=$test_name" >> $GITHUB_ENV
+
+          if [[ "$test_name" == *"Dashboard"* || "$test_name" == *"SELLER"* ]]; then
+            user_type="seller"
+          else
+            user_type="buyer"
+          fi
+
+          echo "user_type=$user_type" >> $GITHUB_ENV
+
+      - if: |
+          !contains(matrix.xmlConfiguration, 'IOS') 
+          && !contains(matrix.xmlConfiguration, 'Android')
+        uses: ThangNguyen0495/execute-selenium-test@main
+        with:
+          test_name: ${{ env.test_name }}
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
+            mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/web/${{ env.test_name }}/${{ matrix.xmlConfiguration }}"
+
+      - if: contains(matrix.xmlConfiguration, 'Android')
+        uses: ThangNguyen0495/execute-appium-android-test@main
+        with:
+          test_name: ${{ env.test_name }}
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo '${{ vars.APP_URL }}' >> src/main/resources/config.properties
+            echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
+            mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/android/${{ env.test_name }}/${{ matrix.xmlConfiguration }}"
+
+      - if: contains(matrix.xmlConfiguration, 'IOS')
+        name: Create an iOS simulator
+        uses: ThangNguyen0495/create-ios-simulator@main
+
+      - if: contains(matrix.xmlConfiguration, 'IOS')
+        name: Save simulator UDID to GitHub Environment
+        run: |
+          UDID=$(cat udid.txt)
+          echo "UDID=$UDID" >> $GITHUB_ENV
+
+      - if: contains(matrix.xmlConfiguration, 'IOS')
+        uses: ThangNguyen0495/execute-appium-ios-test@main
+        with:
+          test_name: ${{ env.test_name }}
+          scripts: |
+            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo '${{ vars.APP_URL }}' >> src/main/resources/config.properties
+            echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
+            echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
+            mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/ios/${{ env.test_name }}/${{ matrix.xmlConfiguration }}"
