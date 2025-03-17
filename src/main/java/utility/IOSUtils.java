@@ -10,6 +10,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -37,23 +38,35 @@ public class IOSUtils {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
+    private static final List<String> acceptedPermission = new ArrayList<>();
+
     /**
      * Accepts the specified permission by interacting with the alert dialog.
      *
      * @param optionText The text of the button to accept.
      */
     public void allowPermission(String optionText) {
+        if (acceptedPermission.contains(optionText)) {
+            return;
+        }
+
         try {
             logger.info("Waiting for the permission alert to show.");
-            createCustomWait(10_000).until(ExpectedConditions.alertIsPresent());
+            createCustomWait(3_000).until(ExpectedConditions.alertIsPresent());
+
             HashMap<String, Object> args = new HashMap<>();
             args.put("action", "accept");
             args.put("buttonLabel", optionText);
+
             ((IOSDriver) driver).executeScript("mobile: alert", args);
             logger.info("Allowed permission with option: {}", optionText);
-        } catch (TimeoutException | NoAlertPresentException ignored) {
+
+            acceptedPermission.add(optionText);
+        } catch (TimeoutException | NoAlertPresentException e) {
+            logger.warn("No permission alert appeared or timed out: {}", e.getMessage());
         }
     }
+
 
     /**
      * Hides the keyboard if it is visible.
@@ -281,9 +294,6 @@ public class IOSUtils {
         int elementY = element.getLocation().getY();
 
         while (elementY < minY || elementY > maxY) {
-            System.out.println(elementY);
-            System.out.println(minY);
-            System.out.println(maxY);
             if (elementY < minY) {
                 swipeDown();
             } else {
