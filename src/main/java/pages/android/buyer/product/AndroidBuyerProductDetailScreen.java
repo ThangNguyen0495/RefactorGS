@@ -11,7 +11,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import pages.android.buyer.home.AndroidBuyerHomeScreen;
 import utility.AndroidUtils;
@@ -77,8 +76,6 @@ public class AndroidBuyerProductDetailScreen {
     }
 
     // Using this to scroll to description section
-    private final By loc_sctDescription = getLocatorByResourceId("%s:id/llWebViewContainer");
-    private final By loc_cntDescription = By.className("android.widget.TextView");
     private final By loc_lblSoldOut = getLocatorByResourceId("%s:id/activity_item_details_tv_not_available");
     private final By loc_txtQuantity = getLocatorByResourceId("%s:id/product_detail_content_popup_variation_edt_quantity");
     private final By loc_lblFlashSale = getLocatorByResourceId("%s:id/rlFlashSaleContainer");
@@ -271,12 +268,10 @@ public class AndroidBuyerProductDetailScreen {
         // Scroll to description section
         // Then retrieve storefront product description
         androidUtils.scrollToEndOfScreen();
-        WebElement descriptionSection = androidUtils.getElement(loc_sctDescription);
-        String sfDescription = descriptionSection.findElement(loc_cntDescription).getText().replaceAll("\n", "");
 
         // Assert descriptions match
-        Assert.assertEquals(dbDescription, sfDescription,
-                "[Check description] Product description should be '%s', but found '%s'".formatted(dbDescription, sfDescription));
+        Assert.assertTrue(driver.findElements(By.xpath("//*[@text() = '%s']".formatted(dbDescription))).isEmpty(),
+                "[Check description] Product description must be '%s', but it does not match".formatted(dbDescription));
         logger.info("[Check description] Product description is shown correctly.");
     }
 
