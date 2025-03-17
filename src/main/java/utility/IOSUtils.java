@@ -280,6 +280,7 @@ public class IOSUtils {
     public void relaunchApp() {
         ((IOSDriver) driver).terminateApp(appBundleId);
         ((IOSDriver) driver).activateApp(appBundleId);
+        WebUtils.sleep(1000);
         logger.info("Relaunch app.");
     }
 

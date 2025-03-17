@@ -1,12 +1,14 @@
 package pages.ios.seller.home;
 
+import io.appium.java_client.AppiumBy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import pages.ios.seller.account.AccountScreen;
 import utility.IOSUtils;
 
-public class HomeScreen extends HomeElement{
+public class HomeScreen {
     WebDriver driver;
     IOSUtils iosUtils;
     Logger logger = LogManager.getLogger();
@@ -17,6 +19,11 @@ public class HomeScreen extends HomeElement{
         // Init commons class
         iosUtils = new IOSUtils(driver);
     }
+
+    By loc_icnAccount = AppiumBy.iOSNsPredicateString("name == \"Tài khoản\" or name == \"Account\"");
+    By loc_icnCreateProduct = By.xpath("//*[XCUIElementTypeImage[@name=\"icon_home_create_new_product\"]]/XCUIElementTypeButton");
+    By loc_icnProductManagement =  By.xpath("//XCUIElementTypeImage[@name=\"icon_home_product_management\"]");
+    By loc_icnSupplierManagement = By.xpath("//*[*[@name=\"icon_home_suplier\"]]/XCUIElementTypeButton");
 
     public void logout() {
         if (!iosUtils.getListElement(loc_icnAccount).isEmpty()) {

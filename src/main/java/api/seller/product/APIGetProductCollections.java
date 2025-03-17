@@ -30,12 +30,12 @@ public class APIGetProductCollections {
      */
     @Data
     public static class CollectionItem {
-        private String collectionType; // Type of the collection
-        private String itemType; // Type of the item
-        private String createdDate; // Date the collection was created
-        private String name; // Name of the collection
-        private int id; // ID of the collection
-        private int productNumber; // Number of products in the collection
+        private String collectionType;
+        private String itemType;
+        private String createdDate;
+        private String name;
+        private int id;
+        private int productNumber;
     }
 
     /**

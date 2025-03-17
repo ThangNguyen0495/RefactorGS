@@ -16,7 +16,7 @@ import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 import pages.ios.seller.home.HomeScreen;
 import pages.ios.seller.login.LoginScreen;
-import pages.ios.seller.product.product_management.ProductManagementScreen;
+import pages.ios.seller.product.product_management.IOSProductManagementScreen;
 import utility.IOSUtils;
 import utility.WebUtils;
 import utility.helper.ProductHelper;
@@ -31,7 +31,6 @@ import java.util.stream.IntStream;
 
 import static api.seller.user_feature.APIGetUserFeature.*;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
-import static pages.ios.seller.product.product_management.ProductManagementElement.loc_txtSearchBox;
 
 public class IOSBaseProductScreen extends IOSBaseProductElement {
     // WebDriver and WebUtils
@@ -225,7 +224,7 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         String productName = currentProductInfo.getName();
 
         // Navigate to product detail screen
-        new ProductManagementScreen(driver).navigateToProductManagementScreen()
+        new IOSProductManagementScreen(driver).navigateToProductManagementScreen()
                 .navigateToProductDetailScreen(productName);
 
         // Log
@@ -287,15 +286,6 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         long costPrice = newProductInfo.getCostPrice();
         iosUtils.sendKeys(loc_txtWithoutVariationCostPrice, costPrice);
         logger.info("Input without variation cost price: {}", String.format("%,d", costPrice));
-    }
-
-    private void inputWithoutVariationSKU() {
-        // Input without variation SKU
-        String sku = newProductInfo.getBranches().getFirst().getSku();
-        iosUtils.sendKeys(loc_txtWithoutVariationSKU, sku);
-
-        // Log
-        logger.info("Input without variation SKU: {}", sku);
     }
 
     private void inputWithoutVariationBarcode() {
@@ -540,7 +530,7 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
             logger.info("Confirmed management by lot.");
         }
 
-        if (iosUtils.getListElement(loc_txtSearchBox, 30_000).isEmpty()) {
+        if (iosUtils.getListElement(IOSProductManagementScreen.loc_txtSearchBox, 30_000).isEmpty()) {
             throw new RuntimeException("Can not create/update product.");
         }
 

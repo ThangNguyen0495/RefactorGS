@@ -65,6 +65,52 @@ public class APIGetProductList {
         }
     }
 
+    public enum ProductFilterType {
+        RECENT_UPDATED, STOCK_HIGH_TO_LOW, STOCK_LOW_TO_HIGH,
+        PRIORITY_HIGH_TO_LOW, PRIORITY_LOW_TO_HIGH,
+        STATUS, CHANNEL, PLATFORM, BRANCH, COLLECTION, DEFAULT
+    }
+
+    private String getFilterPath(ProductFilterType filterType, String value) {
+        String getAllProductPath = "/itemservice/api/store/dashboard/%s/items-v2?page=0&size=100&itemType=BUSINESS_PRODUCT".formatted(loginInfo.getStore().getId());
+
+        switch (filterType) {
+            case RECENT_UPDATED:
+                getAllProductPath += "&sort=lastModifiedDate,desc";
+                break;
+            case STOCK_HIGH_TO_LOW:
+                getAllProductPath += "&sort=stock,desc";
+                break;
+            case STOCK_LOW_TO_HIGH:
+                getAllProductPath += "&sort=stock,asc";
+                break;
+            case PRIORITY_HIGH_TO_LOW:
+                getAllProductPath += "&sort=priority,desc&sort=lastModifiedDate,desc";
+                break;
+            case PRIORITY_LOW_TO_HIGH:
+                getAllProductPath += "&sort=priority,asc&sort=lastModifiedDate,desc";
+                break;
+            case STATUS:
+                getAllProductPath += "&sort=lastModifiedDate,desc&bhStatus=" + value;
+                break;
+            case CHANNEL:
+                getAllProductPath += "&sort=lastModifiedDate,desc&saleChannel=" + value;
+                break;
+            case PLATFORM:
+                getAllProductPath += "&sort=lastModifiedDate,desc&platform=" + value;
+                break;
+            case BRANCH:
+                getAllProductPath += "&sort=lastModifiedDate,desc&branchIds=" + value;
+                break;
+            case COLLECTION:
+                getAllProductPath += "&sort=lastModifiedDate,desc&collectionId=" + value;
+                break;
+        }
+
+        return getAllProductPath;
+    }
+
+
     /**
      * Constructs the API path to retrieve the list of products based on search criteria.
      *
@@ -125,6 +171,21 @@ public class APIGetProductList {
             }
         });
         return products;
+    }
+
+    public List<Product> getProductInformationInFirstPage(ProductFilterType filterType, String value) {
+        String responseString = new APIUtils()
+                .get(getFilterPath(filterType, value), loginInfo.getAccessToken())
+                .then()
+                .statusCode(200)
+                .extract()
+                .asPrettyString();
+
+        try {
+            return new ObjectMapper().readValue(responseString, new TypeReference<List<Product>>() {});
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Error parsing JSON response", e);
+        }
     }
 
     /**

@@ -164,6 +164,7 @@ jobs:
         test_config_path:
           - IOSGoSELLERCreateProductTest.xml
           - IOSGoSELLERUpdateProductTest.xml
+          - IOSGoSELLERProductManagement.xml
           - IOSGoSELLERSupplierTest.xml
     runs-on: macos-latest
     if: github.event.inputs.platform == 'iOS Seller' || github.event.inputs.platform == 'All Platforms'

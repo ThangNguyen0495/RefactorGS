@@ -42,6 +42,7 @@ on:
             "AndroidGoBuyerProductDetail.xml",
             "IOSGoSELLERCreateProductTest.xml",
             "IOSGoSELLERUpdateProductTest.xml",
+            "IOSGoSELLERProductManagement.xml",
             "IOSGoSELLERSupplierTest.xml",
             "IOSGoBuyerProductDetail.xml"
           ]
