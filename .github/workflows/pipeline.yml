@@ -170,19 +170,12 @@ jobs:
     if: github.event.inputs.platform == 'iOS Seller' || github.event.inputs.platform == 'All Platforms'
     environment: ${{ github.event.inputs.environment }}
     steps:
-      - name: Create an iOS simulator
-        uses: ThangNguyen0495/create-ios-simulator@main
-
-      - name: Extract test name from config path
-        run: |
-          test_name=$(basename "${{ matrix.test_config_path }}" .xml)
-          echo "test_name=$test_name" >> $GITHUB_ENV
-
       - uses: ThangNguyen0495/execute-appium-ios-test@main
         with:
           test_name: ${{ env.test_name }}
+          env_file_path: "src/main/resources/config.properties"
           scripts: |
-            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo '${{ secrets.ENV_FILES }}' >> src/main/resources/config.properties
             echo '${{ vars.APP_URL }}' >> src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
             echo 'iosSimulatorUdid=$DEVICE_UDID' >> src/main/resources/config.properties
@@ -200,20 +193,12 @@ jobs:
     if: github.event.inputs.platform == 'iOS Buyer' || github.event.inputs.platform == 'All Platforms'
     environment: ${{ github.event.inputs.environment }}
     steps:
-      - name: Create an iOS simulator
-        uses: ThangNguyen0495/create-ios-simulator@main
-
-      - name: Extract test name from config path
-        run: |
-          test_name=$(basename "${{ matrix.test_config_path }}" .xml)
-          echo "test_name=$test_name" >> $GITHUB_ENV
-
       - uses: ThangNguyen0495/execute-appium-ios-test@main
         with:
           test_name: ${{ env.test_name }}
+          env_file_path: "src/main/resources/config.properties"
           scripts: |
-            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo '${{ secrets.ENV_FILES }}' >> src/main/resources/config.properties
             echo '${{ vars.APP_URL }}' >> src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
-            echo 'iosSimulatorUdid=$DEVICE_UDID' >> src/main/resources/config.properties
             mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/ios/buyer/${{ matrix.test_config_path }}"

@@ -101,16 +101,12 @@ jobs:
             mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/android/${{ env.user_type }}/${{ matrix.xmlConfiguration }}"
 
       - if: contains(matrix.xmlConfiguration, 'IOS')
-        name: Get an available iOS simulator and boot it
-        uses: ThangNguyen0495/create-ios-simulator@main
-
-      - if: contains(matrix.xmlConfiguration, 'IOS')
         uses: ThangNguyen0495/execute-appium-ios-test@main
         with:
           test_name: ${{ env.test_name }}
+          env_file_path: "src/main/resources/config.properties"
           scripts: |
-            echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
+            echo '${{ secrets.ENV_FILES }}' >> src/main/resources/config.properties
             echo '${{ vars.APP_URL }}' >> src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
-            echo 'iosSimulatorUdid=$DEVICE_UDID' >> src/main/resources/config.properties
             mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/ios/${{ env.user_type }}/${{ matrix.xmlConfiguration }}"
