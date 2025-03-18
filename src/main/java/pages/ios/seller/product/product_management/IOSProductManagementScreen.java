@@ -14,7 +14,6 @@ import org.testng.Assert;
 import pages.ios.seller.home.HomeScreen;
 import pages.ios.seller.login.LoginScreen;
 import utility.IOSUtils;
-import utility.WebUtils;
 
 import java.util.List;
 
@@ -43,11 +42,11 @@ public class IOSProductManagementScreen {
 
     private final By loc_lblProductNameCell = By.xpath("//XCUIElementTypeCell");
     private final By loc_btnSort = AppiumBy.iOSNsPredicateString("name == \"icon sort priority\"");
-    private final By loc_ddvRecentlyUpdated = By.xpath("//XCUIElementTypeStaticText[@name=\"Recently updated\"]");
-    private final By loc_ddvStockHighToLow = By.xpath("//XCUIElementTypeStaticText[@name=\"Stock: High to low\"]");
-    private final By loc_ddvStockLowToHigh = By.xpath("//XCUIElementTypeStaticText[@name=\"Stock: Low to high\"]");
-    private final By loc_ddvPriorityHighToLow = By.xpath("//XCUIElementTypeStaticText[@name=\"Priority: High to low\"]");
-    private final By loc_ddvPriorityLowToHigh = By.xpath("//XCUIElementTypeStaticText[@name=\"Priority: Low to high\"]");
+    private final By loc_ddvRecentlyUpdated = By.xpath("//XCUIElementTypeStaticText[@name=\"Recently updated\" or @name=\"Cập nhật gần đây\"]");
+    private final By loc_ddvStockHighToLow = By.xpath("//XCUIElementTypeStaticText[@name=\"Stock: High to low\" or @name=\"Số lượng giảm dần\"]");
+    private final By loc_ddvStockLowToHigh = By.xpath("//XCUIElementTypeStaticText[@name=\"Stock: Low to high\" or @name=\"Số lượng tăng dần\"]");
+    private final By loc_ddvPriorityHighToLow = By.xpath("//XCUIElementTypeStaticText[@name=\"Priority: High to low\" or @name=\"Độ ưu tiên giảm dần\"]");
+    private final By loc_ddvPriorityLowToHigh = By.xpath("//XCUIElementTypeStaticText[@name=\"Priority: Low to high\" or @name=\"Độ ưu tiên tăng dần\"]");
     private final By loc_btnFilter = By.xpath("(//XCUIElementTypeButton[@name=\"icon sort priority\"]/parent::*/following-sibling::*//XCUIElementTypeButton)[1]");
 
     public IOSProductManagementScreen navigateToProductManagementScreen() {
@@ -258,15 +257,15 @@ public class IOSProductManagementScreen {
         }
 
         // Locators
-        private final By loc_btnReset = By.xpath("//XCUIElementTypeButton[@name=\"Reset\"]");
-        private final By loc_btnApply = By.xpath("//XCUIElementTypeButton[@name=\"Apply\"]");
-        private final By loc_btnSeeAllBranches = By.xpath("(//XCUIElementTypeButton[@name=\"See all\"])[1]");
-        private final By loc_btnSeeAllCollections = By.xpath("(//XCUIElementTypeButton[@name=\"See all\"])[2]");
+        private final By loc_btnReset = By.xpath("//XCUIElementTypeButton[@name=\"Reset\" or @name=\"Đặt lại\"]");
+        private final By loc_btnApply = By.xpath("//XCUIElementTypeButton[@name=\"Apply\" or @name=\"Áp dụng\"]");
+        private final By loc_btnSeeAllBranches = By.xpath("(//XCUIElementTypeButton[@name=\"See all\" or @name=\"Xem tất cả\"])[1]");
+        private final By loc_btnSeeAllCollections = By.xpath("(//XCUIElementTypeButton[@name=\"See all\" or @name=\"Xem tất cả\"])[2]");
 
         // Status locators
-        private final By loc_btnActiveStatus = By.xpath("//XCUIElementTypeButton[@name=\"Active\"]");
-        private final By loc_btnInActiveStatus = By.xpath("//XCUIElementTypeButton[@name=\"Inactive\"]");
-        private final By loc_btnErrorStatus = By.xpath("//XCUIElementTypeButton[@name=\"Error\"]");
+        private final By loc_btnActiveStatus = By.xpath("//XCUIElementTypeButton[@name=\"Active\" or @name=\"Đang bán\"]");
+        private final By loc_btnInActiveStatus = By.xpath("//XCUIElementTypeButton[@name=\"Inactive\" or @name=\"Đã ngừng bán\"]");
+        private final By loc_btnErrorStatus = By.xpath("//XCUIElementTypeButton[@name=\"Error\" or @name=\"Đang lỗi\"]");
 
         // Channel locators
         private final By loc_btnLazadaChannel = By.xpath("//XCUIElementTypeButton[@name=\"Lazada\"]");
@@ -274,9 +273,9 @@ public class IOSProductManagementScreen {
 
         // Platform locators
         private final By loc_btnWebPlatform = By.xpath("//XCUIElementTypeButton[@name=\"Web\"]");
-        private final By loc_btnAppPlatform = By.xpath("//XCUIElementTypeButton[@name=\"App\"]");
-        private final By loc_btnInStorePlatform = By.xpath("//XCUIElementTypeButton[@name=\"In-store\"]");
-        private final By loc_btnNonePlatform = By.xpath("//XCUIElementTypeButton[@name=\"None Platform\"]");
+        private final By loc_btnAppPlatform = By.xpath("//XCUIElementTypeButton[@name=\"App\" or @name=\"Ứng dụng\"]");
+        private final By loc_btnInStorePlatform = By.xpath("//XCUIElementTypeButton[@name=\"In-store\" or @name=\"Tại cửa hàng\"]");
+        private final By loc_btnNonePlatform = By.xpath("//XCUIElementTypeButton[@name=\"None Platform\" or @name=\"Chưa xác định\"]");
 
         /**
          * Resets all applied filters.
@@ -390,7 +389,7 @@ public class IOSProductManagementScreen {
                 this.iosUtils = new IOSUtils(driver);
             }
 
-            private final By loc_btnAllBranches = By.xpath("//XCUIElementTypeStaticText[@name=\"All branches\"]");
+            private final By loc_btnAllBranches = By.xpath("//XCUIElementTypeStaticText[@name=\"All branches\" or @name=\"Tất cả chi nhánh\"]");
 
             private By loc_btnBranch(String branchName) {
                 return By.xpath("//XCUIElementTypeStaticText[@name=\"%s\"]".formatted(branchName));
@@ -418,7 +417,7 @@ public class IOSProductManagementScreen {
                 this.iosUtils = new IOSUtils(driver);
             }
 
-            private final By loc_btnAllCollections = By.xpath("//XCUIElementTypeStaticText[@name=\"All collections\"]");
+            private final By loc_btnAllCollections = By.xpath("//XCUIElementTypeStaticText[@name=\"All collections\" or @name=\"Tất cả bộ sưu tập\"]");
 
             private By loc_btnCollection(String collectionName) {
                 return By.xpath("//XCUIElementTypeStaticText[@name=\"%s\"]".formatted(collectionName));
