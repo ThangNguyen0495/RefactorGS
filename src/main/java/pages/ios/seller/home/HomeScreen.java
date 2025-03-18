@@ -21,9 +21,9 @@ public class HomeScreen {
     }
 
     By loc_icnAccount = AppiumBy.iOSNsPredicateString("name == \"Tài khoản\" or name == \"Account\"");
-    By loc_icnCreateProduct = By.xpath("//*[XCUIElementTypeImage[@name=\"icon_home_create_new_product\"]]/XCUIElementTypeButton");
-    By loc_icnProductManagement =  By.xpath("//XCUIElementTypeImage[@name=\"icon_home_product_management\"]");
-    By loc_icnSupplierManagement = By.xpath("//*[*[@name=\"icon_home_suplier\"]]/XCUIElementTypeButton");
+    By loc_icnCreateProduct = By.xpath("//XCUIElementTypeStaticText[@name=\"Add new product\" or @name=\"Thêm sản phẩm mới\"]");
+    By loc_icnProductManagement =  By.xpath("//XCUIElementTypeStaticText[@name=\"Product\" or @name=\"Sản phẩm\"]");
+    By loc_icnSupplierManagement = By.xpath("//XCUIElementTypeStaticText[@name=\"Supplier\" or @name=\"Nhà cung cấp\"]");
 
     public void logout() {
         if (!iosUtils.getListElement(loc_icnAccount).isEmpty()) {
