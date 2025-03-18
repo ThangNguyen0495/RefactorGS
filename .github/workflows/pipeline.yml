@@ -173,11 +173,6 @@ jobs:
       - name: Create an iOS simulator
         uses: ThangNguyen0495/create-ios-simulator@main
 
-      - name: Save simulator UDID to GitHub Environment
-        run: |
-          UDID=$(cat udid.txt)
-          echo "UDID=$UDID" >> $GITHUB_ENV
-
       - name: Extract test name from config path
         run: |
           test_name=$(basename "${{ matrix.test_config_path }}" .xml)
@@ -190,7 +185,7 @@ jobs:
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo '${{ vars.APP_URL }}' >> src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
-            echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
+            echo 'iosSimulatorUdid=$DEVICE_UDID' >> src/main/resources/config.properties
             mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/ios/seller/${{ matrix.test_config_path }}"
 
   iOSBuyer:
@@ -208,11 +203,6 @@ jobs:
       - name: Create an iOS simulator
         uses: ThangNguyen0495/create-ios-simulator@main
 
-      - name: Save simulator UDID to GitHub Environment
-        run: |
-          UDID=$(cat udid.txt)
-          echo "UDID=$UDID" >> $GITHUB_ENV
-
       - name: Extract test name from config path
         run: |
           test_name=$(basename "${{ matrix.test_config_path }}" .xml)
@@ -225,5 +215,5 @@ jobs:
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo '${{ vars.APP_URL }}' >> src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
-            echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
+            echo 'iosSimulatorUdid=$DEVICE_UDID' >> src/main/resources/config.properties
             mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/ios/buyer/${{ matrix.test_config_path }}"

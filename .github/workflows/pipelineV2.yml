@@ -101,14 +101,8 @@ jobs:
             mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/android/${{ env.user_type }}/${{ matrix.xmlConfiguration }}"
 
       - if: contains(matrix.xmlConfiguration, 'IOS')
-        name: Create an iOS simulator
+        name: Get an available iOS simulator and boot it
         uses: ThangNguyen0495/create-ios-simulator@main
-
-      - if: contains(matrix.xmlConfiguration, 'IOS')
-        name: Save simulator UDID to GitHub Environment
-        run: |
-          UDID=$(cat udid.txt)
-          echo "UDID=$UDID" >> $GITHUB_ENV
 
       - if: contains(matrix.xmlConfiguration, 'IOS')
         uses: ThangNguyen0495/execute-appium-ios-test@main
@@ -118,5 +112,5 @@ jobs:
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties
             echo '${{ vars.APP_URL }}' >> src/main/resources/config.properties
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties
-            echo 'iosSimulatorUdid=${{ env.UDID }}' >> src/main/resources/config.properties
+            echo 'iosSimulatorUdid=$DEVICE_UDID' >> src/main/resources/config.properties
             mvn test "-DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/ios/${{ env.user_type }}/${{ matrix.xmlConfiguration }}"
