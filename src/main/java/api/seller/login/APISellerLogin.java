@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.logging.log4j.LogManager;
 import utility.APIUtils;
 import utility.PropertiesUtils;
 
@@ -102,6 +103,8 @@ public class APISellerLogin {
      * @return A {@link LoginInformation} object with the seller's details.
      */
     private LoginInformation authenticateSeller(Credentials credentials) {
+        LogManager.getLogger().info("Fetching logged-in user information");
+
         if (credentials == null) {
             credentials = PropertiesUtils.getSellerCredentials();
         }
