@@ -35,6 +35,8 @@ public class HomeScreen {
     }
 
     public void changeApplicationLanguage() {
+        System.out.println(driver.getPageSource());
+
         // Navigate to Account screen
         iosUtils.click(loc_icnAccount);
 
