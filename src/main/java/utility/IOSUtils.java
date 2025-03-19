@@ -1,5 +1,6 @@
 package utility;
 
+import io.appium.java_client.AppiumBy;
 import io.appium.java_client.ios.IOSDriver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -72,7 +73,7 @@ public class IOSUtils {
      * Hides the keyboard if it is visible.
      */
     public void hideKeyboard() {
-        By doneButtonLocator = By.xpath("//XCUIElementTypeButton[@name=\"Done\"]");
+        By doneButtonLocator = AppiumBy.iOSNsPredicateString("name==\"Done\"");
         WebUtils.retryUntil(5, 1000, "Can not hide keyboard",
                 () -> driver.findElements(doneButtonLocator).isEmpty(),
                 () -> click(doneButtonLocator));
