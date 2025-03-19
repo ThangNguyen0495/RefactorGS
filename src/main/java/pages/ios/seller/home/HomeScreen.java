@@ -1,6 +1,5 @@
 package pages.ios.seller.home;
 
-import io.appium.java_client.AppiumBy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -20,7 +19,7 @@ public class HomeScreen {
         iosUtils = new IOSUtils(driver);
     }
 
-    By loc_icnAccount = AppiumBy.iOSNsPredicateString("name == \"Tài khoản\" or name == \"Account\"");
+    By loc_icnAccount = By.xpath("//XCUIElementTypeTabBar[@name=\"Tab Bar\"]//XCUIElementTypeButton[3]");
     By loc_icnCreateProduct = By.xpath("//XCUIElementTypeStaticText[@name=\"Add new product\" or @name=\"Thêm sản phẩm mới\"]");
     By loc_icnProductManagement =  By.xpath("//XCUIElementTypeStaticText[@name=\"Product\" or @name=\"Sản phẩm\"]");
     By loc_icnSupplierManagement = By.xpath("//XCUIElementTypeStaticText[@name=\"Supplier\" or @name=\"Nhà cung cấp\"]");
