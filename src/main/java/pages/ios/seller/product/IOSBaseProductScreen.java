@@ -369,9 +369,8 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
 
     private void modifyShippingInformation() {
         // Enables the shipping switch
-        if (iosUtils.getListElement(loc_txtWeight).isEmpty()) {
-            iosUtils.toggleCheckbox(loc_swShipping);
-        }
+        iosUtils.swipeToElement(loc_swShipping);
+        iosUtils.toggleCheckbox(loc_swShipping);
         logger.info("Enables shipping switch");
 
         // Add product weight
