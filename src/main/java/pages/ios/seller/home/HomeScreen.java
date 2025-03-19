@@ -68,6 +68,7 @@ public class HomeScreen {
 
     public void navigateToSupplierManagementScreen() {
         // Click supplier management icon
+        iosUtils.swipeToElement(loc_icnSupplierManagement);
         iosUtils.click(loc_icnSupplierManagement);
 
         // Log
