@@ -3,7 +3,6 @@ package pages.ios.seller.home;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import pages.ios.seller.account.AccountScreen;
 import utility.IOSUtils;
@@ -38,13 +37,8 @@ public class HomeScreen {
 
     public void changeApplicationLanguage() {
         // Navigate to Account screen
-        try {
-            iosUtils.click(loc_icnAccount);
-        } catch (TimeoutException ex) {
-            WebUtils.sleep(3000);
-            System.out.println(driver.getPageSource());
-            iosUtils.click(loc_icnAccount);
-        }
+        WebUtils.sleep(3000);
+        iosUtils.click(loc_icnAccount);
 
         // Change language
         new AccountScreen(driver).selectLanguage();

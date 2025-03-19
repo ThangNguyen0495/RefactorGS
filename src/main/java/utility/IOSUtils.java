@@ -292,8 +292,8 @@ public class IOSUtils {
         Dimension screenSize = driver.manage().window().getSize();
 
         int screenHeight = screenSize.getHeight();
-        int minY = (int) (screenHeight * 0.1); // 10% of screen height
-        int maxY = (int) (screenHeight * 1.0); // 100% of screen height
+        int minY = (int) (screenHeight * 0.2); // 10% of screen height
+        int maxY = (int) (screenHeight * 0.8); // 100% of screen height
 
         int elementY = element.getLocation().getY();
 
