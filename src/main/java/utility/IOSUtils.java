@@ -52,7 +52,7 @@ public class IOSUtils {
 
         try {
             logger.info("Waiting for the permission alert to show.");
-            createCustomWait(3_000).until(ExpectedConditions.alertIsPresent());
+            wait.until(ExpectedConditions.alertIsPresent());
 
             HashMap<String, Object> args = new HashMap<>();
             args.put("action", "accept");

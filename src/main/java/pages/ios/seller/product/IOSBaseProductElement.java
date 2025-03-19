@@ -10,7 +10,6 @@ public class IOSBaseProductElement {
     By loc_txtWithoutVariationListingPrice = By.xpath("(//*[XCUIElementTypeStaticText[@name=\"Selling price\" or @name=\"Giá bán\"]]/XCUIElementTypeOther//XCUIElementTypeTextField)[1]");
     By loc_txtWithoutVariationSellingPrice = By.xpath("(//*[XCUIElementTypeStaticText[@name=\"Selling price\" or @name=\"Giá bán\"]]/XCUIElementTypeOther//XCUIElementTypeTextField)[2]");
     By loc_txtWithoutVariationCostPrice = By.xpath("//*[XCUIElementTypeStaticText[@name=\"Cost price\" or @name=\"Giá gốc\"]]/XCUIElementTypeOther//XCUIElementTypeTextField");
-    By loc_txtWithoutVariationSKU = By.xpath("//*[XCUIElementTypeStaticText[@name=\"SKU\" or @name=\"Mã SKU\"]]/XCUIElementTypeTextField");
     By loc_txtWithoutVariationBarcode = By.xpath("//*[XCUIElementTypeStaticText[@name=\"Barcode\"]]/XCUIElementTypeTextField");
     By loc_chkDisplayIfOutOfStock = By.xpath("//*[*[@name=\"Display if out of stock\" or @name=\"Hiển thị ngay cả khi hết hàng\"]]/XCUIElementTypeOther");
     By loc_chkHideRemainingStock = By.xpath("//*[XCUIElementTypeStaticText[@name=\"Hide remaining stock on online store\" or @name=\"Ẩn số lượng tồn kho trên cửa hàng trực tuyến\"]]/XCUIElementTypeOther");
