@@ -49,8 +49,8 @@ public class WebDriverManager {
         options.setCapability("appium:appWaitForLaunch", "false");
         options.setCapability("appium:fastReset", "true");
         options.setCapability("appium:noReset", "false");
-        options.setCapability("appium:newCommandTimeout", 300_000);
-        options.setCapability("appium:adbExecTimeout", 300_000);
+        options.setCapability("appium:newCommandTimeout", 500_000);
+        options.setCapability("appium:adbExecTimeout", 500_000);
         options.setCapability("appium:app", appPath);
 
         AndroidDriver driver = new AndroidDriver(new URI(url).toURL(), options);
@@ -74,9 +74,9 @@ public class WebDriverManager {
         XCUITestOptions options = new XCUITestOptions();
         options.setCapability("appium:udid", udid);
         options.setCapability("platformName", "iOS");
-        options.setCapability("appium:newCommandTimeout", 300_000);
-        options.setCapability("appium:wdaLaunchTimeout", 300_000);
-        options.setCapability("appium:wdaConnectionTimeout", 300_000);
+        options.setCapability("appium:newCommandTimeout", 500_000);
+        options.setCapability("appium:wdaLaunchTimeout", 500_000);
+        options.setCapability("appium:wdaConnectionTimeout", 500_000);
         options.setCapability("appium:automationName", "XCUITest");
         options.setCapability("appium:app", appPath);
 
