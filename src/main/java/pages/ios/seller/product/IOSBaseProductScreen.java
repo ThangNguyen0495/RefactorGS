@@ -371,6 +371,9 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         // Enables the shipping switch
         iosUtils.swipeToElement(loc_swShipping);
         iosUtils.click(loc_swShipping);
+        if (iosUtils.getListElement(loc_txtWeight).isEmpty()) {
+            iosUtils.click(loc_swShipping);
+        }
         logger.info("Enables shipping switch");
 
         // Add product weight
