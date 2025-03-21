@@ -74,9 +74,9 @@ public class IOSUtils {
      */
     public void hideKeyboard() {
         By doneButtonLocator = AppiumBy.iOSNsPredicateString("name==\"Done\"");
-        WebUtils.retryUntil(5, 1000, "Can not hide keyboard",
-                () -> driver.findElements(doneButtonLocator).isEmpty(),
-                () -> click(doneButtonLocator));
+        if (!getListElement(doneButtonLocator, 1000).isEmpty()) {
+            click(doneButtonLocator);
+        }
     }
 
     /**
