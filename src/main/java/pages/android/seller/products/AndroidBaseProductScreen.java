@@ -16,6 +16,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
+import pages.android.seller.home.AndroidSellerHomeScreen;
 import pages.android.seller.login.AndroidSellerLoginScreen;
 import pages.android.seller.products.product_management.ProductManagementScreen;
 import utility.AndroidUtils;
@@ -214,8 +215,11 @@ public class AndroidBaseProductScreen extends BaseProductElement {
     }
 
     public AndroidBaseProductScreen navigateToCreateProductScreen() {
+        // Relaunch app
+        androidUtils.relaunchApp();
+
         // Navigate to create product screen
-        androidUtils.navigateToScreenUsingScreenActivity( ActivityHelper.sellerCreateProductActivity);
+        new AndroidSellerHomeScreen(driver).navigateToCreateProductScreen();
 
         // Log
         logger.info("Navigate to create product screen.");
@@ -224,6 +228,9 @@ public class AndroidBaseProductScreen extends BaseProductElement {
     }
 
     public void navigateToProductDetailScreen(int productId) {
+        // Relaunch app
+        androidUtils.relaunchApp();
+
         // Get product information
         this.currentProductInfo = fetchProductInformation(productId);
 

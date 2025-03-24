@@ -18,7 +18,6 @@ import java.util.Optional;
 
 import static utility.AndroidUtils.getLocatorById;
 import static utility.AndroidUtils.getLocatorByResourceId;
-import static utility.helper.ActivityHelper.sellerCreateSupplierActivity;
 
 public class AndroidBaseSupplierScreen {
     private final WebDriver driver;
@@ -83,8 +82,12 @@ public class AndroidBaseSupplierScreen {
      * Navigates to the page where a new supplier can be created.
      */
     public void navigateToCreateSupplierPage() {
-        // Navigate to product management screen
-        androidUtils.navigateToScreenUsingScreenActivity(sellerCreateSupplierActivity);
+        // Relaunch app
+        androidUtils.relaunchApp();
+
+        // Navigate to product create supplier screen
+        new AndroidSupplierManagementScreen(driver).navigateToSupplierManagementScreenByActivity()
+                .navigateToCreateSupplierScreen();
 
         // Log
         logger.info("Navigate to create supplier screen by activity.");
@@ -97,6 +100,9 @@ public class AndroidBaseSupplierScreen {
      * @param supplierId The unique identifier of the supplier whose details are to be viewed or edited.
      */
     public void navigateToSupplierDetailScreenByItsId(int supplierId) {
+        // Relaunch app
+        androidUtils.relaunchApp();
+
         // Get product information
         var supplierInfo = fetchSupplierInformation(supplierId);
 
@@ -242,6 +248,12 @@ public class AndroidBaseSupplierScreen {
      * Selects the province for foreign suppliers.
      */
     private void selectForeignProvince() {
+        if (supplierInfo.getCityName().equals("Virgin Islands (US)")) {
+            supplierInfo.setForeignProvinceName("");
+            logger.info("[Virgin Islands (US)] country does not have province to select.");
+            return;
+        }
+
         String provinceName = supplierInfo.getForeignProvinceName();
         androidUtils.click(loc_lblSelectedForeignProvince);
         new PopupHandler(driver).selectItem(provinceName);

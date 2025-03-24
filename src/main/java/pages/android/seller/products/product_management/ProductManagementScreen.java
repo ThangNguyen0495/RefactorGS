@@ -5,9 +5,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
+import pages.android.seller.home.AndroidSellerHomeScreen;
 import utility.AndroidUtils;
-
-import static utility.helper.ActivityHelper.*;
 
 
 public class ProductManagementScreen extends ProductManagementElement {
@@ -25,7 +24,7 @@ public class ProductManagementScreen extends ProductManagementElement {
 
     public ProductManagementScreen navigateToProductManagementScreen() {
         // Navigate to product management screen
-        androidUtils.navigateToScreenUsingScreenActivity(sellerProductMgmtActivity);
+        new AndroidSellerHomeScreen(driver).navigateToProductManagementScreen();
 
         // Log
         logger.info("Navigate to product management screen.");
