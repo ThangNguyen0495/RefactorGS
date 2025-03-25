@@ -8,6 +8,7 @@ import api.seller.setting.APIGetBranchList;
 import api.seller.setting.APIGetStoreDefaultLanguage;
 import api.seller.setting.APIGetVATList;
 import api.seller.user_feature.APIGetUserFeature;
+import io.appium.java_client.AppiumBy;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -357,9 +358,8 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
         }
 
         // Navigate to inventory screen
-        WebUtils.retryUntil(5, 1000, "Can not navigate to Inventory screen",
-                () -> iosUtils.getListElement(loc_btnInventory).isEmpty(),
-                () -> iosUtils.click(loc_btnInventory));
+        iosUtils.swipeToElement(loc_btnInventory);
+        iosUtils.click(loc_btnInventory);
 
 
         // Add without variation stock
@@ -817,8 +817,8 @@ public class IOSBaseProductScreen extends IOSBaseProductElement {
 
         private final IOSUtils iosUtils;
 
-        By loc_lstImages = By.xpath("//XCUIElementTypeCollectionView//XCUIElementTypeButton");
-        By loc_btnSave = By.xpath("//XCUIElementTypeImage[@name=\"ic_DownArrow\"]//preceding-sibling::XCUIElementTypeButton[1]");
+        By loc_lstImages = AppiumBy.iOSClassChain("**/XCUIElementTypeCollectionView/**/XCUIElementTypeButton");
+        By loc_btnSave = AppiumBy.xpath("(//XCUIElementTypeButton[@name=\"icon checked white\"])[2]");
 
         /**
          * Constructor for the SelectImagePopup class.
