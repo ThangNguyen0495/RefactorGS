@@ -121,14 +121,6 @@
                         <!--suppress UnresolvedMavenProperty -->
                         <suiteXmlFile>${suiteFile}</suiteXmlFile>
                     </suiteXmlFiles>
-                    <systemPropertyVariables>
-                        <!--suppress UnresolvedMavenProperty -->
-                        <udidAndroid>${udidAndroid}</udidAndroid>
-                        <!--suppress UnresolvedMavenProperty -->
-                        <appiumPort>${appiumPort}</appiumPort>
-                        <!--suppress UnresolvedMavenProperty -->
-                        <udidIOS>${udidIOS}</udidIOS>
-                    </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>

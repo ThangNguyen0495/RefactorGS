@@ -1,7 +1,8 @@
+image: maven:3-eclipse-temurin-22
 
-image: maven:3-eclipse-temurin-22 
 stages:
   - test
+
 before_script:
   - apt-get update > /dev/null 2>&1
   - apt-get install -y wget curl > /dev/null 2>&1
@@ -22,23 +23,63 @@ before_script:
         echo "$PROD_ENV_CONFIGS" > src/main/resources/config.properties;;
     esac
 
-selenium-test-job:
+# Define each test job separately
+selenium-test-job-dashboard-login:
   stage: test
-  parallel:
-    matrix:
-      - TEST_CONFIG_PATH: 
-          - DashboardLoginTest.xml
-          - DashboardSupplierTest.xml
-          - DashboardCreateProductTest.xml
-          - DashboardUpdateProductTest.xml
-          - DashboardProductManagementTest.xml
   script:
     - mvn install -DskipTests > /dev/null 2>&1
-    - mvn test "-DsuiteFile=test_configs/$TEST_TYPE/web/seller/$TEST_CONFIG_PATH"
+    - mvn test "-DsuiteFile=test_configs/$TEST_TYPE/web/seller/DashboardLoginTest.xml"
   artifacts:
     paths:
       - target/ExtentReport.html
       - target/BufferLog.log
     when: always
-  when:
-    manual
+  when: manual
+
+selenium-test-job-dashboard-supplier:
+  stage: test
+  script:
+    - mvn install -DskipTests > /dev/null 2>&1
+    - mvn test "-DsuiteFile=test_configs/$TEST_TYPE/web/seller/DashboardSupplierTest.xml"
+  artifacts:
+    paths:
+      - target/ExtentReport.html
+      - target/BufferLog.log
+    when: always
+  when: manual
+
+selenium-test-job-dashboard-create-product:
+  stage: test
+  script:
+    - mvn install -DskipTests > /dev/null 2>&1
+    - mvn test "-DsuiteFile=test_configs/$TEST_TYPE/web/seller/DashboardCreateProductTest.xml"
+  artifacts:
+    paths:
+      - target/ExtentReport.html
+      - target/BufferLog.log
+    when: always
+  when: manual
+
+selenium-test-job-dashboard-update-product:
+  stage: test
+  script:
+    - mvn install -DskipTests > /dev/null 2>&1
+    - mvn test "-DsuiteFile=test_configs/$TEST_TYPE/web/seller/DashboardUpdateProductTest.xml"
+  artifacts:
+    paths:
+      - target/ExtentReport.html
+      - target/BufferLog.log
+    when: always
+  when: manual
+
+selenium-test-job-dashboard-product-management:
+  stage: test
+  script:
+    - mvn install -DskipTests > /dev/null 2>&1
+    - mvn test "-DsuiteFile=test_configs/$TEST_TYPE/web/seller/DashboardProductManagementTest.xml"
+  artifacts:
+    paths:
+      - target/ExtentReport.html
+      - target/BufferLog.log
+    when: always
+  when: manual
