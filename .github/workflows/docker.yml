@@ -116,6 +116,7 @@ jobs:
 
       - name: Check ADB Devices and run Android test
         run: |
+          docker exec "ls /app/src/test/resources/smoke/android/seller"
           docker exec emulator-container adb devices && \
           docker exec emulator-container bash -c "cd /app && mvn install -DskipTests" && \
           docker exec emulator-container bash -c "cd /app && \
