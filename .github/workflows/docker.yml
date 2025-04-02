@@ -89,20 +89,24 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/.docker-cache
-          key: ${{ runner.os }}-docker-${{ github.sha }}
+          key: ${{ runner.os }}-docker-${{ hashFiles('**/Dockerfile') }}
           restore-keys: |
             ${{ runner.os }}-docker-
 
-      - name: Pull Docker Image
+      - name: Pull Docker Image if Cache Miss
         if: steps.cache-docker.outputs.cache-hit != 'true'
         run: |
+          echo "Cache miss - pulling Docker image"
           docker pull thangnguyen0495/android-appium:latest
           mkdir -p /tmp/.docker-cache
           docker save -o /tmp/.docker-cache/android-appium.tar thangnguyen0495/android-appium:latest
 
-      - name: Load Cached Docker Image
+      - name: Load Cached Docker Image if Cache Hit
         if: steps.cache-docker.outputs.cache-hit == 'true'
-        run: docker load -i /tmp/.docker-cache/android-appium.tar
+        run: |
+          echo "Cache hit - loading Docker image from cache"
+          docker load -i /tmp/.docker-cache/android-appium.tar
+      
 
       - name: Start Docker Container
         run: |
