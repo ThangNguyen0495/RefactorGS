@@ -78,27 +78,31 @@ jobs:
             user_type="buyer"
           fi
           echo "user_type=$user_type" >> $GITHUB_ENV
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Cache Docker layers
+      - name: Load Cached Docker Image
+        id: cache-docker
         uses: actions/cache@v4
         with:
-          path: /tmp/.buildx-cache
+          path: /tmp/.docker-cache
           key: ${{ runner.os }}-docker-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-docker-
 
-      - name: Build Docker Image
+      - name: Pull Docker Image
+        if: steps.cache-docker.outputs.cache-hit != 'true'
         run: |
-          docker buildx build \
-            --cache-from=type=local,src=/tmp/.buildx-cache \
-            --cache-to=type=local,dest=/tmp/.buildx-cache \
-            -t thangnguyen0495/android-appium:latest .
+          docker pull thangnguyen0495/android-appium:latest
+          mkdir -p /tmp/.docker-cache
+          docker save -o /tmp/.docker-cache/android-appium.tar thangnguyen0495/android-appium:latest
+
+      - name: Load Cached Docker Image
+        if: steps.cache-docker.outputs.cache-hit == 'true'
+        run: docker load -i /tmp/.docker-cache/android-appium.tar
 
       - name: Start Docker Container
         run: |
@@ -120,5 +124,3 @@ jobs:
             printf '%s\n' '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties" && \
           docker exec emulator-container bash -c "cd /app && \
           mvn test -DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/android/${{ env.user_type }}/${{ matrix.xmlConfiguration }}"
-
-      
