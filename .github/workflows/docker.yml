@@ -138,14 +138,13 @@ jobs:
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties && \
             mvn test -DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/android/${{ env.user_type }}/${{ matrix.xmlConfiguration }}"
 
-      - name: Copy Test Report from Container to Workspace
+      - name: Copy Test Reports from Container
         if: always()
-        run: |
-          docker cp emulator-container:/workspace/target/ExtentReport.html ${{ github.workspace }}/${{ env.test_name }}.html
+        run: docker cp emulator-container:/app/target/ExtentReport.html ./${{ env.test_name }}.html
 
       - name: Upload Test Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.test_name }}
-          path: ${{ github.workspace }}/${{ env.test_name }}.html
+          path: ./${{ env.test_name }}.html
