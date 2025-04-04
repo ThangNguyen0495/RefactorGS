@@ -88,7 +88,7 @@ jobs:
         id: cache-docker
         uses: actions/cache@v4
         with:
-          path: /tmp/.docker-cache
+          path: ${{ github.workspace }}/.docker-cache
           key: ${{ runner.os }}-docker-${{ hashFiles('**/Dockerfile') }}
           restore-keys: |
             ${{ runner.os }}-docker-
@@ -98,19 +98,25 @@ jobs:
         run: |
           echo "Cache miss - pulling Docker image"
           docker pull thangnguyen0495/android-appium:latest
-          mkdir -p /tmp/.docker-cache
-          docker save -o /tmp/.docker-cache/android-appium.tar thangnguyen0495/android-appium:latest
+          mkdir -p ${{ github.workspace }}/.docker-cache
+          docker save -o ${{ github.workspace }}/.docker-cache/android-appium.tar thangnguyen0495/android-appium:latest
+
+      - name: Check if Docker Image Exists (optional)
+        run: |
+          docker images -q thangnguyen0495/android-appium:latest || echo "Image not found"
 
       - name: Load Cached Docker Image if Cache Hit
         if: steps.cache-docker.outputs.cache-hit == 'true'
         run: |
           echo "Cache hit - loading Docker image from cache"
-          docker load -i /tmp/.docker-cache/android-appium.tar
-      
+          docker load -i ${{ github.workspace }}/.docker-cache/android-appium.tar
 
-      - name: Start Docker Container
+      - name: Start Docker Container with Port and without Volume Mount
         run: |
           docker run -d --name emulator-container --privileged \
+            -p 4723:4723 \  # Port cho Appium
+            -p 5037:5037 \  # Port cho ADB
+            -p 5555:5555 \  # Port cho Emulator
             thangnguyen0495/android-appium:latest
 
       - name: Wait for Emulator to Start
@@ -118,24 +124,12 @@ jobs:
           sleep 60
           docker logs emulator-container
 
-      - name: Check ADB Devices and run Android test
+      - name: Rename Test Report
         run: |
-          docker cp . emulator-container:/app &&\
-          docker exec emulator-container ls -a &&\
-          docker exec emulator-container adb devices && \
-          docker exec emulator-container bash -c "cd /app && mvn install -DskipTests" && \
-          docker exec emulator-container bash -c "cd /app && \
-            printf '%s\n' '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties && \
-            printf '%s\n' '${{ vars.APP_URL }}' >> src/main/resources/config.properties && \
-            printf '%s\n' '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties" && \
-          docker exec emulator-container bash -c "cd /app && \
-          mvn test -DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/android/${{ env.user_type }}/${{ matrix.xmlConfiguration }}"
-
-      - name: Copy Test Reports from Container
-        run: docker cp emulator-container:/app/target/ExtentReport.html ./${{ env.test_name }}.html
+          mv ${{ github.workspace }}/target/ExtentReport.html ${{ github.workspace }}/${{ env.test_name }}.html
 
       - name: Upload Test Reports
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.test_name }}
-          path: ./${{ env.test_name }}.html
+          path: ${{ github.workspace }}/${{ env.test_name }}.html
