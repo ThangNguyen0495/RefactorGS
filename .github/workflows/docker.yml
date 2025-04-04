@@ -124,6 +124,13 @@ jobs:
           sleep 60
           docker logs emulator-container
 
+      - name: Run Tests Directly from GitHub Workspace (Host)
+        run: |
+          docker exec emulator-container ls -a
+          docker exec emulator-container adb devices
+          mvn install -DskipTests
+          mvn test -DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/android/${{ env.user_type }}/${{ matrix.xmlConfiguration }}
+
       - name: Rename Test Report
         run: |
           mv ${{ github.workspace }}/target/ExtentReport.html ${{ github.workspace }}/${{ env.test_name }}.html
