@@ -1,4 +1,4 @@
-name: Run Test with Docker image
+name: Run Android Test with Docker image
 
 on:
   workflow_dispatch:
@@ -30,27 +30,16 @@ on:
           List of test configurations (JSON format). 
           Example: 
           [
-            "DashboardLoginTest.xml",
-            "DashboardSupplierTest.xml",
-            "DashboardCreateProductTest.xml",
-            "DashboardUpdateProductTest.xml",
-            "DashboardProductManagementTest.xml",
-            "StorefrontProductDetailTest.xml",
             "AndroidGoSELLERCreateProductTest.xml",
             "AndroidGoSELLERUpdateProductTest.xml",
             "AndroidGoSELLERSupplierTest.xml",
-            "AndroidGoBuyerProductDetail.xml",
-            "IOSGoSELLERCreateProductTest.xml",
-            "IOSGoSELLERUpdateProductTest.xml",
-            "IOSGoSELLERProductManagement.xml",
-            "IOSGoSELLERSupplierTest.xml",
-            "IOSGoBuyerProductDetail.xml"
+            "AndroidGoBuyerProductDetail.xml"
           ]
         required: true
         type: string
         default: '[]'
 
-run-name: "[${{ github.event.inputs.environment }}][${{ github.event.inputs.testType }}] Run test with Docker image ${{ github.event.inputs.test_configs }}"
+run-name: "[${{ github.event.inputs.environment }}][${{ github.event.inputs.testType }}] Run android test with Docker image ${{ github.event.inputs.test_configs }}"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.inputs.environment }}-${{ github.event.inputs.testType }}-${{ github.event.inputs.test_configs }}
@@ -65,14 +54,14 @@ jobs:
       matrix:
         xmlConfiguration: ${{ fromJson(inputs.test_configs) }}
 
-    runs-on: ${{ contains(matrix.xmlConfiguration, 'IOS') && 'macos-latest' || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment }}
     steps:
       - name: Set User Type
         run: |
           test_name=$(basename "${{ matrix.xmlConfiguration }}" .xml)
           echo "test_name=$test_name" >> $GITHUB_ENV
-          if echo "$test_name" | grep -qE "Dashboard|SELLER"; then
+          if echo "$test_name" | grep -qE "SELLER"; then
             user_type="seller"
           else
             user_type="buyer"
