@@ -114,9 +114,7 @@ jobs:
       - name: Start Docker Container
         run: |
           docker run -d --name emulator-container --privileged \
-            -p 4723:4723 \
-            -p 5037:5037 \
-            -p 5555:5555 \
+            -v ${{ github.workspace }}:/workspace -w /workspace \
             thangnguyen0495/android-appium:latest
 
       - name: Wait for Emulator to Start
@@ -126,9 +124,7 @@ jobs:
 
       - name: Run Maven inside Docker with JDK 22
         run: |
-          docker run -v ${{ github.workspace }}:/workspace -w /workspace --name emulator-container --privileged \
-            thangnguyen0495/android-appium:latest \
-            bash -c "mvn install -DskipTests && mvn test -DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/android/${{ env.user_type }}/${{ matrix.xmlConfiguration }}"
+          docker exec bash -c "mvn install -DskipTests && mvn test -DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/android/${{ env.user_type }}/${{ matrix.xmlConfiguration }}"
 
       - name: Copy Test Report from Container to Workspace
         run: |
