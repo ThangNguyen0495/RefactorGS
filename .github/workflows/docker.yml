@@ -138,6 +138,7 @@ jobs:
           docker cp emulator-container:/workspace/target/ExtentReport.html ${{ github.workspace }}/${{ env.test_name }}.html
 
       - name: Rename Test Report (if needed)
+        if: always
         run: |
           mv ${{ github.workspace }}/${{ env.test_name }}.html ${{ github.workspace }}/${{ env.test_name }}.html
 
