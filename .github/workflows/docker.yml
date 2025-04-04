@@ -32,7 +32,19 @@ on:
           [
             "DashboardLoginTest.xml",
             "DashboardSupplierTest.xml",
-            ...
+            "DashboardCreateProductTest.xml",
+            "DashboardUpdateProductTest.xml",
+            "DashboardProductManagementTest.xml",
+            "StorefrontProductDetailTest.xml",
+            "AndroidGoSELLERCreateProductTest.xml",
+            "AndroidGoSELLERUpdateProductTest.xml",
+            "AndroidGoSELLERSupplierTest.xml",
+            "AndroidGoBuyerProductDetail.xml",
+            "IOSGoSELLERCreateProductTest.xml",
+            "IOSGoSELLERUpdateProductTest.xml",
+            "IOSGoSELLERProductManagement.xml",
+            "IOSGoSELLERSupplierTest.xml",
+            "IOSGoBuyerProductDetail.xml"
           ]
         required: true
         type: string
