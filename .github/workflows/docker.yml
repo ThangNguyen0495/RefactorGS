@@ -124,7 +124,8 @@ jobs:
 
       - name: Run Maven inside Docker with JDK 22
         run: |
-          docker exec bash -c "mvn install -DskipTests && mvn test -DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/android/${{ env.user_type }}/${{ matrix.xmlConfiguration }}"
+          docker exec emulator-container bash -c "mvn install -DskipTests && \
+          mvn test -DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/android/${{ env.user_type }}/${{ matrix.xmlConfiguration }}"
 
       - name: Copy Test Report from Container to Workspace
         run: |
