@@ -89,22 +89,27 @@ jobs:
         id: cache-docker
         run: |
           IMAGE_ID=$(docker images --format '{{.ID}}' thangnguyen0495/android-appium:latest)
+
+          # Kiểm tra nếu có image_id cache trước đó
           if [ -f "${{ github.workspace }}/.docker-cache/image_id.txt" ]; then
             PREVIOUS_IMAGE_ID=$(cat ${{ github.workspace }}/.docker-cache/image_id.txt)
           else
             PREVIOUS_IMAGE_ID=""
           fi
 
+          # Nếu image ID thay đổi, kéo image mới và lưu cache mới
           if [ "$IMAGE_ID" != "$PREVIOUS_IMAGE_ID" ]; then
             echo "Image ID has changed. Pulling new image."
             docker pull thangnguyen0495/android-appium:latest
             echo $IMAGE_ID > ${{ github.workspace }}/.docker-cache/image_id.txt
+            echo "cache-hit=false" >> $GITHUB_ENV
           else
             echo "Using cached image."
+            echo "cache-hit=true" >> $GITHUB_ENV
           fi
 
       - name: Pull Docker Image if Cache Miss
-        if: steps.cache-docker.outputs.cache-hit != 'true'
+        if: env.cache-hit == 'false'
         run: |
           echo "Cache miss - pulling Docker image"
           docker pull thangnguyen0495/android-appium:latest
@@ -112,7 +117,7 @@ jobs:
           docker save -o ${{ github.workspace }}/.docker-cache/android-appium.tar thangnguyen0495/android-appium:latest
 
       - name: Load Cached Docker Image if Cache Hit
-        if: steps.cache-docker.outputs.cache-hit == 'true'
+        if: env.cache-hit == 'true'
         run: |
           echo "Cache hit - loading Docker image from cache"
           docker load -i ${{ github.workspace }}/.docker-cache/android-appium.tar
