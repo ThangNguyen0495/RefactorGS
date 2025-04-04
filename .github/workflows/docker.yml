@@ -111,12 +111,12 @@ jobs:
           echo "Cache hit - loading Docker image from cache"
           docker load -i ${{ github.workspace }}/.docker-cache/android-appium.tar
 
-      - name: Start Docker Container with Port and without Volume Mount
+      - name: Start Docker Container
         run: |
           docker run -d --name emulator-container --privileged \
-            -p 4723:4723 \  
-            -p 5037:5037 \  
-            -p 5555:5555 \  
+            -p 4723:4723 \
+            -p 5037:5037 \
+            -p 5555:5555 \
             thangnguyen0495/android-appium:latest
 
       - name: Wait for Emulator to Start
