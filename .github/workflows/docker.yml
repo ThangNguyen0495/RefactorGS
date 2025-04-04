@@ -32,19 +32,7 @@ on:
           [
             "DashboardLoginTest.xml",
             "DashboardSupplierTest.xml",
-            "DashboardCreateProductTest.xml",
-            "DashboardUpdateProductTest.xml",
-            "DashboardProductManagementTest.xml",
-            "StorefrontProductDetailTest.xml",
-            "AndroidGoSELLERCreateProductTest.xml",
-            "AndroidGoSELLERUpdateProductTest.xml",
-            "AndroidGoSELLERSupplierTest.xml",
-            "AndroidGoBuyerProductDetail.xml",
-            "IOSGoSELLERCreateProductTest.xml",
-            "IOSGoSELLERUpdateProductTest.xml",
-            "IOSGoSELLERProductManagement.xml",
-            "IOSGoSELLERSupplierTest.xml",
-            "IOSGoBuyerProductDetail.xml"
+            ...
           ]
         required: true
         type: string
@@ -78,20 +66,30 @@ jobs:
             user_type="buyer"
           fi
           echo "user_type=$user_type" >> $GITHUB_ENV
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Load Cached Docker Image
+      - name: Check and Cache Docker Image ID
         id: cache-docker
-        uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}/.docker-cache
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/Dockerfile') }}
-          restore-keys: |
-            ${{ runner.os }}-docker-
+        run: |
+          IMAGE_ID=$(docker images --format '{{.ID}}' thangnguyen0495/android-appium:latest)
+          if [ -f "${{ github.workspace }}/.docker-cache/image_id.txt" ]; then
+            PREVIOUS_IMAGE_ID=$(cat ${{ github.workspace }}/.docker-cache/image_id.txt)
+          else
+            PREVIOUS_IMAGE_ID=""
+          fi
+
+          if [ "$IMAGE_ID" != "$PREVIOUS_IMAGE_ID" ]; then
+            echo "Image ID has changed. Pulling new image."
+            docker pull thangnguyen0495/android-appium:latest
+            echo $IMAGE_ID > ${{ github.workspace }}/.docker-cache/image_id.txt
+          else
+            echo "Using cached image."
+          fi
 
       - name: Pull Docker Image if Cache Miss
         if: steps.cache-docker.outputs.cache-hit != 'true'
@@ -100,10 +98,6 @@ jobs:
           docker pull thangnguyen0495/android-appium:latest
           mkdir -p ${{ github.workspace }}/.docker-cache
           docker save -o ${{ github.workspace }}/.docker-cache/android-appium.tar thangnguyen0495/android-appium:latest
-
-      - name: Check if Docker Image Exists (optional)
-        run: |
-          docker images -q thangnguyen0495/android-appium:latest || echo "Image not found"
 
       - name: Load Cached Docker Image if Cache Hit
         if: steps.cache-docker.outputs.cache-hit == 'true'
@@ -123,7 +117,7 @@ jobs:
 
       - name: Run Maven inside Docker with JDK 22
         run: |
-          docker cp . emulator-container:/app 
+          docker cp . emulator-container:/app
           docker exec emulator-container adb devices
           docker exec emulator-container bash -c "
             cd /app && \
@@ -134,13 +128,9 @@ jobs:
             mvn test -DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/android/${{ env.user_type }}/${{ matrix.xmlConfiguration }}"
 
       - name: Copy Test Report from Container to Workspace
-        run: |
-          docker cp emulator-container:/workspace/target/ExtentReport.html ${{ github.workspace }}/${{ env.test_name }}.html
-
-      - name: Rename Test Report (if needed)
         if: always()
         run: |
-          mv ${{ github.workspace }}/${{ env.test_name }}.html ${{ github.workspace }}/${{ env.test_name }}.html
+          docker cp emulator-container:/workspace/target/ExtentReport.html ${{ github.workspace }}/${{ env.test_name }}.html
 
       - name: Upload Test Reports
         if: always()
