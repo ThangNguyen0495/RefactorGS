@@ -124,16 +124,19 @@ jobs:
           sleep 60
           docker logs emulator-container
 
-      - name: Run Tests Directly from GitHub Workspace (Host)
+      - name: Run Maven inside Docker with JDK 22
         run: |
-          docker exec emulator-container ls -a
-          docker exec emulator-container adb devices
-          mvn install -DskipTests
-          mvn test -DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/android/${{ env.user_type }}/${{ matrix.xmlConfiguration }}
+          docker run -v ${{ github.workspace }}:/workspace -w /workspace --name emulator-container --privileged \
+            thangnguyen0495/android-appium:latest \
+            bash -c "mvn install -DskipTests && mvn test -DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/android/${{ env.user_type }}/${{ matrix.xmlConfiguration }}"
 
-      - name: Rename Test Report
+      - name: Copy Test Report from Container to Workspace
         run: |
-          mv ${{ github.workspace }}/target/ExtentReport.html ${{ github.workspace }}/${{ env.test_name }}.html
+          docker cp emulator-container:/workspace/target/ExtentReport.html ${{ github.workspace }}/${{ env.test_name }}.html
+
+      - name: Rename Test Report (if needed)
+        run: |
+          mv ${{ github.workspace }}/${{ env.test_name }}.html ${{ github.workspace }}/${{ env.test_name }}.html
 
       - name: Upload Test Reports
         uses: actions/upload-artifact@v4
