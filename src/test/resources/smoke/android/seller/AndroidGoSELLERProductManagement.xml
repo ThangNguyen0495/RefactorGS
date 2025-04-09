@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite name="Product Management Test Suite">
-    <test name="[IOS][GoSELLER] Product Management Tests">
+    <test name="[Android][GoSELLER] Product Management Tests">
         <classes>
-            <class name="ios.seller.IOSGoSELLERProductManagementTest">
+            <class name="android.seller.AndroidGoSELLERProductManagementTest">
                 <methods>
                     <include name="testProductManagement"/>
                 </methods>
