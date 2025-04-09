@@ -31,16 +31,25 @@ public class AndroidSellerHomeScreen {
     }
 
     public void navigateToCreateProductScreen() {
+        // Relaunch app to access the Home screen
+        androidUtils.relaunchApp();
+
         // Navigate to create product screen
         androidUtils.click(loc_icnCreateProduct);
     }
 
     public void navigateToProductManagementScreen() {
+        // Relaunch app to access the Home screen
+        androidUtils.relaunchApp();
+
         // Navigate to product management screen
         androidUtils.click(loc_icnProduct);
     }
 
     public void navigateToSupplierManagementScreen() {
+        // Relaunch app to access the Home screen
+        androidUtils.relaunchApp();
+
         // Navigate to supplier management screen
         androidUtils.click(loc_icnSupplier);
     }

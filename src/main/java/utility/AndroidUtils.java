@@ -1,7 +1,6 @@
 package utility;
 
 import io.appium.java_client.AppiumBy;
-import io.appium.java_client.android.Activity;
 import io.appium.java_client.android.AndroidDriver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
-import java.util.Objects;
 
 import static io.appium.java_client.AppiumBy.androidUIAutomator;
 import static utility.WebDriverManager.appBundleId;
@@ -230,11 +228,33 @@ public class AndroidUtils {
 
         if (content instanceof CharSequence) {
             getElement(locator).sendKeys((CharSequence) content);
+            // Hide keyboard
+            hideKeyboard();
             return; // Early return for CharSequence
         }
 
         getElement(locator).sendKeys(String.valueOf(content));
+
+        // Hide keyboard
+        hideKeyboard();
     }
+
+    /**
+     * Hides the Android soft keyboard if it is currently displayed.
+     * <p>
+     * This method checks whether the keyboard is shown using {@code isKeyboardShown()}.
+     * If the keyboard is visible, it attempts to hide it using {@code hideKeyboard()}.
+     * This is useful to prevent the keyboard from overlapping UI elements during testing.
+     * </p>
+     */
+    private void hideKeyboard() {
+        // Check if the keyboard is currently displayed
+        if (((AndroidDriver) driver).isKeyboardShown()) {
+            // Hide the keyboard to avoid UI obstruction
+            ((AndroidDriver) driver).hideKeyboard();
+        }
+    }
+
 
     /**
      * Sends the specified keys to the given WebElement using Actions.
@@ -306,28 +326,6 @@ public class AndroidUtils {
         ((AndroidDriver) driver).terminateApp(appBundleId);
         ((AndroidDriver) driver).activateApp(appBundleId);
         logger.info("Relaunched app with package: {}", appBundleId);
-    }
-
-    /**
-     * Navigates to a specific screen using the provided app package and activity.
-     *
-     * @param appActivity The activity name of the screen to navigate to.
-     */
-    public void navigateToScreenUsingScreenActivity(String appActivity) {
-        String currentAppActivity = ((AndroidDriver) driver).currentActivity();
-        if (!currentAppActivity.contains("com.mediastep.gosellseller")) {
-            appActivity = appActivity.replace("com.mediastep.gosellseller", "");
-        }
-        // Return early if the current activity is already the desired activity
-        if (Objects.equals(((AndroidDriver) driver).currentActivity(), appActivity)) {
-            return; // Early exit if the current activity matches the target activity
-        }
-
-        // Navigate to screen by activity
-        Activity activity = new Activity(appBundleId, appActivity);
-        activity.setStopApp(false);
-        ((AndroidDriver) driver).startActivity(activity);
-        logger.info("Navigated to screen activity: {}", appActivity);
     }
 
     /**

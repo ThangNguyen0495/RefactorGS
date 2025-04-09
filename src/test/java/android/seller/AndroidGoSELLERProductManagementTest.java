@@ -1,29 +1,29 @@
-package ios.seller;
+package android.seller;
 
 import baseTest.BaseTest;
 import org.apache.logging.log4j.LogManager;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import pages.ios.seller.home.HomeScreen;
-import pages.ios.seller.login.LoginScreen;
-import pages.ios.seller.product.IOSProductManagementScreen;
+import pages.android.seller.home.AndroidSellerHomeScreen;
+import pages.android.seller.login.AndroidSellerLoginScreen;
+import pages.android.seller.products.AndroidProductManagementScreen;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-public class IOSGoSELLERProductManagementTest extends BaseTest {
-    IOSProductManagementScreen productManagementScreen;
+public class AndroidGoSELLERProductManagementTest extends BaseTest {
+    AndroidProductManagementScreen productManagementScreen;
 
     @BeforeClass
     void setup() throws URISyntaxException, IOException {
-        initDriver("SELLER", "IOS");
-        new LoginScreen(driver).performLogin(sellerCredentials);
+        initDriver("SELLER", "ANDROID");
+        new AndroidSellerLoginScreen(driver).performLogin(sellerCredentials);
         // Change application language
-        new HomeScreen(driver).changeApplicationLanguage();
+        new AndroidSellerHomeScreen(driver).changeApplicationLanguage();
 
         // init product page POM
-        productManagementScreen = new IOSProductManagementScreen(driver);
+        productManagementScreen = new AndroidProductManagementScreen(driver);
     }
 
     /**
@@ -64,6 +64,7 @@ public class IOSGoSELLERProductManagementTest extends BaseTest {
     @Test(dataProvider = "sortAndFilterOptions")
     public void testProductManagement(String testDescription, String sortFilterOption, String filterValue) {
         LogManager.getLogger().info("Running test: {}", testDescription);
+
         productManagementScreen.navigateToProductManagementScreen();
 
         switch (sortFilterOption) {

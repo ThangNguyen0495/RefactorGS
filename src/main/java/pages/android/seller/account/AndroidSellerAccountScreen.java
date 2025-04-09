@@ -17,15 +17,11 @@ public class AndroidSellerAccountScreen {
     private final By loc_btnLanguage = getLocatorById("%s:id/llLanguage");
     private final By loc_ddvVietnamese = getLocatorById("%s:id/llVietnamese");
     private final By loc_ddvEnglish = getLocatorById("%s:id/llEnglish");
+    private final By loc_btnConfirmChange = getLocatorById("%s:id/tvRightButton");
 
     public void selectLanguage() {
         androidUtils.click(loc_btnLanguage);
-        if (PropertiesUtils.getLangKey().equals("vi")) {
-            androidUtils.click(loc_ddvVietnamese);
-        } else {
-            androidUtils.click(loc_ddvEnglish);
-        }
-
-        androidUtils.relaunchApp();
+        androidUtils.click(PropertiesUtils.getLangKey().equals("vi") ? loc_ddvVietnamese : loc_ddvEnglish);
+        androidUtils.click(loc_btnConfirmChange);
     }
 }

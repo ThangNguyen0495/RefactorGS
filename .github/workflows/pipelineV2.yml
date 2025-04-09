@@ -38,6 +38,7 @@ on:
             "StorefrontProductDetailTest.xml",
             "AndroidGoSELLERCreateProductTest.xml",
             "AndroidGoSELLERUpdateProductTest.xml",
+            "AndroidGoSELLERProductManagement.xml",
             "AndroidGoSELLERSupplierTest.xml",
             "AndroidGoBuyerProductDetail.xml",
             "IOSGoSELLERCreateProductTest.xml",

@@ -18,7 +18,6 @@ import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import pages.android.seller.home.AndroidSellerHomeScreen;
 import pages.android.seller.login.AndroidSellerLoginScreen;
-import pages.android.seller.products.product_management.ProductManagementScreen;
 import utility.AndroidUtils;
 import utility.WebUtils;
 import utility.helper.ActivityHelper;
@@ -238,7 +237,7 @@ public class AndroidBaseProductScreen extends BaseProductElement {
         String productName = APIGetProductDetail.getMainProductName(currentProductInfo, defaultLanguage);
 
         // Navigate to product detail screen
-        new ProductManagementScreen(driver).navigateToProductManagementScreen()
+        new AndroidProductManagementScreen(driver).navigateToProductManagementScreen()
                 .navigateToProductDetailScreen(productName);
 
         // Log

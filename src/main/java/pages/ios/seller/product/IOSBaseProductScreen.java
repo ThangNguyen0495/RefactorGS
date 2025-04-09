@@ -17,7 +17,6 @@ import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 import pages.ios.seller.home.HomeScreen;
 import pages.ios.seller.login.LoginScreen;
-import pages.ios.seller.product.product_management.IOSProductManagementScreen;
 import utility.IOSUtils;
 import utility.WebUtils;
 import utility.helper.ProductHelper;

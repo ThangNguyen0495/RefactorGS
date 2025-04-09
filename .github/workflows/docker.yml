@@ -32,6 +32,7 @@ on:
           [
             "AndroidGoSELLERCreateProductTest.xml",
             "AndroidGoSELLERUpdateProductTest.xml",
+            "AndroidGoSELLERProductManagement.xml",
             "AndroidGoSELLERSupplierTest.xml",
             "AndroidGoBuyerProductDetail.xml"
           ]
