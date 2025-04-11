@@ -72,9 +72,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Load Cached Docker Image
         id: cache-docker
         uses: actions/cache@v4
@@ -107,18 +104,6 @@ jobs:
       - name: Run Maven inside Docker with JDK 22
         run: |
           docker cp . emulator-container:/app
-
-          # Wait until emulator is fully booted
-          boot_completed=""
-          while [ "$boot_completed" != "1" ]; do
-            sleep 5
-            boot_completed=$(docker exec emulator-container adb -s emulator-5554 shell getprop sys.boot_completed | tr -d '\r' | tr -d '\n' || true)
-            echo "Waiting for emulator to boot..."
-          done
-
-          echo "Emulator has booted!"
-
-          docker exec emulator-container adb devices
 
           # Run Maven commands inside the container
           docker exec emulator-container bash -c "
