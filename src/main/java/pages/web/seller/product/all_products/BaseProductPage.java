@@ -202,7 +202,7 @@ public class BaseProductPage extends BaseProductElement {
 
         // Log product info to reproduce issue when it happens
         try {
-            logger.debug("Product helper information: {}", new ObjectMapper().writeValueAsString(newProductInfo));
+            logger.info("Product helper information: {}", new ObjectMapper().writeValueAsString(newProductInfo));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

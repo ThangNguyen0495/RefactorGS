@@ -98,7 +98,7 @@ public class VariationDetailPage {
     public VariationDetailPage navigateToVariationDetailPage() {
         String url = "%s/product/%s/variation-detail/%s/edit".formatted(PropertiesUtils.getDomain(), productInfo.getId(), APIGetProductDetail.getVariationModelId(productInfo, varIndex));
         driver.get(url);
-        logger.debug("Navigating to the variation detail page for variation: {}.", variationValue);
+        logger.info("Navigating to the variation detail page for variation: {}.", variationValue);
 
         return this;
     }
@@ -130,7 +130,7 @@ public class VariationDetailPage {
      * Saves the changes made to the product variation information (name, description, and other details).
      */
     private void saveChange() {
-        logger.debug("Saving changes for variation: {}.", variationValue);
+        logger.info("Saving changes for variation: {}.", variationValue);
 
         // Click the save button to confirm changes
         webUtils.click(loc_btnSave);
@@ -153,12 +153,12 @@ public class VariationDetailPage {
         // Handle special case for English when the current language is Vietnamese
         if (languageCode.equals("en") && webUtils.getLocalStorageValue("langKey").equals("vi")) {
             languageName = "Tiếng Anh";
-            logger.debug("[{}] Adjusted language name to Vietnamese: {}.", variation, languageName);
+            logger.info("[{}] Adjusted language name to Vietnamese: {}.", variation, languageName);
         }
 
         // If the current language in the dropdown is not the target language, switch it
         if (!webUtils.getText(loc_dlgEditTranslation_selectedLanguage).equals(languageName)) {
-            logger.debug("[{}] Changing selected language from {} to {}.", variation,
+            logger.info("[{}] Changing selected language from {} to {}.", variation,
                     webUtils.getText(loc_dlgEditTranslation_selectedLanguage), languageName);
             webUtils.click(loc_dlgEditTranslation_selectedLanguage);
             webUtils.click(loc_dlgEditTranslation_languageInDropdown(languageName));
@@ -193,11 +193,11 @@ public class VariationDetailPage {
         updateVariationProductDescription(defaultLanguage);
 
         // Complete the process of updating the product's version name and description
-        logger.debug("Completing update for product version name and description.");
+        logger.info("Completing update for product version name and description.");
         saveChange();
 
         // Open the translation editing dialog
-        logger.debug("Opening the translation editing dialog.");
+        logger.info("Opening the translation editing dialog.");
         WebUtils.retryUntil(5, 1000,
                 "Cannot open variation translation popup after 5 retries",
                 () -> !webUtils.getListElement(loc_dlgEditTranslation).isEmpty(),
@@ -224,7 +224,7 @@ public class VariationDetailPage {
         logger.info("Starting status change for variation: {}.", variationValue);
 
         // Change variation status
-        logger.debug("Clicking the button to change variation status.");
+        logger.info("Clicking the button to change variation status.");
         webUtils.clickJS(loc_btnDeactivate);
 
         // Log status change
@@ -241,43 +241,43 @@ public class VariationDetailPage {
         logger.info("[{}] Starting update of variation attribution.", variationValue);
 
         // Uncheck the "Reuse Parent Attribution" checkbox to allow for custom attributions
-        logger.debug("[{}] Unchecking 'Reuse Parent Attribution' checkbox.", variationValue);
+        logger.info("[{}] Unchecking 'Reuse Parent Attribution' checkbox.", variationValue);
         webUtils.uncheckCheckbox(loc_chkReUseParentAttribution);
 
         // Remove any existing attributions before adding new ones
         if (!productInfo.getItemAttributes().isEmpty()) {
             int bound = webUtils.getListElement(loc_icnDeleteAttribution).size();
-            logger.debug("[{}] Found {} existing attributions to delete.", variationValue, bound);
+            logger.info("[{}] Found {} existing attributions to delete.", variationValue, bound);
 
             // Iterate through the existing attributions in reverse order and delete them
             IntStream.range(0, bound).forEach(index -> {
-                logger.debug("[{}] Deleting attribution at index {}.", variationValue, bound - index - 1);
+                logger.info("[{}] Deleting attribution at index {}.", variationValue, bound - index - 1);
                 webUtils.clickJS(loc_icnDeleteAttribution, bound - index - 1);
             });
         } else {
-            logger.debug("[{}] No existing attributions found.", variationValue);
+            logger.info("[{}] No existing attributions found.", variationValue);
         }
 
         // Retrieve model attributes for the specified variation index
         var modelAttribute = productInfo.getModels().get(varIndex).getModelAttributes();
-        logger.debug("[{}] Retrieved {} model attributes.", variationValue, modelAttribute.size());
+        logger.info("[{}] Retrieved {} model attributes.", variationValue, modelAttribute.size());
 
         // For each model attribute, click to add a new attribution entry
         IntStream.range(0, modelAttribute.size()).forEachOrdered(ignored -> {
-            logger.debug("[{}] Adding new attribution entry.", variationValue);
+            logger.info("[{}] Adding new attribution entry.", variationValue);
             webUtils.clickJS(loc_lnkAddAttribution);
         });
 
         // Populate the attribution fields with names, values, and display settings
         IntStream.range(0, modelAttribute.size()).forEach(attIndex -> {
-            logger.debug("[{}] Updating attribution field for attribute index {}.", variationValue, attIndex);
+            logger.info("[{}] Updating attribution field for attribute index {}.", variationValue, attIndex);
 
             // Send the attribute name to the corresponding input field
-            logger.debug("[{}] Setting attribution name: {}.", variationValue, modelAttribute.get(attIndex).getAttributeName());
+            logger.info("[{}] Setting attribution name: {}.", variationValue, modelAttribute.get(attIndex).getAttributeName());
             webUtils.sendKeys(loc_txtAttributionName, attIndex, modelAttribute.get(attIndex).getAttributeName());
 
             // Send the attribute value to the corresponding input field
-            logger.debug("[{}] Setting attribution value: {}.", variationValue, modelAttribute.get(attIndex).getAttributeValue());
+            logger.info("[{}] Setting attribution value: {}.", variationValue, modelAttribute.get(attIndex).getAttributeValue());
             webUtils.sendKeys(loc_txtAttributionValue, attIndex, modelAttribute.get(attIndex).getAttributeValue());
 
             // Check if the display setting matches the model attribute and update it accordingly
@@ -287,11 +287,11 @@ public class VariationDetailPage {
             } else {
                 webUtils.uncheckCheckbox(loc_chkDisplayAttribution, attIndex);
             }
-            logger.debug("[{}] Updated display setting for attribute index {}: {}.", variationValue, attIndex, isDisplay);
+            logger.info("[{}] Updated display setting for attribute index {}: {}.", variationValue, attIndex, isDisplay);
         });
 
         // Save attribution changes
-        logger.debug("[{}] Saving attribution changes.", variationValue);
+        logger.info("[{}] Saving attribution changes.", variationValue);
         saveChange();
 
         logger.info("[{}] Completed updating variation attribution.", variationValue);

@@ -143,22 +143,22 @@ public class EditTranslationPopup {
                 .distinct().toArray(String[]::new)).sorted().toList();
 
         // Log variation names before sending keys
-        logger.debug("Variation names: {}", variationName);
+        logger.info("Variation names: {}", variationName);
 
         // Input variation names with debug logs
         IntStream.range(0, variationName.size())
                 .forEachOrdered(variationNameIndex -> {
-                    logger.debug("Sending variation name: {}", variationName.get(variationNameIndex));
+                    logger.info("Sending variation name: {}", variationName.get(variationNameIndex));
                     webUtils.sendKeys(loc_dlgEditTranslation_txtVariationName, variationNameIndex, variationName.get(variationNameIndex));
                 });
 
         // Log variation values before sending keys
-        logger.debug("Variation values: {}", variationValue);
+        logger.info("Variation values: {}", variationValue);
 
         // Input variation values with debug logs
         IntStream.range(0, variationValue.size())
                 .forEachOrdered(variationValueIndex -> {
-                    logger.debug("Sending variation value: {}", variationValue.get(variationValueIndex));
+                    logger.info("Sending variation value: {}", variationValue.get(variationValueIndex));
                     webUtils.sendKeys(loc_dlgEditTranslation_txtVariationValue, variationValueIndex, variationValue.get(variationValueIndex));
                 });
     }
