@@ -95,17 +95,19 @@ jobs:
       - name: Start Docker Container
         run: |
           docker run -d --name emulator-container --privileged \
+            -v ${{ github.workspace }}:/app \
             thangnguyen0495/android-appium:latest
 
       - name: Wait for Emulator to Start
         run: |
           docker logs emulator-container
 
-      - name: Run Maven inside Docker with JDK 22
+      - name: Run Maven Install inside Container
         run: |
-          docker cp . emulator-container:/app
+          docker exec emulator-container bash -c "cd /app && mvn install -DskipTests"
 
-          # Run Maven commands inside the container
+      - name: Run Maven Tests inside Container
+        run: |
           docker exec emulator-container bash -c "
             cd /app && \
             mvn install -DskipTests && \
