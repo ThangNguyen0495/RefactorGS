@@ -98,9 +98,10 @@ jobs:
             -v ${{ github.workspace }}:/app \
             thangnguyen0495/android-appium:latest
 
-      - name: Wait for Emulator to Start
+      - name: Start emulator and appium by bash scripts
         run: |
-          docker logs emulator-container
+          docker exec emulator-container chmod +x /app/entrypoint.sh
+          docker exec emulator-container /app/entrypoint.sh
 
       - name: Run Maven Install inside Container
         run: |
