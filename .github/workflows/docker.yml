@@ -30,6 +30,12 @@ on:
           List of test configurations (JSON format). 
           Example: 
           [
+            "DashboardLoginTest.xml",
+            "DashboardSupplierTest.xml",
+            "DashboardCreateProductTest.xml",
+            "DashboardUpdateProductTest.xml",
+            "DashboardProductManagementTest.xml",
+            "StorefrontProductDetailTest.xml",
             "AndroidGoSELLERCreateProductTest.xml",
             "AndroidGoSELLERUpdateProductTest.xml",
             "AndroidGoSELLERProductManagement.xml",
@@ -69,57 +75,48 @@ jobs:
           fi
           echo "user_type=$user_type" >> $GITHUB_ENV
 
+      - name: Set Platform and Docker hub repository
+        run: |
+          if [[ ! "${{ matrix.xmlConfiguration }}" =~ "IOS" && ! "${{ matrix.xmlConfiguration }}" =~ "Android" ]]; then
+            echo "dockerRepo=thangnguyen0495/android-appium:latest" >> $GITHUB_ENV
+            echo "platform=web" >> $GITHUB_ENV
+          elif [[ "${{ matrix.xmlConfiguration }}" =~ "Android" ]]; then
+            echo "dockerRepo=thangnguyen0495/chrome-selenium:latest" >> $GITHUB_ENV
+            echo "platform=android" >> $GITHUB_ENV
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Load Cached Docker Image
-        id: cache-docker
-        uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}/.docker-cache
-          key: ${{ runner.os }}-docker-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-docker-
-
-      - name: Pull Docker Image
-        if: steps.cache-docker.outputs.cache-hit != 'true'
-        run: |
-          docker pull thangnguyen0495/android-appium:latest
-          mkdir -p ${{ github.workspace }}/.docker-cache
-          docker save -o ${{ github.workspace }}/.docker-cache/android-appium.tar thangnguyen0495/android-appium:latest
-
-      - name: Load Cached Docker Image
-        if: steps.cache-docker.outputs.cache-hit == 'true'
-        run: docker load -i ${{ github.workspace }}/.docker-cache/android-appium.tar
-
       - name: Start Docker Container
         run: |
-          docker run -d --name emulator-container --privileged \
+          docker run -d --name container --privileged \
             -v ${{ github.workspace }}:/app \
-            thangnguyen0495/android-appium:latest
+            ${{ env.dockerRepo }}
 
       - name: Start emulator and appium by bash scripts
+        if: contains(matrix.xmlConfiguration, 'Android')
         run: |
-          docker exec emulator-container chmod +x /app/entrypoint.sh
-          docker exec emulator-container /app/entrypoint.sh
+          docker exec container chmod +x /app/entrypoint.sh
+          docker exec container /app/entrypoint.sh
 
       - name: Run Maven Install inside Container
         run: |
-          docker exec emulator-container bash -c "cd /app && mvn install -DskipTests"
+          docker exec container bash -c "cd /app && mvn install -DskipTests"
 
       - name: Run Maven Tests inside Container
         run: |
-          docker exec emulator-container bash -c "
+          docker exec container bash -c "
             cd /app && \
             mvn install -DskipTests && \
             echo '${{ secrets.ENV_FILES }}' > src/main/resources/config.properties && \
             echo '${{ vars.APP_URL }}' >> src/main/resources/config.properties && \
             echo '${{ vars.REUSE_VARIABLE }}' >> src/main/resources/config.properties && \
-            mvn test -DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/android/${{ env.user_type }}/${{ matrix.xmlConfiguration }}"
+            mvn test -DsuiteFile=src/test/resources/${{ env.TEST_TYPE }}/${{ env.platform }}/${{ env.user_type }}/${{ matrix.xmlConfiguration }}"
 
       - name: Copy Test Reports from Container
         if: always()
-        run: docker cp emulator-container:/app/target/ExtentReport.html ./${{ env.test_name }}.html
+        run: docker cp container:/app/target/ExtentReport.html ./${{ env.test_name }}.html
 
       - name: Upload Test Reports
         if: always()
