@@ -106,6 +106,9 @@ jobs:
           echo "Cache miss, pulling image from Docker Hub"
           docker pull ${{ env.dockerRepo }}
           
+          # Ensure the cache directory exists
+          mkdir -p ${{ github.workspace }}/.buildx-cache
+    
           # Save the pulled Docker image to cache
           echo "Saving Docker image to cache folder"
           docker save ${{ env.dockerRepo }} | gzip > ${{ github.workspace }}/.buildx-cache/$(basename ${{ env.dockerRepo }}).tar.gz
