@@ -46,7 +46,7 @@ on:
         type: string
         default: '[]'
 
-run-name: "[${{ github.event.inputs.environment }}][${{ github.event.inputs.testType }}] Run android test with Docker image ${{ github.event.inputs.test_configs }}"
+run-name: "[${{ github.event.inputs.environment }}][${{ github.event.inputs.testType }}] Run test with Docker image ${{ github.event.inputs.test_configs }}"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.inputs.environment }}-${{ github.event.inputs.testType }}-${{ github.event.inputs.test_configs }}
