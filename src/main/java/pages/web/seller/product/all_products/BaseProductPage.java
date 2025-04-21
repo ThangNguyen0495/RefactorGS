@@ -8,8 +8,6 @@ import api.seller.setting.APIGetStoreDefaultLanguage;
 import api.seller.setting.APIGetStoreLanguage;
 import api.seller.setting.APIGetVATList;
 import api.seller.user_feature.APIGetUserFeature;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -199,13 +197,6 @@ public class BaseProductPage extends BaseProductElement {
 
         // Generate product information using the InitProductInfo object
         this.newProductInfo = ProductHelper.generateProductInformation(initProductInfo);
-
-        // Log product info to reproduce issue when it happens
-        try {
-            logger.info("Product helper information: {}", new ObjectMapper().writeValueAsString(newProductInfo));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     /**
