@@ -64,6 +64,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Set User Type
         run: |
           test_name=$(basename "${{ matrix.xmlConfiguration }}" .xml)
@@ -75,18 +78,24 @@ jobs:
           fi
           echo "user_type=$user_type" >> $GITHUB_ENV
 
-      - name: Set Platform and Docker hub repository
-        run: |
-          if [[ ! "${{ matrix.xmlConfiguration }}" =~ "IOS" && ! "${{ matrix.xmlConfiguration }}" =~ "Android" ]]; then
-            echo "dockerRepo=thangnguyen0495/chrome-selenium:latest" >> $GITHUB_ENV
-            echo "platform=web" >> $GITHUB_ENV
-          elif [[ "${{ matrix.xmlConfiguration }}" =~ "Android" ]]; then
-            echo "dockerRepo=thangnguyen0495/android-appium:latest" >> $GITHUB_ENV
-            echo "platform=android" >> $GITHUB_ENV
-          fi
+      - name: Cache Docker layers
+        id: cache-docker
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.buildx-cache
+          key: ${{ runner.os }}-${{ steps.dockerinfo.outputs.platform }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.dockerinfo.outputs.platform }}-
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Pull Docker image from Docker Hub
+        if: steps.cache-docker.outputs.cache-hit != 'true'
+        run: |
+          echo "Cache miss, pulling image from Docker Hub"
+          docker pull ${{ env.dockerRepo }}
+          
+          # Save the pulled Docker image to cache
+          echo "Saving Docker image to cache folder"
+          docker save ${{ env.dockerRepo }} | gzip > ${{ github.workspace }}/.buildx-cache/$(basename ${{ env.dockerRepo }}).tar.gz
 
       - name: Start Docker Container
         run: |
