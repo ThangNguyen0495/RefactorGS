@@ -1,4 +1,4 @@
-name: Run Android Test with Docker image
+name: Run Test with Docker image
 
 on:
   workflow_dispatch:
@@ -68,7 +68,7 @@ jobs:
         run: |
           test_name=$(basename "${{ matrix.xmlConfiguration }}" .xml)
           echo "test_name=$test_name" >> $GITHUB_ENV
-          if echo "$test_name" | grep -qE "SELLER"; then
+          if echo "$test_name" | grep -qE "Dashboard|SELLER"; then
             user_type="seller"
           else
             user_type="buyer"
