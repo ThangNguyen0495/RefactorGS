@@ -78,6 +78,19 @@ jobs:
           fi
           echo "user_type=$user_type" >> $GITHUB_ENV
 
+      - name: Set Platform
+        id: dockerinfo
+        run: |
+          if [[ "${{ matrix.xmlConfiguration }}" =~ "Android" ]]; then
+            echo "dockerRepo=thangnguyen0495/android-appium:latest" >> $GITHUB_ENV
+            echo "platform=android" >> $GITHUB_ENV
+            echo "::set-output name=platform::android"
+          else
+            echo "dockerRepo=thangnguyen0495/chrome-selenium:latest" >> $GITHUB_ENV
+            echo "platform=web" >> $GITHUB_ENV
+            echo "::set-output name=platform::web"
+          fi
+
       - name: Cache Docker layers
         id: cache-docker
         uses: actions/cache@v4
