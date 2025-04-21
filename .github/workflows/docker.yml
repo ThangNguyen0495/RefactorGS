@@ -86,7 +86,7 @@ jobs:
             echo "platform=android" >> $GITHUB_ENV
             echo "::set-output name=platform::android"
           else
-            echo "dockerRepo=thangnguyen0495/chrome-selenium:latest" >> $GITHUB_ENV
+            echo "dockerRepo=thangnguyen0495/browser-selenium:latest" >> $GITHUB_ENV
             echo "platform=web" >> $GITHUB_ENV
             echo "::set-output name=platform::web"
           fi
